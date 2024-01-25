@@ -15,7 +15,7 @@
 ## Architecture diagram
 
 ```mermaid
-graph TD
+graph TB
   subgraph GitHubSources[GitHub]
     Issues(Issues)
     PullRequests(Pull Requests)
@@ -44,6 +44,7 @@ graph TD
   Embeddings .-> VectorStoreInsert
 
   subgraph UserInterfaces[User Interfaces]
+    direction TB
     Element
     GitHub
   end
