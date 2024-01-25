@@ -57,6 +57,7 @@ graph TB
   end
 
   subgraph Toolkits
+    direction TB
     GitHubAction[GitHub]
     WebSearchAction[Web Search]
   end
