@@ -20,8 +20,8 @@ graph TD
     Element
   end
 
-  subgraph WisdomSources[Wisdom sources]
-    GitHubSource[GitHub]
+  subgraph WisdomSource[Wisdom source]
+    SourceA[Source A]
   end
 
   Input --> ResourcePlanning
@@ -47,9 +47,9 @@ graph TD
   MessagesAPI -->|User sends a query to the agent as input| Input
   MessagesAPI -->|Chat history and participants\nwith description about roles| Context
 
-  GitHubSource --> GitHubAPI[GitHub API]
-  GitHubAPI .->|Get partial resources| ResourceDiscovery
-  GitHubAPI .->|Get full resources| ResourceAcquisition
+  SourceA --> SourceAPI[Source API]
+  SourceAPI .->|Get partial resources| ResourceDiscovery
+  SourceAPI .->|Get full resources| ResourceAcquisition
 
   Output -->|Reply to the user with the response.\nOther people/agents can be mentioned as well| MessageReply[Message reply]
 ```
