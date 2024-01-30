@@ -12,78 +12,44 @@
 
 *WALL-e* is an advanced AI-driven system, primarily using GitHub as its knowledge base. It's designed to assist in various aspects of software development, from code analysis to project management.
 
-## Architecture diagram
+## Agent architecture
 
 ```mermaid
-graph TB
-  subgraph GitHubSources[GitHub]
-    Issues(Issues)
-    PullRequests(Pull Requests)
-    Wikis(Wikis)
-    Discussions(Discussions)
-  end
-
-  subgraph WisdomSources[Wisdom Sources]
-    GitHubSources
-  end
-
-  subgraph EmbeddingModel[Embedding Model]
-    Transform[[Transform]]
-    Embed[[Transform]]
-  end
-
-  Transform --> Embed
-
-  subgraph VectorStore[Vector Store]
-    VectorStoreInsert[Insert]
-    VectorStoreQuery[Query]
-  end
-
-  WisdomSources --> WebhookEvents[Webhook Events]
-  WebhookEvents .->|Updates vector store whenever there's new content| EmbeddingModel
-  Embeddings .-> VectorStoreInsert
-
-  subgraph UserInterfaces[User Interfaces]
-    direction TB
+graph TD
+  subgraph UserInterfaces[User interfaces]
     Element
-    GitHub
   end
+
+  subgraph WisdomSources[Wisdom sources]
+    GitHubSource[GitHub]
+  end
+
+  Input --> ResourcePlanning
+  Context --> ResourcePlanning
+
+  ResourcePlanning -->|"Formulate request(s) that\nwill be sent to the API"| ResourceDiscovery
+  ResourceDiscovery -->|Decide which resources are\nthe most relevant| ResourceAcquisition
+  ResourceAcquisition -->|"Collect the full version of the relevant resources"| ResourceEvaluation
+  ResourceEvaluation -->|Use input, context and resources\nto generate a response to the user query| Output
 
   subgraph Agent
     Input[\Input/]
-    PromptTemplate{{Prompt Template}}
-    LLM(LLM)
-    Actions[/Actions/]
+    Context[\Context/]
+    Output[/Output/]
+
+    ResourcePlanning[Resource planning]
+    ResourceDiscovery[Resource discovery]
+    ResourceAcquisition[Resource acquisition]
+    ResourceEvaluation[Resource evaluation]
   end
 
-  subgraph Toolkits
-    direction TB
-    GitHubAction[GitHub]
-    WebSearchAction[Web Search]
-  end
+  UserInterfaces --> MessagesAPI[Messages API]
+  MessagesAPI -->|User sends a query to the agent as input| Input
+  MessagesAPI -->|Chat history and participants\nwith description about roles| Context
 
-  subgraph AgentExecutor[Agent Executor]
-    Agent
-    Toolkits
-  end
+  GitHubSource --> GitHubAPI[GitHub API]
+  GitHubAPI .->|Get partial resources| ResourceDiscovery
+  GitHubAPI .->|Get full resources| ResourceAcquisition
 
-  Embeddings[/Embeddings/]
-
-  UserInterfaces -->|Users will send queries through the available UIs| Input
-  Input --> EmbeddingModel
-  Embeddings --> VectorStoreQuery
-  Input -->|The input is also added to the prompt template| PromptTemplate
-  EmbeddingModel --> Embeddings
-
-  subgraph RetrievedDocuments[Retrieved Documents]
-    Document1[/Document 1/]
-    Document2[/Document 2/]
-    DocumentN[/Document N/]
-  end
-
-  VectorStoreQuery --> RetrievedDocuments
-  RetrievedDocuments --> PromptTemplate
-  PromptTemplate --> LLM
-  LLM --> Actions
-  Actions -->|Executes actions via toolkits| Toolkits
+  Output -->|Reply to the user with the response.\nOther people/agents can be mentioned as well| MessageReply[Message reply]
 ```
