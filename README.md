@@ -17,7 +17,7 @@
 ```mermaid
 graph TD
   subgraph UserInterfaces[User interfaces]
-    Element
+    Matrix
   end
 
   subgraph WisdomSource[Wisdom source]
@@ -44,12 +44,12 @@ graph TD
   end
 
   UserInterfaces --> MessagesAPI[Messages API]
-  MessagesAPI -->|User sends a query to the agent as input| Input
-  MessagesAPI -->|Chat history and participants\nwith description about roles| Context
+  MessagesAPI -->|Conversation participant sends a query to the agent as input| Input
+  MessagesAPI -->|Chat history and participants\n list with with descriptions| Context
 
   SourceA --> SourceAPI[Source API]
   SourceAPI .->|Get partial resources| ResourceDiscovery
   SourceAPI .->|Get full resources| ResourceAcquisition
 
-  Output -->|Reply to the user with the response.\nOther people/agents can be mentioned as well| MessageReply[Message reply]
+  Output -->|Reply to the user with the response.\nOther conversation participants can be mentioned for more complex logic| MessageReply[Message reply]
 ```
