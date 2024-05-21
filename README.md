@@ -10,7 +10,7 @@
 
 ## What's WALL-e?
 
-*WALL-e* is an advanced AI-driven system, primarily using GitHub as its knowledge base. It's designed to assist in various aspects of software development, from code analysis to project management.
+_WALL-e_ is an advanced AI-driven system, primarily using GitHub as its knowledge base. It's designed to assist in various aspects of software development, from code analysis to project management.
 
 ## Agent architecture
 
