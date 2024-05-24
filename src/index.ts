@@ -33,12 +33,14 @@ export default {
 
 					case 'generate':
 						{
+							const workingCommentId = await github.postComment(event, 'Working on it... ⚙️');
+
 							// 1. Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(event);
 							if (changedFiles.length === 0) {
 								const body =
 									'Please change the test file in this pull request. It should contain new requirements for the code you will need me to write.';
-								await github.postComment(event, body);
+								await github.postComment(event, body, workingCommentId);
 								return;
 							}
 
@@ -51,7 +53,7 @@ export default {
 							if (testFilesContents.length === 0) {
 								const body =
 									'No changes to the test file were found. It should contain new requirements for the code you will need me to write.';
-								await github.postComment(event, body);
+								await github.postComment(event, body, workingCommentId);
 								return;
 							}
 
@@ -79,14 +81,22 @@ export default {
 								if (!completedCode) {
 									await github.postComment(
 										event,
-										`No code was generated. Please try again.\n\nDebug info: ${testFilesContents.join('\n')}`,
+										`No code was generated. Please try again.\n\nDebug info: ${testFilesContents.map(file => '```\n' + file + '\n```').join('\n')}`,
+										workingCommentId,
 									);
 									return;
 								}
 
 								// 4. Write the generated files (src/index.ts) to the pull request's branch
 								const file = { path: 'src/index.ts', content: completedCode };
-								await github.pushFileToPullRequest(event, file, 'feat: generated code 🤖');
+								await github
+									.pushFileToPullRequest(event, file, 'feat: generated code 🤖')
+									.then(async () => {
+										await github.postComment(event, 'Code generated successfully! 🎉', workingCommentId);
+									})
+									.catch(async (error) => {
+										await github.postComment(event, `An error occurred while pushing the code: ${error}`, workingCommentId);
+									});
 							}
 
 							ctx.waitUntil(generateCode());

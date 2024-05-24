@@ -113,21 +113,32 @@ export class GitHub {
 		});
 	}
 
-	public async postComment(event: EmitterWebhookEvent<'issue_comment'>, body: string) {
+	public async postComment(event: EmitterWebhookEvent<'issue_comment'>, body: string, id?: number) {
 		const octokit = await this.octokit;
-		const comment = await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
-			owner: event.payload.repository.owner.login,
-			repo: event.payload.repository.name,
-			issue_number: event.payload.issue.number,
-			body: body,
-		});
 
-		if (comment.status !== 201) {
-			this.app.log.error('Failed to send comment', event);
-			return false;
+		let comment: { status: number; data: { id: number } };
+		if (id) {
+			comment = await octokit.request('PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}', {
+				owner: event.payload.repository.owner.login,
+				repo: event.payload.repository.name,
+				comment_id: id,
+				body: body,
+			});
+		} else {
+			comment = await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+				owner: event.payload.repository.owner.login,
+				repo: event.payload.repository.name,
+				issue_number: event.payload.issue.number,
+				body: body,
+			});
 		}
 
-		return true;
+		if (comment.status !== 200 && comment.status !== 201) {
+			this.app.log.error('Failed to send comment', event);
+			return -1;
+		}
+
+		return comment.data.id;
 	}
 
 	public async getIssueComments(event: EmitterWebhookEvent<'issue_comment'>) {
