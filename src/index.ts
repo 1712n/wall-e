@@ -32,25 +32,7 @@ export default {
 
 					case 'generate':
 						{
-							// 1. Get the description and all user(s) comments in the pull request
-							const description = event.payload.issue.body;
-							if (!description) {
-								await github.postComment(event, "I'm not sure what to generate. Please provide a description of the task.");
-								return;
-							}
-
-							const allComments = await github.getIssueComments(event);
-							const relevantComments = allComments
-								.filter((comment) => {
-									if (!comment.user || !comment.body) {
-										return false;
-									}
-
-									return comment.user.type === 'User' && !comment.body.startsWith('/');
-								})
-								.map((comment) => comment.body!);
-
-							// 2. Get a list of test files in the repository
+							// 1. Get the test file from the repository
 							const testDirFiles = await github.listRepositoryFiles(event, 'test');
 							if (testDirFiles.length === 0) {
 								await github.postComment(event, `No test files found in the 'test' directory. How will I know if my code passes your expectations? 🤔`);
@@ -59,20 +41,18 @@ export default {
 
 							let testFilesContents = await Promise.all(
 								testDirFiles
-									.filter((file) => file.path.match(/^test\/.*\.(test|spec)\.ts$/))
+									.filter((file) => file.path.match(/^test\/index.(test|spec)\.ts$/))
 									.map((file) => fetch(file.download_url).then((response) => response.text()))
 							);
 
-							// 3. Compile the above into the prompt template
+							// 2. Compile the above into the prompt template
 							const prompt = buildPrompt({
-								description: description,
-								comments: relevantComments,
 								files: testFilesContents,
 							});
 							await github.postComment(event, prompt);
 
-							// 4. Send the prompt to a LLM (i.e: GPT-4)
-							// 5. Write the generated files (src/index.ts) to the pull request's branch
+							// 3. Send the prompt to a LLM (i.e: GPT-4)
+							// 4. Write the generated files (src/index.ts) to the pull request's branch
 						}
 						break;
 
