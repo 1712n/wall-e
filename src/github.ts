@@ -7,7 +7,7 @@ type UserCommand = {
 	args?: string[];
 };
 
-type InvokedActionHandler = (event: EmitterWebhookEvent<'issue_comment'>, command: UserCommand) => Promise<void>;
+type InvokedActionHandler = (command: UserCommand, event: EmitterWebhookEvent<'issue_comment'>) => Promise<void>;
 
 type VerifyRequestParams = {
 	headers: Headers;
@@ -72,7 +72,7 @@ export class GitHub {
 				name: name.replace('/', ''),
 				args,
 			};
-			await handler(event, command);
+			await handler(command, event);
 		});
 
 		this.ready = true;
@@ -129,12 +129,36 @@ export class GitHub {
 		return true;
 	}
 
-	public async getRepoContents(event: EmitterWebhookEvent<'issue_comment'>, path: string) {
+	public async getIssueComments(event: EmitterWebhookEvent<'issue_comment'>) {
 		const octokit = await this.octokit;
-		return octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+		const result = await octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
+			owner: event.payload.repository.owner.login,
+			repo: event.payload.repository.name,
+			issue_number: event.payload.issue.number,
+			per_page: 100,
+		});
+
+		if (result.status !== 200) {
+			this.app.log.error('Failed to get issue comments', event);
+			return [];
+		}
+
+		return result.data;
+	}
+
+	public async listRepositoryFiles(event: EmitterWebhookEvent<'issue_comment'>, path: string = '.') {
+		const octokit = await this.octokit;
+		const result = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
 			owner: event.payload.repository.owner.login,
 			repo: event.payload.repository.name,
 			path: path,
 		});
+
+		if (result.status !== 200) {
+			this.app.log.error('Failed to get repo contents', event);
+			return [];
+		}
+
+		return result.data as { name: string; path: string; type: string; download_url: string }[];
 	}
 }
