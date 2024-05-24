@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { App } from '@octokit/app';
 import { Octokit } from '@octokit/core';
 import { EmitterWebhookEvent } from '@octokit/webhooks';
@@ -146,19 +147,107 @@ export class GitHub {
 		return result.data;
 	}
 
-	public async listRepositoryFiles(event: EmitterWebhookEvent<'issue_comment'>, path: string = '.') {
+	public async listPullRequestFiles(event: EmitterWebhookEvent<'issue_comment'>) {
 		const octokit = await this.octokit;
-		const result = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+		const result = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
 			owner: event.payload.repository.owner.login,
 			repo: event.payload.repository.name,
-			path: path,
+			pull_number: event.payload.issue.number,
 		});
 
 		if (result.status !== 200) {
-			this.app.log.error('Failed to get repo contents', event);
+			this.app.log.error('Failed to get pull request files', event);
 			return [];
 		}
 
-		return result.data as { name: string; path: string; type: string; download_url: string }[];
+		return result.data as { filename: string; status: string; sha: string }[];
+	}
+
+	public async fetchFileContents(event: EmitterWebhookEvent<'issue_comment'>, sha: string) {
+		const octokit = await this.octokit;
+		const result = await octokit.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
+			owner: event.payload.repository.owner.login,
+			repo: event.payload.repository.name,
+			file_sha: sha,
+		});
+
+		if (result.status !== 200) {
+			this.app.log.error('Failed to get file contents', event);
+			return '';
+		}
+
+		return Buffer.from(result.data.content, 'base64').toString('utf8');
+	}
+
+	public async pushFileToPullRequest(
+		event: EmitterWebhookEvent<'issue_comment'>,
+		file: { path: string; content: string },
+		commitMessage: string,
+	) {
+		const octokit = await this.octokit;
+		const owner = event.payload.repository.owner.login;
+		const repo = event.payload.repository.name;
+
+		const { data: pullRequest } = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', {
+			owner: owner,
+			repo: repo,
+			pull_number: event.payload.issue.number,
+		});
+
+		const branchName = pullRequest.head.ref;
+
+		const { data: refData } = await octokit.request('GET /repos/{owner}/{repo}/git/ref/heads/{branch}', {
+			owner: owner,
+			repo: repo,
+			branch: branchName,
+		});
+
+		const latestCommitSha = refData.object.sha;
+
+		const { data: latestCommit } = await octokit.request('GET /repos/{owner}/{repo}/git/commits/{commit_sha}', {
+			owner: owner,
+			repo: repo,
+			commit_sha: latestCommitSha,
+		});
+
+		const baseTreeSha = latestCommit.tree.sha;
+
+		const { data: blob } = await octokit.request('POST /repos/{owner}/{repo}/git/blobs', {
+			owner: owner,
+			repo: repo,
+			content: file.content,
+			encoding: 'utf-8',
+		});
+
+		const { data: tree } = await octokit.request('POST /repos/{owner}/{repo}/git/trees', {
+			owner: owner,
+			repo: repo,
+			base_tree: baseTreeSha,
+			tree: [
+				{
+					path: file.path,
+					mode: '100644', // Regular file
+					type: 'blob',
+					sha: blob.sha,
+				},
+			],
+		});
+
+		const { data: newCommit } = await octokit.request('POST /repos/{owner}/{repo}/git/commits', {
+			owner: owner,
+			repo: repo,
+			message: commitMessage,
+			tree: tree.sha,
+			parents: [latestCommitSha],
+		});
+
+		await octokit.request('PATCH /repos/{owner}/{repo}/git/refs/heads/{branch}', {
+			owner: owner,
+			repo: repo,
+			branch: branchName,
+			sha: newCommit.sha,
+		});
+
+		return newCommit;
 	}
 }

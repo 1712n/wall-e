@@ -1,5 +1,6 @@
+import Anthropic from '@anthropic-ai/sdk';
 import { GitHub } from './github';
-import { buildPrompt } from './llm';
+import { buildPrompt, extractXMLContent } from './llm';
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -33,26 +34,62 @@ export default {
 					case 'generate':
 						{
 							// 1. Get the test file from the repository
-							const testDirFiles = await github.listRepositoryFiles(event, 'test');
-							if (testDirFiles.length === 0) {
-								await github.postComment(event, `No test files found in the 'test' directory. How will I know if my code passes your expectations? 🤔`);
+							const changedFiles = await github.listPullRequestFiles(event);
+							if (changedFiles.length === 0) {
+								const body =
+									'Please change the test file in this pull request. It should contain new requirements for the code you will need me to write.';
+								await github.postComment(event, body);
 								return;
 							}
 
 							let testFilesContents = await Promise.all(
-								testDirFiles
-									.filter((file) => file.path.match(/^test\/index.(test|spec)\.ts$/))
-									.map((file) => fetch(file.download_url).then((response) => response.text()))
+								changedFiles
+									.filter((file) => file.filename.match(/^test\/index.(test|spec)\.ts$/))
+									.map((file) => github.fetchFileContents(event, file.sha).then((content) => content)),
 							);
 
-							// 2. Compile the above into the prompt template
+							if (testFilesContents.length === 0) {
+								const body =
+									'No changes to the test file were found. It should contain new requirements for the code you will need me to write.';
+								await github.postComment(event, body);
+								return;
+							}
+
+							// 2. Compile the above files into the prompt template
 							const prompt = buildPrompt({
 								files: testFilesContents,
 							});
-							await github.postComment(event, prompt);
 
-							// 3. Send the prompt to a LLM (i.e: GPT-4)
-							// 4. Write the generated files (src/index.ts) to the pull request's branch
+							// 3. Send the prompt to the LLM
+							const anthropic = new Anthropic({
+								apiKey: env.ANTHROPIC_API_KEY,
+							});
+
+							async function generateCode() {
+								const output = await anthropic.messages.create({
+									model: 'claude-3-opus-20240229',
+									max_tokens: 1024,
+									messages: [{ role: 'user', content: prompt }],
+								});
+
+								const text = output.content[0].text;
+								const parsedText = extractXMLContent(text);
+
+								const completedCode = parsedText['completed_code'] ?? '';
+								if (!completedCode) {
+									await github.postComment(
+										event,
+										`No code was generated. Please try again.\n\nDebug info: ${testFilesContents.join('\n')}`,
+									);
+									return;
+								}
+
+								// 4. Write the generated files (src/index.ts) to the pull request's branch
+								const file = { path: 'src/index.ts', content: completedCode };
+								await github.pushFileToPullRequest(event, file, 'feat: generated code 🤖');
+							}
+
+							ctx.waitUntil(generateCode());
 						}
 						break;
 

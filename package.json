@@ -11,6 +11,7 @@
 		"format:write": "prettier --write src/ test/"
 	},
 	"devDependencies": {
+		"@anthropic-ai/sdk": "^0.21.1",
 		"@cloudflare/vitest-pool-workers": "^0.1.0",
 		"@cloudflare/workers-types": "^4.20240512.0",
 		"@octokit/app": "^15.0.1",
