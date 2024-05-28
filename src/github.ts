@@ -44,7 +44,7 @@ export class GitHub {
 		}
 
 		this.app.webhooks.on('issue_comment', async (event) => {
-			const { action, comment } = event.payload;
+			const { action, comment, issue } = event.payload;
 			if (!comment.user) {
 				return;
 			}
@@ -54,6 +54,10 @@ export class GitHub {
 			}
 
 			if (action === 'deleted') {
+				return;
+			}
+
+			if (issue.state !== 'open') {
 				return;
 			}
 
