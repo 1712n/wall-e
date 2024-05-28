@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { GitHub } from './github';
-import { buildPrompt, extractXMLContent } from './llm';
+import { buildPrompt, extractXMLContent } from './prompt';
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -59,7 +59,7 @@ export default {
 
 							// 2. Compile the above files into the prompt template
 							const prompt = buildPrompt({
-								files: testFilesContents,
+								testFiles: testFilesContents,
 							});
 
 							// 3. Send the prompt to the LLM
@@ -81,7 +81,7 @@ export default {
 								if (!completedCode) {
 									await github.postComment(
 										event,
-										`No code was generated. Please try again.\n\nDebug info: ${testFilesContents.map(file => '```\n' + file + '\n```').join('\n')}`,
+										`No code was generated. Please try again.\n\nDebug info: ${testFilesContents.map((file) => '```\n' + file + '\n```').join('\n')}`,
 										workingCommentId,
 									);
 									return;
