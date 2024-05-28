@@ -1,5 +1,5 @@
 // @ts-ignore
-import tempalte from './template.md';
+import template from './template.md';
 
 type BuildPromptParams = {
 	testFiles: string[];
@@ -8,7 +8,7 @@ type BuildPromptParams = {
 export function buildPrompt(params: BuildPromptParams): string {
 	const placeholders = ['testFiles'];
 
-	let prompt: string = tempalte.toString();
+	let prompt: string = template.toString();
 
 	placeholders.forEach((placeholder) => {
 		const regex = new RegExp(`{{${placeholder}}}`, 'g');
