@@ -6,7 +6,7 @@ type BuildPromptParams = {
 };
 
 export function buildPrompt(params: BuildPromptParams): string {
-	const placeholders = ['testFiles'];
+	const placeholders = ['testFile'];
 
 	let prompt: string = template.toString();
 
