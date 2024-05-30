@@ -8,7 +8,8 @@ type UserCommand = {
 	args?: string[];
 };
 
-type InvokedActionHandler = (command: UserCommand, event: EmitterWebhookEvent<'issue_comment'>) => Promise<void>;
+type IssueCommentEvent = EmitterWebhookEvent<'issue_comment'>;
+type InvokedActionHandler = (command: UserCommand, event: IssueCommentEvent) => Promise<void>;
 
 type VerifyRequestParams = {
 	headers: Headers;
@@ -117,7 +118,7 @@ export class GitHub {
 		});
 	}
 
-	public async postComment(event: EmitterWebhookEvent<'issue_comment'>, body: string, id?: number) {
+	public async postComment(event: IssueCommentEvent, body: string, id?: number) {
 		const octokit = await this.octokit;
 
 		let comment: { status: number; data: { id: number } };
@@ -145,7 +146,7 @@ export class GitHub {
 		return comment.data.id;
 	}
 
-	public async getIssueComments(event: EmitterWebhookEvent<'issue_comment'>) {
+	public async getIssueComments(event: IssueCommentEvent) {
 		const octokit = await this.octokit;
 		const result = await octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
 			owner: event.payload.repository.owner.login,
@@ -162,7 +163,7 @@ export class GitHub {
 		return result.data;
 	}
 
-	public async listPullRequestFiles(event: EmitterWebhookEvent<'issue_comment'>) {
+	public async listPullRequestFiles(event: IssueCommentEvent) {
 		const octokit = await this.octokit;
 		const result = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
 			owner: event.payload.repository.owner.login,
@@ -178,7 +179,7 @@ export class GitHub {
 		return result.data as { filename: string; status: string; sha: string }[];
 	}
 
-	public async fetchFileContents(event: EmitterWebhookEvent<'issue_comment'>, sha: string) {
+	public async fetchFileContents(event: IssueCommentEvent, sha: string) {
 		const octokit = await this.octokit;
 		const result = await octokit.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
 			owner: event.payload.repository.owner.login,
@@ -194,11 +195,7 @@ export class GitHub {
 		return Buffer.from(result.data.content, 'base64').toString('utf8');
 	}
 
-	public async pushFileToPullRequest(
-		event: EmitterWebhookEvent<'issue_comment'>,
-		file: { path: string; content: string },
-		commitMessage: string,
-	) {
+	public async pushFileToPullRequest(event: IssueCommentEvent, file: { path: string; content: string }, commitMessage: string) {
 		const octokit = await this.octokit;
 		const owner = event.payload.repository.owner.login;
 		const repo = event.payload.repository.name;
