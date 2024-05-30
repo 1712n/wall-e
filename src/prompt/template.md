@@ -1,6 +1,6 @@
 Here is a test file written using the vitest testing framework:
 
-{{testFiles}}
+{{testFile}}
 
 Please carefully read through the entire test file, paying close attention to the comments, which contain important requirements, notes and context for the code you will need to write.
 
