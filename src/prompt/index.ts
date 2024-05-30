@@ -1,4 +1,6 @@
 // @ts-ignore
+import documentation from './markdown/documentation.md';
+// @ts-ignore
 import instructions from './markdown/instructions.md';
 
 type BuildPromptParams = {
@@ -6,7 +8,7 @@ type BuildPromptParams = {
 };
 
 export function buildPrompt({ testFile }: BuildPromptParams): string {
-	return `${instructions}\n<test_file>${testFile}</test_file>`;
+	return `${instructions}\n` + `<test_file>${testFile}</test_file>\n` + `<documentation>${documentation}</documentation>`;
 }
 
 export function extractXMLContent(text: string) {
