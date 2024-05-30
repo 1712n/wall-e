@@ -37,29 +37,20 @@ export default {
 
 							// 1. Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(event);
-							if (changedFiles.length === 0) {
+							const testFile = changedFiles.find((file) => file.filename === 'test/index.spec.ts');
+
+							if (!testFile) {
 								const body =
-									'Please change the test file in this pull request. It should contain new requirements for the code you will need me to write.';
+									'Please change the test file (test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
 								await github.postComment(event, body, workingCommentId);
 								return;
 							}
 
-							let testFilesContents = await Promise.all(
-								changedFiles
-									.filter((file) => file.filename.match(/^test\/index\.spec\.ts$/))
-									.map((file) => github.fetchFileContents(event, file.sha).then((content) => content)),
-							);
+							const testFileContent = await github.fetchFileContents(event, testFile.sha);
 
-							if (testFilesContents.length === 0) {
-								const body =
-									'No changes to the test file were found. It should contain new requirements for the code you will need me to write.';
-								await github.postComment(event, body, workingCommentId);
-								return;
-							}
-
-							// 2. Compile the above files into the prompt template
+							// 2. Compile the test file into the prompt template
 							const prompt = buildPrompt({
-								testFiles: testFilesContents,
+								testFile: testFileContent,
 							});
 
 							// 3. Send the prompt to the LLM
@@ -70,7 +61,7 @@ export default {
 							async function generateCode() {
 								const output = await anthropic.messages.create({
 									model: 'claude-3-opus-20240229',
-									max_tokens: 1024,
+									max_tokens: 4000,
 									messages: [{ role: 'user', content: prompt }],
 								});
 
@@ -81,13 +72,13 @@ export default {
 								if (!completedCode) {
 									await github.postComment(
 										event,
-										`No code was generated. Please try again.\n\nDebug info: ${testFilesContents.map((file) => '```\n' + file + '\n```').join('\n')}`,
+										`No code was generated. Please try again.\n\nDebug info: \`\`\`\n${testFileContent}\n\`\`\``,
 										workingCommentId,
 									);
 									return;
 								}
 
-								// 4. Write the generated files (src/index.ts) to the pull request's branch
+								// 4. Write the generated file (src/index.ts) to the pull request's branch
 								const file = { path: 'src/index.ts', content: completedCode };
 								await github
 									.pushFileToPullRequest(event, file, 'feat: generated code 🤖')
