@@ -1,11 +1,26 @@
 {
-  "name": "wall-e",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "devDependencies": {
-    "lerna": "^8.1.2"
-  },
-  "packageManager": "yarn@3.2.1"
+	"name": "wall-e",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "vitest",
+		"format:check": "prettier --check src/ test/",
+		"format:write": "prettier --write src/ test/"
+	},
+	"devDependencies": {
+		"@anthropic-ai/sdk": "^0.21.1",
+		"@cloudflare/vitest-pool-workers": "^0.1.0",
+		"@cloudflare/workers-types": "^4.20240512.0",
+		"@octokit/app": "^15.0.1",
+		"@octokit/plugin-paginate-rest": "11.3.0",
+		"@octokit/webhooks": "^13.2.7",
+		"prettier": "^3.2.5",
+		"typescript": "^5.0.4",
+		"vitest": "1.3.0",
+		"wrangler": "^3.0.0"
+	},
+	"packageManager": "yarn@4.2.2"
 }
