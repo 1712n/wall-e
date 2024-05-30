@@ -2,7 +2,7 @@
 import template from './template.md';
 
 type BuildPromptParams = {
-	testFiles: string[];
+	testFile: string;
 };
 
 export function buildPrompt(params: BuildPromptParams): string {
@@ -13,14 +13,9 @@ export function buildPrompt(params: BuildPromptParams): string {
 	placeholders.forEach((placeholder) => {
 		const regex = new RegExp(`{{${placeholder}}}`, 'g');
 		switch (placeholder) {
-			case 'testFiles':
-				const files = params[placeholder];
-				const filesContent = files
-					.filter((file) => file.trim().length > 0)
-					.map((file) => `<test_file>${file}</test_file>`)
-					.join('\n');
-
-				prompt = prompt.replace(regex, filesContent);
+			case 'testFile':
+				const file = params[placeholder];
+				prompt = prompt.replace(regex, `<test_file>${file}</test_file>`);
 		}
 	});
 
