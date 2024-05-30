@@ -46,7 +46,7 @@ export default {
 
 							let testFilesContents = await Promise.all(
 								changedFiles
-									.filter((file) => file.filename.match(/^test\/index.(test|spec)\.ts$/))
+									.filter((file) => file.filename.match(/^test\/index\.spec\.ts$/))
 									.map((file) => github.fetchFileContents(event, file.sha).then((content) => content)),
 							);
 
