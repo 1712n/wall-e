@@ -10,10 +10,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
     <br>
 
-    ```js
-    ---
-    filename: index.spec.js
-    ---
+    ```ts
     import { env } from "cloudflare:test";
 
     it("uses binding", async () => {
@@ -25,9 +22,6 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
     To configure the type of this value, use an ambient module type:
 
     ```ts
-    ---
-    filename: env.d.ts
-    ---
     declare module "cloudflare:test" {
       interface ProvidedEnv {
         KV_NAMESPACE: KVNamespace;
@@ -43,10 +37,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
     <br>
 
-    ```js
-    ---
-    filename: index.spec.js
-    ---
+    ```ts
     import { SELF } from "cloudflare:test";
 
     it("dispatches fetch event", async () => {
@@ -61,10 +52,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
     <br>
 
-    ```js
-    ---
-    filename: index.spec.js
-    ---
+    ```ts
     import { fetchMock } from "cloudflare:test";
     import { beforeAll, afterEach, it, expect } from "vitest";
 
