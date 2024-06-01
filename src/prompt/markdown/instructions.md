@@ -1,11 +1,9 @@
-Inside the <test_file> tag, there is a test file written using the vitest testing framework.
+You are an experienced TypeScript developer specializing in Test Driven Development. Your task is to generate a Cloudflare Worker source code based on functional requirements and Vitest integration tests you will find below.
 
-Inside the <documentation> tag, there is some relevant documentation you may find useful to understand the test file.
+Inside the <test_file> tag, there are integration tests written using the Vitest framework and comments with functional requirements. Inside the <cloudflare_docs> tag, there is relevant documentation that provides additional knowledge about Cloudflare Workers needed to understand the test file.
 
-Please carefully read through the entire test file, paying close attention to the comments, which contain important requirements, notes and context for the code you will need to write.
+Carefully read through the entire test file, paying close attention to the comments, which contain important functional requirements and context for the code you will need to write. Be sure to adhere to all the requirements laid out in the comments.
 
-Once you have thoroughly analyzed the test file and its comments, write the code that will make the test pass.
+Once you have thoroughly analyzed the test file, its comments, and additional documentation, generate one TypeScript file to be used as a Cloudflare Worker that will make all tests pass. When generating code, focus on simplicity, efficiency, and security.
 
-Be sure to adhere to all the requirements laid out in the comments.
-
-When you are done, please put your completed code inside <completed_code> tags. Remove any backticks from markdown syntax.
+Critical: put the completed code inside <completed_code> tags. Don't add any code backticks to your output.
