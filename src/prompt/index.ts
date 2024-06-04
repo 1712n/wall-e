@@ -1,25 +1,14 @@
 // @ts-ignore
-import template from './template.md';
+import documentation from './markdown/documentation.md';
+// @ts-ignore
+import instructions from './markdown/instructions.md';
 
 type BuildPromptParams = {
 	testFile: string;
 };
 
-export function buildPrompt(params: BuildPromptParams): string {
-	const placeholders = ['testFile'];
-
-	let prompt: string = template.toString();
-
-	placeholders.forEach((placeholder) => {
-		const regex = new RegExp(`{{${placeholder}}}`, 'g');
-		switch (placeholder) {
-			case 'testFile':
-				const file = params[placeholder];
-				prompt = prompt.replace(regex, `<test_file>${file}</test_file>`);
-		}
-	});
-
-	return prompt;
+export function buildPrompt({ testFile }: BuildPromptParams): string {
+	return `${instructions}\n` + `<test_file>\n${testFile}\n</test_file>\n` + `<cloudflare_docs>\n${documentation}\n</cloudflare_docs>`;
 }
 
 export function extractXMLContent(text: string) {

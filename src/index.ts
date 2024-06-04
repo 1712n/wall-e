@@ -96,7 +96,14 @@ export default {
 
 					case 'help':
 						{
-							const body = 'Available commands: `/wall-e hello`';
+							const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the test file';
+							await github.postComment(event, body);
+						}
+						break;
+
+					default:
+						{
+							const body = 'The command you entered is not valid. Please use `/wall-e help` to see the available commands.';
 							await github.postComment(event, body);
 						}
 						break;
