@@ -10,6 +10,6 @@ describe('GitHub App', () => {
 		const request = new IncomingRequest('https://example.com');
 		const response = await SELF.fetch(request);
 		const text = await response.text();
-		expect(text).toBe('<h1>Nothing to see here...</h1>');
+		expect(text).toBe('<h2>Nothing to see here...</h2>');
 	});
 });
