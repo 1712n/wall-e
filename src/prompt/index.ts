@@ -8,7 +8,7 @@ type BuildPromptParams = {
 };
 
 export function buildPrompt({ testFile }: BuildPromptParams): string {
-	return `${instructions}\n` + `# Test file\n${testFile}\n` + `# Cloudflare documentation\n${documentation}\n`;
+	return `${instructions}\n` + `# Test file\n\n${testFile}\n\n` + `# Cloudflare documentation\n\n${documentation}\n`;
 }
 
 export function extractXMLContent(text: string) {
