@@ -1,14 +1,12 @@
-# Test APIs
+## Test APIs
 
 The Workers Vitest integration provides runtime helpers for writing tests in the `cloudflare:test` module. The `cloudflare:test` module is provided by the `@cloudflare/vitest-pool-workers` package, but can only be imported from test files that execute in the Workers runtime.
 
-## `cloudflare:test` module definition
+### `cloudflare:test` module definition
 
-- <code>env</code>: <type>import("cloudflare:test").ProvidedEnv</type>
+- env: import("cloudflare:test").ProvidedEnv
 
   - Exposes the [`env` object](/workers/runtime-apis/handlers/fetch/#parameters) for use as the second argument passed to ES modules format exported handlers. This provides access to [bindings](/workers/runtime-apis/bindings/) that you have defined in your [Vitest configuration file](/workers/testing/vitest-integration/configuration/).
-
-    <br>
 
     ```ts
     import { env } from "cloudflare:test";
@@ -31,11 +29,9 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
     }
     ```
 
-- <code>SELF</code>: <type>Fetcher</type>
+- SELF: Fetcher
 
   - [Service binding](/workers/runtime-apis/bindings/service-bindings/) to the default export defined in the `main` Worker. Use this to write integration tests against your Worker. The `main` Worker runs in the same isolate/context as tests so any global mocks will apply to it too.
-
-    <br>
 
     ```ts
     import { SELF } from "cloudflare:test";
@@ -46,11 +42,9 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
     });
     ```
 
-- <code>fetchMock</code>: <type>import("undici").MockAgent</type>
+- fetchMock: import("undici").MockAgent
 
   - Declarative interface for mocking outbound `fetch()` requests. Deactivated by default and reset before running each test file. Refer to [`undici`'s `MockAgent` documentation](https://undici.nodejs.org/#/docs/api/MockAgent) for more information. Note this only mocks `fetch()` requests for the current test runner Worker. Auxiliary Workers should mock `fetch()`es using the Miniflare `fetchMock`/`outboundService` options. Refer to [Configuration](/workers/testing/vitest-integration/configuration/#workerspooloptions) for more information.
-
-    <br>
 
     ```ts
     import { fetchMock } from "cloudflare:test";
