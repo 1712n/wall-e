@@ -39,7 +39,7 @@ export class GitHub {
 		this.octokit = this.app.getInstallationOctokit(installationId);
 	}
 
-	public async setup(handler: InvokedActionHandler): Promise<void> {
+	public setup(handler: InvokedActionHandler): void {
 		if (this.ready) {
 			throw new Error('GitHub is already setup');
 		}

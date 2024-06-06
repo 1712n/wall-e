@@ -22,7 +22,7 @@ export default {
 				},
 			});
 
-			await github.setup(async (command, event) => {
+			github.setup(async (command, event) => {
 				switch (command.name) {
 					case 'hello':
 						{
