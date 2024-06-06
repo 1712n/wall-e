@@ -63,6 +63,7 @@ export default {
 									model: 'claude-3-opus-20240229',
 									max_tokens: 4000,
 									messages: [{ role: 'user', content: prompt }],
+									stream: false
 								});
 
 								const text = output.content[0].text;
