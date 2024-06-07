@@ -3,12 +3,17 @@ import { App } from '@octokit/app';
 import { Octokit } from '@octokit/core';
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-type UserCommand = {
-	name: string;
+export enum CommandName {
+	Generate = 'generate',
+	Help = 'help',
+}
+
+export type UserCommand = {
+	name: CommandName;
 	args?: string[];
 };
 
-type IssueCommentEvent = EmitterWebhookEvent<'issue_comment'>;
+export type IssueCommentEvent = EmitterWebhookEvent<'issue_comment'>;
 type InvokedActionHandler = (command: UserCommand, event: IssueCommentEvent) => Promise<void>;
 
 type VerifyRequestParams = {
@@ -75,7 +80,7 @@ export class GitHub {
 			const [_, name, ...args] = parsed;
 
 			const command = {
-				name: name.replace('/', ''),
+				name: name.replace('/', '') as CommandName,
 				args,
 			};
 			await handler(command, event);
