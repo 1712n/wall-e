@@ -1,10 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { CommandName, GitHub, IssueCommentEvent, UserCommand } from './github';
+import { CommandName, GitHub, CommandContext, UserCommand } from './github';
 import { buildPrompt, extractXMLContent } from './prompt';
 
 type GitHubJob = {
 	command: UserCommand;
-	event: IssueCommentEvent;
+	context: CommandContext;
 	installationId: number;
 };
 
@@ -31,14 +31,14 @@ export default {
 			const payload = await request.json<any>();
 			const github = initializeGitHub(env, payload.installation.id);
 
-			github.setup(async (command, event) => {
+			github.setup(async (command, context) => {
 				switch (command.name) {
 					case CommandName.Generate:
 					case CommandName.Help:
 						{
 							await env.JOB_QUEUE.send({
 								command,
-								event,
+								context,
 								installationId: payload.installation.id,
 							});
 						}
@@ -47,7 +47,7 @@ export default {
 					default:
 						{
 							const body = 'The command you entered is not valid. Please use `/wall-e help` to see the available commands.';
-							await github.postComment(event, body);
+							await github.postComment(context, body);
 						}
 						break;
 				}
@@ -71,26 +71,26 @@ export default {
 	},
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
-			const { command, event, installationId } = message.body;
+			const { command, context, installationId } = message.body;
 			const github = initializeGitHub(env, installationId);
 
 			switch (command.name) {
 				case CommandName.Generate:
 					{
-						const workingCommentId = await github.postComment(event, 'Working on it... ⚙️');
+						const workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
 
 						// 1. Get the test file from the repository
-						const changedFiles = await github.listPullRequestFiles(event);
+						const changedFiles = await github.listPullRequestFiles(context);
 						const testFile = changedFiles.find((file) => file.filename === 'test/index.spec.ts');
 
 						if (!testFile) {
 							const body =
 								'Please change the test file (test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
-							await github.postComment(event, body, workingCommentId);
+							await github.postComment(context, body, workingCommentId);
 							return;
 						}
 
-						const testFileContent = await github.fetchFileContents(event, testFile.sha);
+						const testFileContent = await github.fetchFileContents(context, testFile.sha);
 
 						// 2. Compile the test file into the prompt template
 						const prompt = buildPrompt({
@@ -115,7 +115,7 @@ export default {
 						const completedCode = parsedText['completed_code'] ?? '';
 						if (!completedCode) {
 							await github.postComment(
-								event,
+								context,
 								`No code was generated. Please try again.\n\nDebug info: \`\`\`\n${testFileContent}\n\`\`\``,
 								workingCommentId,
 							);
@@ -125,12 +125,12 @@ export default {
 						// 4. Write the generated file (src/index.ts) to the pull request's branch
 						const file = { path: 'src/index.ts', content: completedCode };
 						await github
-							.pushFileToPullRequest(event, file, 'feat: generated code 🤖')
+							.pushFileToPullRequest(context, file, 'feat: generated code 🤖')
 							.then(async () => {
-								await github.postComment(event, 'Code generated successfully! 🎉', workingCommentId);
+								await github.postComment(context, 'Code generated successfully! 🎉', workingCommentId);
 							})
 							.catch(async (error) => {
-								await github.postComment(event, `An error occurred while pushing the code: ${error}`, workingCommentId);
+								await github.postComment(context, `An error occurred while pushing the code: ${error}`, workingCommentId);
 							});
 					}
 					break;
@@ -138,7 +138,7 @@ export default {
 				case CommandName.Help:
 					{
 						const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the test file';
-						await github.postComment(event, body);
+						await github.postComment(context, body);
 					}
 					break;
 			}
