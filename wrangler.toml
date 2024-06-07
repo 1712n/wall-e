@@ -12,9 +12,9 @@ rules = [
 [vars]
 GH_APP_ID = "902658"
 
+[[queues.producers]]
+  queue = "job-queue"
+  binding = "JOB_QUEUE"
+
 [[queues.consumers]]
   queue = "job-queue"
-
-[[queues.producers]]
- queue = "job-queue"
- binding = "JOB_QUEUE"

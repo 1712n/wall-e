@@ -72,82 +72,88 @@ export default {
 	},
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
-			const { command, context, installationId } = message.body;
-			const github = initializeGitHub(env, installationId);
+			try {
+				const { command, context, installationId } = message.body;
+				const github = initializeGitHub(env, installationId);
 
-			switch (command.name) {
-				case CommandName.Generate:
-					{
-						const workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
+				switch (command.name) {
+					case CommandName.Generate:
+						{
+							const workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
 
-						// 1. Get the test file from the repository
-						const changedFiles = await github.listPullRequestFiles(context);
-						const testFile = changedFiles.find((file) => file.filename === 'test/index.spec.ts');
+							// 1. Get the test file from the repository
+							const changedFiles = await github.listPullRequestFiles(context);
+							const testFile = changedFiles.find((file) => file.filename === 'test/index.spec.ts');
 
-						if (!testFile) {
-							const body =
-								'Please change the test file (test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
-							await github.postComment(context, body, workingCommentId);
-							return;
-						}
+							if (!testFile) {
+								const body =
+									'Please change the test file (test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
+								await github.postComment(context, body, workingCommentId);
+								return;
+							}
 
-						const testFileContent = await github.fetchFileContents(context, testFile.sha);
+							const testFileContent = await github.fetchFileContents(context, testFile.sha);
 
-						// 2. Compile the test file into the prompt template
-						const prompt = buildPrompt({
-							testFile: testFileContent,
-						});
-
-						// 3. Send the prompt to the LLM
-						const anthropic = new Anthropic({
-							apiKey: env.ANTHROPIC_API_KEY,
-						});
-
-						const output = await anthropic.messages.create({
-							model: 'claude-3-opus-20240229',
-							max_tokens: 4000,
-							messages: [{ role: 'user', content: prompt }],
-							stream: false,
-						});
-
-						const { text } = output.content[0];
-						const parsedText = extractXMLContent(text);
-
-						const completedCode = parsedText['completed_code'] ?? '';
-						if (!completedCode) {
-							await github.postComment(
-								context,
-								`No code was generated. Please try again.\n\nDebug info: \`\`\`\n${testFileContent}\n\`\`\``,
-								workingCommentId,
-							);
-							return;
-						}
-
-						// 4. Write the generated file (src/index.ts) to the pull request's branch
-						const file = { path: 'src/index.ts', content: completedCode };
-						await github
-							.pushFileToPullRequest(context, file, 'feat: generated code 🤖')
-							.then(async () => {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({ elapsedTime });
-								const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
-								await github.postComment(context, comment, workingCommentId);
-							})
-							.catch(async (error) => {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({ elapsedTime, error });
-								const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
-								await github.postComment(context, comment, workingCommentId);
+							// 2. Compile the test file into the prompt template
+							const prompt = buildPrompt({
+								testFile: testFileContent,
 							});
-					}
-					break;
 
-				case CommandName.Help:
-					{
-						const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the test file';
-						await github.postComment(context, body);
-					}
-					break;
+							// 3. Send the prompt to the LLM
+							const anthropic = new Anthropic({
+								apiKey: env.ANTHROPIC_API_KEY,
+							});
+
+							const output = await anthropic.messages.create({
+								model: 'claude-3-opus-20240229',
+								max_tokens: 4000,
+								messages: [{ role: 'user', content: prompt }],
+								stream: false,
+							});
+
+							const { text } = output.content[0];
+							const parsedText = extractXMLContent(text);
+
+							const completedCode = parsedText['completed_code'] ?? '';
+							if (!completedCode) {
+								await github.postComment(
+									context,
+									`No code was generated. Please try again.\n\nDebug info: \`\`\`\n${testFileContent}\n\`\`\``,
+									workingCommentId,
+								);
+								return;
+							}
+
+							// 4. Write the generated file (src/index.ts) to the pull request's branch
+							const file = { path: 'src/index.ts', content: completedCode };
+							await github
+								.pushFileToPullRequest(context, file, 'feat: generated code 🤖')
+								.then(async () => {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({ elapsedTime });
+									const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
+									await github.postComment(context, comment, workingCommentId);
+								})
+								.catch(async (error) => {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({ elapsedTime, error });
+									const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
+									await github.postComment(context, comment, workingCommentId);
+								});
+						}
+						break;
+
+					case CommandName.Help:
+						{
+							const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the test file';
+							await github.postComment(context, body);
+						}
+						break;
+				}
+			} catch (error) {
+				console.error(`Failed to process job: ${error}`);
+			} finally {
+				message.ack();
 			}
 		}
 	},
