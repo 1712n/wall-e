@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
 import { buildPrompt, extractXMLContent } from './prompt';
+import { formatDebugInfo, getElapsedSeconds } from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -127,10 +128,16 @@ export default {
 						await github
 							.pushFileToPullRequest(context, file, 'feat: generated code 🤖')
 							.then(async () => {
-								await github.postComment(context, 'Code generated successfully! 🎉', workingCommentId);
+								const elapsedTime = getElapsedSeconds(message.timestamp);
+								const debugInfo = formatDebugInfo({ elapsedTime });
+								const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
+								await github.postComment(context, comment, workingCommentId);
 							})
 							.catch(async (error) => {
-								await github.postComment(context, `An error occurred while pushing the code: ${error}`, workingCommentId);
+								const elapsedTime = getElapsedSeconds(message.timestamp);
+								const debugInfo = formatDebugInfo({ elapsedTime, error });
+								const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
+								await github.postComment(context, comment, workingCommentId);
 							});
 					}
 					break;
