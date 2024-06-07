@@ -1,6 +1,4 @@
-// @ts-ignore
 import documentation from './markdown/documentation.md';
-// @ts-ignore
 import instructions from './markdown/instructions.md';
 
 type BuildPromptParams = {

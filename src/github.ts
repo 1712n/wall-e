@@ -1,15 +1,24 @@
 import { Buffer } from 'node:buffer';
 import { App } from '@octokit/app';
 import { Octokit } from '@octokit/core';
-import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-type UserCommand = {
-	name: string;
+export enum CommandName {
+	Generate = 'generate',
+	Help = 'help',
+}
+
+export type UserCommand = {
+	name: CommandName;
 	args?: string[];
 };
 
-type IssueCommentEvent = EmitterWebhookEvent<'issue_comment'>;
-type InvokedActionHandler = (command: UserCommand, event: IssueCommentEvent) => Promise<void>;
+export type CommandContext = {
+	owner: string;
+	repo: string;
+	issueNumber: number;
+};
+
+type InvokedActionHandler = (command: UserCommand, context: CommandContext) => Promise<void>;
 
 type VerifyRequestParams = {
 	headers: Headers;
@@ -67,18 +76,24 @@ export class GitHub {
 				return;
 			}
 
+			const context = {
+				owner: event.payload.repository.owner.login,
+				repo: event.payload.repository.name,
+				issueNumber: event.payload.issue.number,
+			};
+
 			const parsed = comment.body.split(' ');
 			if (parsed.length < 2) {
-				await this.postComment(event, 'Invalid command');
+				await this.postComment(context, 'Invalid command');
 			}
 
 			const [_, name, ...args] = parsed;
 
 			const command = {
-				name: name.replace('/', ''),
+				name: name.replace('/', '') as CommandName,
 				args,
 			};
-			await handler(command, event);
+			await handler(command, context);
 		});
 
 		this.ready = true;
@@ -118,92 +133,93 @@ export class GitHub {
 		});
 	}
 
-	public async postComment(event: IssueCommentEvent, body: string, id?: number) {
+	public async postComment({ owner, repo, issueNumber }: CommandContext, body: string, id?: number) {
 		const octokit = await this.octokit;
 
 		let comment: { status: number; data: { id: number } };
 		if (id) {
 			comment = await octokit.request('PATCH /repos/{owner}/{repo}/issues/comments/{comment_id}', {
-				owner: event.payload.repository.owner.login,
-				repo: event.payload.repository.name,
+				owner: owner,
+				repo: repo,
 				comment_id: id,
 				body: body,
 			});
 		} else {
 			comment = await octokit.request('POST /repos/{owner}/{repo}/issues/{issue_number}/comments', {
-				owner: event.payload.repository.owner.login,
-				repo: event.payload.repository.name,
-				issue_number: event.payload.issue.number,
+				owner: owner,
+				repo: repo,
+				issue_number: issueNumber,
 				body: body,
 			});
 		}
 
 		if (comment.status !== 200 && comment.status !== 201) {
-			this.app.log.error('Failed to send comment', event);
+			this.app.log.error('Failed to send comment', comment);
 			return -1;
 		}
 
 		return comment.data.id;
 	}
 
-	public async getIssueComments(event: IssueCommentEvent) {
+	public async getIssueComments({ owner, repo, issueNumber }: CommandContext) {
 		const octokit = await this.octokit;
 		const result = await octokit.request('GET /repos/{owner}/{repo}/issues/{issue_number}/comments', {
-			owner: event.payload.repository.owner.login,
-			repo: event.payload.repository.name,
-			issue_number: event.payload.issue.number,
+			owner: owner,
+			repo: repo,
+			issue_number: issueNumber,
 			per_page: 100,
 		});
 
 		if (result.status !== 200) {
-			this.app.log.error('Failed to get issue comments', event);
+			this.app.log.error('Failed to get issue comments', result);
 			return [];
 		}
 
 		return result.data;
 	}
 
-	public async listPullRequestFiles(event: IssueCommentEvent) {
+	public async listPullRequestFiles({ owner, repo, issueNumber }: CommandContext) {
 		const octokit = await this.octokit;
 		const result = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
-			owner: event.payload.repository.owner.login,
-			repo: event.payload.repository.name,
-			pull_number: event.payload.issue.number,
+			owner: owner,
+			repo: repo,
+			pull_number: issueNumber,
 		});
 
 		if (result.status !== 200) {
-			this.app.log.error('Failed to get pull request files', event);
+			this.app.log.error('Failed to get pull request files', result);
 			return [];
 		}
 
 		return result.data as { filename: string; status: string; sha: string }[];
 	}
 
-	public async fetchFileContents(event: IssueCommentEvent, sha: string) {
+	public async fetchFileContents({ owner, repo }: CommandContext, sha: string) {
 		const octokit = await this.octokit;
 		const result = await octokit.request('GET /repos/{owner}/{repo}/git/blobs/{file_sha}', {
-			owner: event.payload.repository.owner.login,
-			repo: event.payload.repository.name,
+			owner: owner,
+			repo: repo,
 			file_sha: sha,
 		});
 
 		if (result.status !== 200) {
-			this.app.log.error('Failed to get file contents', event);
+			this.app.log.error('Failed to get file contents', result);
 			return '';
 		}
 
 		return Buffer.from(result.data.content, 'base64').toString('utf8');
 	}
 
-	public async pushFileToPullRequest(event: IssueCommentEvent, file: { path: string; content: string }, commitMessage: string) {
+	public async pushFileToPullRequest(
+		{ owner, repo, issueNumber }: CommandContext,
+		file: { path: string; content: string },
+		commitMessage: string,
+	) {
 		const octokit = await this.octokit;
-		const owner = event.payload.repository.owner.login;
-		const repo = event.payload.repository.name;
-
 		const { data: pullRequest } = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', {
 			owner: owner,
 			repo: repo,
-			pull_number: event.payload.issue.number,
+			pull_number: issueNumber,
 		});
 
 		const branchName = pullRequest.head.ref;
