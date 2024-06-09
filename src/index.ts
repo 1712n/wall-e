@@ -9,6 +9,8 @@ type GitHubJob = {
 	installationId: number;
 };
 
+type TestFile = {filename: string; sha: string };
+
 function initializeGitHub(env: Env, installationId: number) {
 	return new GitHub({
 		appId: env.GH_APP_ID,
@@ -83,9 +85,16 @@ export default {
 
 							// 1. Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
-							const testFile = changedFiles.find((file) => file.filename === 'test/index.spec.ts');
+							let testFile: TestFile = { filename: '', sha: '' };
+							changedFiles.forEach(file => {
+								const parts = file.filename.split('/');
+								// Check for 'test/index.spec.ts' file in any directory depth
+								if (parts.length > 2 && parts.slice(-2).join('/') === 'test/index.spec.ts') {
+									testFile = { filename: file.filename, sha: file.sha };
+								}
+							});
 
-							if (!testFile) {
+							if (!testFile.filename) {
 								const body =
 									'Please change the test file (test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
 								await github.postComment(context, body, workingCommentId);
