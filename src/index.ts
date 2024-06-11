@@ -20,6 +20,10 @@ function initializeGitHub(env: Env, installationId: number) {
 	});
 }
 
+function ensurePath(basePath: string, subPath: string): string {
+    return basePath ? `${basePath}/${subPath}` : subPath;
+}
+
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		try {
@@ -75,6 +79,7 @@ export default {
 			try {
 				const { command, context, installationId } = message.body;
 				const github = initializeGitHub(env, installationId);
+				const basePath = command.args?.[0] || '';
 
 				switch (command.name) {
 					case CommandName.Generate:
@@ -83,11 +88,12 @@ export default {
 
 							// 1. Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
-							const testFile = changedFiles.find((file) => file.filename === 'test/index.spec.ts');
+							const testFilePath = ensurePath(basePath, 'test/index.spec.ts');
+							const testFile = changedFiles.find((file) => file.filename === testFilePath);
 
 							if (!testFile) {
 								const body =
-									'Please change the test file (test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
+									`Please change the test file (${testFilePath}) in this pull request. It should contain new requirements for the code you will need me to write.`;
 								await github.postComment(context, body, workingCommentId);
 								return;
 							}
@@ -125,7 +131,8 @@ export default {
 							}
 
 							// 4. Write the generated file (src/index.ts) to the pull request's branch
-							const file = { path: 'src/index.ts', content: completedCode };
+							const srcFilePath = ensurePath(basePath, 'src/index.ts');
+							const file = { path: srcFilePath, content: completedCode };
 							await github
 								.pushFileToPullRequest(context, file, 'feat: generated code 🤖')
 								.then(async () => {
