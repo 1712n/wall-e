@@ -9,8 +9,6 @@ type GitHubJob = {
 	installationId: number;
 };
 
-type TestFile = {filename: string; sha: string };
-
 function initializeGitHub(env: Env, installationId: number) {
 	return new GitHub({
 		appId: env.GH_APP_ID,
@@ -77,6 +75,7 @@ export default {
 			try {
 				const { command, context, installationId } = message.body;
 				const github = initializeGitHub(env, installationId);
+				const basePath = command.args?.[0] || '';
 
 				switch (command.name) {
 					case CommandName.Generate:
@@ -85,18 +84,11 @@ export default {
 
 							// 1. Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
-							let testFile: TestFile = { filename: '', sha: '' };
-							changedFiles.forEach(file => {
-								const parts = file.filename.split('/');
-								// Check for 'test/index.spec.ts' file in any directory depth
-								if (parts.length > 2 && parts.slice(-2).join('/') === 'test/index.spec.ts') {
-									testFile = { filename: file.filename, sha: file.sha };
-								}
-							});
+                            const testFile = changedFiles.find((file) => file.filename === `${basePath}/test/index.spec.ts`);
 
-							if (!testFile.filename) {
+							if (!testFile) {
 								const body =
-									'Please change the test file (test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
+									'Please change the test file (${basePath}/test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
 								await github.postComment(context, body, workingCommentId);
 								return;
 							}
@@ -134,7 +126,7 @@ export default {
 							}
 
 							// 4. Write the generated file (src/index.ts) to the pull request's branch
-							const file = { path: 'src/index.ts', content: completedCode };
+							const file = { path: `${basePath}/src/index.ts`, content: completedCode };
 							await github
 								.pushFileToPullRequest(context, file, 'feat: generated code 🤖')
 								.then(async () => {
