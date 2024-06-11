@@ -84,7 +84,7 @@ export default {
 
 							// 1. Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
-                            const testFile = changedFiles.find((file) => file.filename === `${basePath}/test/index.spec.ts`);
+							const testFile = changedFiles.find((file) => file.filename === `${basePath}/test/index.spec.ts`);
 
 							if (!testFile) {
 								const body =
