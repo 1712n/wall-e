@@ -88,7 +88,7 @@ export default {
 
 							if (!testFile) {
 								const body =
-									'Please change the test file (${basePath}/test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.';
+									`Please change the test file (${basePath}/test/index.spec.ts) in this pull request. It should contain new requirements for the code you will need me to write.`;
 								await github.postComment(context, body, workingCommentId);
 								return;
 							}
