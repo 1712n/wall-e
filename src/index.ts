@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import { buildPrompt, extractXMLContent } from './prompt';
+import { buildPrompt, extractXMLContent, sendPrompt } from './prompt';
 import { formatDebugInfo, getElapsedSeconds } from './utils';
 
 type GitHubJob = {
@@ -94,33 +94,35 @@ export default {
 
 							const testFileContent = await github.fetchFileContents(context, testFile.sha);
 
-							// 2. Compile the test file into the prompt template
-							const prompt = buildPrompt({
-								testFile: testFileContent,
-							});
-
-							// 3. Send the prompt to the LLM
+							// 2. Use the test file and Cloudflare documentation to get only the relevant documentation
 							const anthropic = new Anthropic({
 								apiKey: env.ANTHROPIC_API_KEY,
 							});
 
-							const output = await anthropic.messages.create({
-								model: 'claude-3-opus-20240229',
-								max_tokens: 4000,
-								messages: [{ role: 'user', content: prompt }],
-								stream: false,
+							const documentationPrompt = buildPrompt({
+								testFile: testFileContent,
+								type: 'documentation',
 							});
 
-							const { text } = output.content[0];
-							const parsedText = extractXMLContent(text);
+							const generatedDocumentation = await sendPrompt(anthropic, {
+								model: 'claude-3-sonnet-20240229',
+								prompt: documentationPrompt,
+							});
+							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 
-							const completedCode = parsedText['completed_code'] ?? '';
+							// 3. Generate the code based on the test file and relevant documentation
+							const generateWorkerPrompt = buildPrompt({
+								documentation: relevantDocumentation,
+								testFile: testFileContent,
+								type: 'worker',
+							});
+
+							const generatedWorker = await sendPrompt(anthropic, { prompt: generateWorkerPrompt });
+							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
+
 							if (!completedCode) {
-								await github.postComment(
-									context,
-									`No code was generated. Please try again.\n\nDebug info: \`\`\`\n${testFileContent}\n\`\`\``,
-									workingCommentId,
-								);
+								const debugInfo = formatDebugInfo({ prompt: generateWorkerPrompt });
+								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
 								return;
 							}
 
