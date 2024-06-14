@@ -21,7 +21,7 @@ function initializeGitHub(env: Env, installationId: number) {
 }
 
 function ensurePath(basePath: string, subPath: string): string {
-    return basePath ? `${basePath}/${subPath}` : subPath;
+	return basePath ? `${basePath}/${subPath}` : subPath;
 }
 
 export default {
@@ -92,8 +92,7 @@ export default {
 							const testFile = changedFiles.find((file) => file.filename === testFilePath);
 
 							if (!testFile) {
-								const body =
-									`Please change the test file (${testFilePath}) in this pull request. It should contain new requirements for the code you will need me to write.`;
+								const body = `Please change the test file (${testFilePath}) in this pull request. It should contain new requirements for the code you will need me to write.`;
 								await github.postComment(context, body, workingCommentId);
 								return;
 							}
@@ -105,25 +104,29 @@ export default {
 								apiKey: env.ANTHROPIC_API_KEY,
 							});
 
-							const documentationPrompt = buildPromptForDocs(testFileContent);
+							const documentationPrompts = buildPromptForDocs(testFileContent);
 							const generatedDocumentation = await sendPrompt(anthropic, {
 								model: 'claude-3-sonnet-20240229',
-								prompt: documentationPrompt,
+								prompts: documentationPrompts,
 							});
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 
 							if (!relevantDocumentation) {
-								const debugInfo = formatDebugInfo({ documentationPrompt });
-								await github.postComment(context, `No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`, workingCommentId);
+								const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
+								await github.postComment(
+									context,
+									`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
+									workingCommentId,
+								);
 							}
 
 							// 3. Generate the code based on the test file and relevant documentation
-							const generateWorkerPrompt = buildPromptForWorkers(testFileContent, relevantDocumentation);
-							const generatedWorker = await sendPrompt(anthropic, { prompt: generateWorkerPrompt });
+							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
+							const generatedWorker = await sendPrompt(anthropic, { prompts: generateWorkerPrompts });
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
 
 							if (!completedCode) {
-								const debugInfo = formatDebugInfo({ prompt: generateWorkerPrompt });
+								const debugInfo = formatDebugInfo({ prompts: generateWorkerPrompts });
 								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
 								return;
 							}
