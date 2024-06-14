@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
 import { buildPrompt, extractXMLContent } from './prompt';
+import instructions from './prompt/markdown/instructions.md';
 import { formatDebugInfo, getElapsedSeconds } from './utils';
 
 type GitHubJob = {
@@ -112,6 +113,8 @@ export default {
 
 							const output = await anthropic.messages.create({
 								model: 'claude-3-opus-20240229',
+								system: instructions,
+								temperature: 0.3,
 								max_tokens: 4000,
 								messages: [{ role: 'user', content: prompt }],
 								stream: false,
