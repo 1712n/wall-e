@@ -7,7 +7,7 @@ export function formatDebugInfo(debugInfo: DebugInfo) {
     <details>
       <summary>Debug info</summary>
       <ul>${Object.keys(debugInfo)
-				.map((key) => `<li><strong>${key}</strong>: <code>${debugInfo[key]}</code>`)
+				.map((key) => `<li><strong>${key}</strong>: <code>${debugInfo[key]}</code></li>`)
 				.join('<br>')}</ul>
     </details>`.trim();
 }
