@@ -137,7 +137,6 @@ export default {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
 									const debugInfo = formatDebugInfo({
 										elapsedTime,
-										documentation: btoa(relevantDocumentation),
 									});
 									const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 									await github.postComment(context, comment, workingCommentId);
