@@ -21,6 +21,7 @@ export async function sendPrompt(anthropic: Anthropic, { prompt, model }: SendPr
 		max_tokens: 4000,
 		messages: [{ role: 'user', content: prompt }],
 		stream: false,
+		temperature: 0.1
 	});
 
 	return content[0].text;
