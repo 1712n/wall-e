@@ -1,28 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { cloudflareDocumentation, documentationExtraction, generateWorker } from './markdown';
 
-type BuildPromptParams = {
-	documentation?: string;
-	testFile: string;
-	type: 'documentation' | 'worker';
-};
+export function buildPromptForDocs(testFile: string): string {
+	return `${documentationExtraction}\n# Test File\n${testFile}\n\n# Documentation File\n${cloudflareDocumentation}\n\n`;
+}
 
-export function buildPrompt({ testFile, type, ...params }: BuildPromptParams): string {
-	let instructions = '';
-	let documentation = '';
-
-	switch (type) {
-		case 'documentation':
-			instructions = documentationExtraction;
-			documentation = cloudflareDocumentation;
-			break;
-		case 'worker':
-			instructions = generateWorker;
-			documentation = params.documentation ?? cloudflareDocumentation;
-			break;
-	}
-
-	return `${instructions}\n` + `# Test File\n\n${testFile}\n\n` + `# Cloudflare Documentation\n\n${documentation}\n`;
+export function buildPromptForWorkers(testFile: string, relevantDocs?: string): string {
+	const documentationFile = relevantDocs ?? cloudflareDocumentation;
+	return `${generateWorker}\n# Test File\n${testFile}\n\n# Documentation File\n${documentationFile}\n\n`;
 }
 
 type SendPromptParams = {

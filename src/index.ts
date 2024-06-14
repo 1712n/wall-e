@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import { buildPrompt, extractXMLContent, sendPrompt } from './prompt';
+import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt } from './prompt';
 import { formatDebugInfo, getElapsedSeconds } from './utils';
 
 type GitHubJob = {
@@ -105,24 +105,20 @@ export default {
 								apiKey: env.ANTHROPIC_API_KEY,
 							});
 
-							const documentationPrompt = buildPrompt({
-								testFile: testFileContent,
-								type: 'documentation',
-							});
-
+							const documentationPrompt = buildPromptForDocs(testFileContent);
 							const generatedDocumentation = await sendPrompt(anthropic, {
 								model: 'claude-3-sonnet-20240229',
 								prompt: documentationPrompt,
 							});
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 
-							// 3. Generate the code based on the test file and relevant documentation
-							const generateWorkerPrompt = buildPrompt({
-								documentation: relevantDocumentation,
-								testFile: testFileContent,
-								type: 'worker',
-							});
+							if (!relevantDocumentation) {
+								const debugInfo = formatDebugInfo({ documentationPrompt });
+								await github.postComment(context, `No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`, workingCommentId);
+							}
 
+							// 3. Generate the code based on the test file and relevant documentation
+							const generateWorkerPrompt = buildPromptForWorkers(testFileContent, relevantDocumentation);
 							const generatedWorker = await sendPrompt(anthropic, { prompt: generateWorkerPrompt });
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
 
@@ -139,7 +135,10 @@ export default {
 								.pushFileToPullRequest(context, file, 'feat: generated code 🤖')
 								.then(async () => {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
-									const debugInfo = formatDebugInfo({ elapsedTime });
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										documentation: btoa(relevantDocumentation),
+									});
 									const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 									await github.postComment(context, comment, workingCommentId);
 								})
