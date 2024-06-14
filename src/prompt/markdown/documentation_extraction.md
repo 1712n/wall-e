@@ -10,7 +10,7 @@ A few important notes:
 
 - Assume that the TypeScript Engineer isn't familiar with any of the technologies and concepts outlined in the Documentation File. 
 - The Documentation File may contain a lot of irrelevant information, but make sure not to exclude any information that might be helpful in building software based on the Test File.
-- Do not alter the original Cloudflare documentation content.
+- Do not alter the original Documentation File content.
 - Do not include irrelevant sections or excess information not pertinent to writing a worker's code.
 - Avoid adding personal interpretations, formatting, or additional comments.
 
