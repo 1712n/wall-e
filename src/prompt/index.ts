@@ -1,12 +1,11 @@
 import documentation from './markdown/documentation.md';
-import instructions from './markdown/instructions.md';
 
 type BuildPromptParams = {
 	testFile: string;
 };
 
 export function buildPrompt({ testFile }: BuildPromptParams): string {
-	return `${instructions}\n` + `# Test File\n\n${testFile}\n\n` + `# Cloudflare Documentation\n\n${documentation}\n`;
+	return `# Test File\n\n${testFile}\n\n` + `# Cloudflare Documentation\n\n${documentation}\n`;
 }
 
 export function extractXMLContent(text: string) {
