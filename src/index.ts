@@ -112,6 +112,7 @@ export default {
 
 							const output = await anthropic.messages.create({
 								model: 'claude-3-opus-20240229',
+								temperature: 0,
 								max_tokens: 4000,
 								messages: [{ role: 'user', content: prompt }],
 								stream: false,
