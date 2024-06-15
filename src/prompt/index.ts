@@ -34,7 +34,7 @@ export async function sendPrompt(anthropic: Anthropic, { prompts, model, tempera
 		system: prompts.system,
 		messages: [{ role: 'user', content: prompts.user }],
 		stream: false,
-		temperature: temperature ?? 0.1,
+		temperature: temperature ?? 0.3,
 	});
 
 	return content[0].text;
