@@ -108,6 +108,7 @@ export default {
 							const generatedDocumentation = await sendPrompt(anthropic, {
 								model: 'claude-3-sonnet-20240229',
 								prompts: documentationPrompts,
+								temperature: 0
 							});
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 
