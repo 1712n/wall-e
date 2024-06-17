@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt, documentationExtractionRaw, generateWorkerRaw } from './prompt';
+import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt} from './prompt';
+import { documentationExtraction, generateWorker } from './prompt/markdown';
 import { formatDebugInfo, getElapsedSeconds } from './utils';
 
 type GitHubJob = {
@@ -142,8 +143,8 @@ export default {
 									const debugInfo = formatDebugInfo({
 										elapsedTime,
 										relevantDocumentation,
-										documentationExtractionPrompt: documentationExtractionRaw,
-										generateWorkerPrompt: generateWorkerRaw
+										documentationExtractionPrompt: documentationExtraction,
+										generateWorkerPrompt: generateWorker
 									});
 									const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 									await github.postComment(context, comment, workingCommentId);
