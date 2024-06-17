@@ -2,7 +2,7 @@ type DebugInfo = {
 	[key: string]: any;
 };
 
-export function formatDebugInfo(debugInfo: DebugInfo) {
+export function formatDebugInfo(debugInfo: DebugInfo): string {
 	return `
     <details>
       <summary>Debug info</summary>
