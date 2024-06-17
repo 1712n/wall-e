@@ -49,3 +49,6 @@ export function extractXMLContent(text: string) {
 	}
 	return result;
 }
+
+export const documentationExtractionRaw = documentationExtraction;
+export const generateWorkerRaw = generateWorker;
