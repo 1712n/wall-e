@@ -107,18 +107,20 @@ const answer = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
 **Parameters**
 - `model` string required - The model to run.
 
-**Supported options**
-- `stream` boolean optional - Returns a stream of results as they are available.
+## Cloudflare Workers Ai Type
 
-```javascript
-const answer = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
-    prompt: "What is the origin of the phrase 'Hello, World'",
-    stream: true
-});
+The `Ai` type is a built-in type provided by the TypeScript compiler when using Cloudflare Workers. It is automatically available in the global scope of your worker script, so you don't need to explicitly import it using an import statement.
 
-return new Response(answer, {
-    headers: { "content-type": "text/event-stream" }
-});
+### Example tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "types": [
+      "@cloudflare/workers-types/2023-07-01"
+    ]
+  }
+}
 ```
 
 ## Cloudflare Vectorize
@@ -341,52 +343,6 @@ You can also use unscoped prompts to construct the model chat template manually.
   prompt: "<s>[INST]comedian[/INST]</s>\n[INST]tell me a joke about cloudflare[/INST]",
   raw: true
 };
-```
-
-#### Responses
-##### Using streaming
-The recommended method to handle text generation responses is streaming.
-
-You can use streaming to start displaying the response as soon as the first tokens are generated, and append each additional token until the response is complete. This yields a much better experience for the end user. Displaying text incrementally as it’s generated not only provides instant responsiveness, but also gives the end-user time to read and interpret the text.
-
-To enable, set the `stream` parameter to true.
-
-Using the Workers API:
-
-```
-const stream = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
-  stream: true,
-  messages,
-});
-
-return new Response(stream, {
-  headers: {
-    "content-type": "text/event-stream",
-  },
-});
-
-```
-#### Handling streaming responses in the client
-Below is an example showing how to parse this response in JavaScript, from the browser:
-
-```
-const source = new EventSource("/"); // Workers AI streaming endpoint
-source.onmessage = (event) => {
-  if (event.data == "[DONE]") {
-    source.close();
-    return;
-  }
-  const data = JSON.parse(event.data);
-  el.innerHTML += data.response;
-};
-```
-
-Non-streaming responses may be helpful in some contexts, and they are possible; however, be aware that we limit the maximum number of output sequence tokens to avoid timeouts. Whenever possible, use streaming.
-
-```
-{
-  "response": "The origin of the phrase \"Hello, World\" is not well-documented, but it is believed to have originated in the early days of computing. In the 1970s, when personal computers were first becoming popular, many programming languages, including C, had a simple \"Hello, World\" program that was used to demonstrate the basics of programming.\nThe idea behind the program was to print the words \"Hello, World\" on the screen, and it was often used as a first program for beginners to learn the basics of programming. Over time, the phrase \"Hello, World\" became a common greeting among programmers and computer enthusiasts, and it is now widely recognized as a symbol of the computing industry.\nIt's worth noting that the phrase \"Hello, World\" is not a specific phrase that was coined by any one person or organization, but rather a catchphrase that evolved over time as a result of its widespread use in the computing industry."
-}
 ```
 
 #### Big Context Use Cases - Mistral-7B-Instruct-v0.2 Large Language Model (LLM)

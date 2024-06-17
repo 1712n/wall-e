@@ -2,12 +2,12 @@ type DebugInfo = {
 	[key: string]: any;
 };
 
-export function formatDebugInfo(debugInfo: DebugInfo) {
+export function formatDebugInfo(debugInfo: DebugInfo): string {
 	return `
     <details>
       <summary>Debug info</summary>
       <ul>${Object.keys(debugInfo)
-				.map((key) => `<li><strong>${key}</strong>: <code>${debugInfo[key]}</code>`)
+				.map((key) => `<li><strong>${key}</strong>: <code>${debugInfo[key]}</code></li>`)
 				.join('<br>')}</ul>
     </details>`.trim();
 }
