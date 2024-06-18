@@ -32,7 +32,9 @@ jobs:
             GH_PRIVATE_KEY
             GH_WEBHOOK_SECRET
             ANTHROPIC_API_KEY
+            OPENAI_API_KEY
         env:
           GH_PRIVATE_KEY: ${{ secrets.GH_PRIVATE_KEY }}
           GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
