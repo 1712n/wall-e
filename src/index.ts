@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
 import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt } from './prompt';
 import { formatDebugInfo, getElapsedSeconds } from './utils';
@@ -80,6 +79,7 @@ export default {
 				const { command, context, installationId } = message.body;
 				const github = initializeGitHub(env, installationId);
 				const basePath = command.args?.[0] || '';
+				const model = command.args?.[1] || 'claude-3-opus-20240229';
 
 				switch (command.name) {
 					case CommandName.Generate:
@@ -100,37 +100,49 @@ export default {
 							const testFileContent = await github.fetchFileContents(context, testFile.sha);
 
 							// 2. Use the test file and Cloudflare documentation to get only the relevant documentation
-							const anthropic = new Anthropic({
-								apiKey: env.ANTHROPIC_API_KEY,
-							});
 
+							const documentationModel = command.args?.[1] || 'claude-3-sonnet-20240229';
 							const documentationPrompts = buildPromptForDocs(testFileContent);
-							const generatedDocumentation = await sendPrompt(anthropic, {
-								model: 'claude-3-sonnet-20240229',
-								prompts: documentationPrompts,
-								temperature: 0,
-							});
-							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
+							const generatedDocumentation = await sendPrompt({
+                                model: documentationModel,
+                                prompts: documentationPrompts,
+                                temperature: 0,
+                                apiKey: documentationModel.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY,
+                            });
+							let relevantDocumentation: string;
 
-							if (!relevantDocumentation) {
-								const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
-								await github.postComment(
-									context,
-									`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
-									workingCommentId,
-								);
-							}
+							if (documentationModel.startsWith('claude')) {
+                                relevantDocumentation = extractXMLContent(generatedDocumentation).relevant_documentation;
+                                if (!relevantDocumentation) {
+                                    const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
+                                    await github.postComment(
+                                        context,
+                                        `No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
+                                        workingCommentId,
+                                    );
+                                }
+                            } else {
+                                relevantDocumentation = generatedDocumentation;
+                            }
 
 							// 3. Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
-							const generatedWorker = await sendPrompt(anthropic, { prompts: generateWorkerPrompts });
-							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
-
-							if (!completedCode) {
-								const debugInfo = formatDebugInfo({ prompts: generateWorkerPrompts });
-								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
-								return;
-							}
+							const generatedWorker = await sendPrompt({
+                                model,
+                                prompts: generateWorkerPrompts,
+                                apiKey: model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY,
+                            });
+							let completedCode: string;
+							if (model.startsWith('claude')) {
+                                completedCode = extractXMLContent(generatedWorker).completed_code;
+                                if (!completedCode) {
+                                    const debugInfo = formatDebugInfo({ prompts: generateWorkerPrompts });
+                                    await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
+                                    return;
+                                }
+                            } else {
+                                completedCode = generatedWorker;
+                            }
 
 							// 4. Write the generated file (src/index.ts) to the pull request's branch
 							const srcFilePath = ensurePath(basePath, 'src/index.ts');
