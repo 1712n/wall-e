@@ -116,7 +116,7 @@ export default {
 
 							// 2. Use the test file and Cloudflare documentation to get only the relevant documentation
 
-							const documentationModel = command.args?.[1] || 'claude-3-sonnet-20240229';
+							const documentationModel = model.startsWith('claude') ? 'claude-3-sonnet-20240229' : model;
 							const documentationPrompts = buildPromptForDocs(testFileContent);
 							const generatedDocumentation = await sendPrompt({
                                 model: documentationModel,
