@@ -108,7 +108,7 @@ export default {
 							const generatedDocumentation = await sendPrompt(anthropic, {
 								model: 'claude-3-sonnet-20240229',
 								prompts: documentationPrompts,
-								temperature: 0
+								temperature: 0,
 							});
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 
@@ -141,6 +141,9 @@ export default {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
 									const debugInfo = formatDebugInfo({
 										elapsedTime,
+										documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+										relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
+										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
 									});
 									const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 									await github.postComment(context, comment, workingCommentId);
