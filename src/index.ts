@@ -141,7 +141,9 @@ export default {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
 									const debugInfo = formatDebugInfo({
 										elapsedTime,
-										generateWorkerPrompts: JSON.stringify(generateWorkerPrompts, null, 2),
+										documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+										relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
+										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
 									});
 									const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 									await github.postComment(context, comment, workingCommentId);
