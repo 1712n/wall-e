@@ -124,21 +124,15 @@ export default {
                                 temperature: 0,
                                 apiKey: documentationModel.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY,
                             });
-							let relevantDocumentation: string;
-
-							if (documentationModel.startsWith('claude')) {
-                                relevantDocumentation = extractXMLContent(generatedDocumentation).relevant_documentation;
-                                if (!relevantDocumentation) {
-                                    const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
-                                    await github.postComment(
-                                        context,
-                                        `No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
-                                        workingCommentId,
-                                    );
-                                }
-                            } else {
-                                relevantDocumentation = generatedDocumentation;
-                            }
+							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
+							if (!relevantDocumentation) {
+								const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
+								await github.postComment(
+									context,
+									`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
+									workingCommentId,
+								);
+							}
 
 							// 3. Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
@@ -147,17 +141,12 @@ export default {
                                 prompts: generateWorkerPrompts,
                                 apiKey: model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY,
                             });
-							let completedCode: string;
-							if (model.startsWith('claude')) {
-                                completedCode = extractXMLContent(generatedWorker).completed_code;
-                                if (!completedCode) {
-                                    const debugInfo = formatDebugInfo({ prompts: generateWorkerPrompts });
-                                    await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
-                                    return;
-                                }
-                            } else {
-                                completedCode = generatedWorker;
-                            }
+							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
+							if (!completedCode) {
+								const debugInfo = formatDebugInfo({ prompts: generateWorkerPrompts });
+								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
+								return;
+							}
 
 							// 4. Write the generated file (src/index.ts) to the pull request's branch
 							const srcFilePath = ensurePath(basePath, 'src/index.ts');
