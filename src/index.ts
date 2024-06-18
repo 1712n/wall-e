@@ -19,6 +19,22 @@ function initializeGitHub(env: Env, installationId: number) {
 	});
 }
 
+function parseCommandArgs(args: string[]): { basePath: string, model: string } {
+    let basePath = '';
+    let model = 'claude-3-opus-20240229';
+
+    args.forEach(arg => {
+        const [key, value] = arg.split(':');
+        if (key === 'basePath' && value) {
+            basePath = value;
+        } else if (key === 'model' && value) {
+            model = value;
+        }
+    });
+
+    return { basePath, model };
+}
+
 function ensurePath(basePath: string, subPath: string): string {
 	return basePath ? `${basePath}/${subPath}` : subPath;
 }
@@ -78,8 +94,7 @@ export default {
 			try {
 				const { command, context, installationId } = message.body;
 				const github = initializeGitHub(env, installationId);
-				const basePath = command.args?.[0] || '';
-				const model = command.args?.[1] || 'claude-3-opus-20240229';
+				const { basePath, model } = parseCommandArgs(command.args || []);
 
 				switch (command.name) {
 					case CommandName.Generate:
