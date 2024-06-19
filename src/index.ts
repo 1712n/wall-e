@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
 import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt } from './prompt';
 import { formatDebugInfo, getElapsedSeconds } from './utils';
@@ -18,6 +17,22 @@ function initializeGitHub(env: Env, installationId: number) {
 			secret: env.GH_WEBHOOK_SECRET,
 		},
 	});
+}
+
+function parseCommandArgs(args: string[]): { basePath: string, model: string } {
+    let basePath = '';
+    let model = 'claude-3-opus-20240229';
+
+    args.forEach(arg => {
+        const [key, value] = arg.split(':');
+        if (key === 'path' && value) {
+            basePath = value;
+        } else if (key === 'model' && value) {
+            model = value;
+        }
+    });
+
+    return { basePath, model };
 }
 
 function ensurePath(basePath: string, subPath: string): string {
@@ -79,7 +94,7 @@ export default {
 			try {
 				const { command, context, installationId } = message.body;
 				const github = initializeGitHub(env, installationId);
-				const basePath = command.args?.[0] || '';
+				const { basePath, model } = parseCommandArgs(command.args || []);
 
 				switch (command.name) {
 					case CommandName.Generate:
@@ -100,18 +115,17 @@ export default {
 							const testFileContent = await github.fetchFileContents(context, testFile.sha);
 
 							// 2. Use the test file and Cloudflare documentation to get only the relevant documentation
-							const anthropic = new Anthropic({
-								apiKey: env.ANTHROPIC_API_KEY,
-							});
 
+							const documentationModel = model.startsWith('claude') ? 'claude-3-sonnet-20240229' : model;
 							const documentationPrompts = buildPromptForDocs(testFileContent);
-							const generatedDocumentation = await sendPrompt(anthropic, {
-								model: 'claude-3-sonnet-20240229',
-								prompts: documentationPrompts,
-								temperature: 0,
+              				const apiKey = model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY;
+							const generatedDocumentation = await sendPrompt({
+								model: documentationModel,
+                				prompts: documentationPrompts,
+                				temperature: 0,
+                				apiKey
 							});
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
-
 							if (!relevantDocumentation) {
 								const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
 								await github.postComment(
@@ -123,9 +137,12 @@ export default {
 
 							// 3. Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
-							const generatedWorker = await sendPrompt(anthropic, { prompts: generateWorkerPrompts });
+							const generatedWorker = await sendPrompt({
+                                model,
+                                prompts: generateWorkerPrompts,
+                                apiKey,
+                            });
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
-
 							if (!completedCode) {
 								const debugInfo = formatDebugInfo({ prompts: generateWorkerPrompts });
 								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
