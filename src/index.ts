@@ -118,12 +118,13 @@ export default {
 
 							const documentationModel = model.startsWith('claude') ? 'claude-3-sonnet-20240229' : model;
 							const documentationPrompts = buildPromptForDocs(testFileContent);
+              const apiKey = model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY;
 							const generatedDocumentation = await sendPrompt({
-                                model: documentationModel,
-                                prompts: documentationPrompts,
-                                temperature: 0,
-                                apiKey: documentationModel.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY,
-                            });
+                model: documentationModel,
+                prompts: documentationPrompts,
+                temperature: 0,
+                apiKey,
+              });
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 							if (!relevantDocumentation) {
 								const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
