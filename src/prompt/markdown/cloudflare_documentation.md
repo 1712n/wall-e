@@ -408,3 +408,77 @@ json_schema:
   input: "{\n  \"type\": \"object\",\n  \"oneOf\": [\n    {\n      \"properties\": {\n        \"prompt\": {\n          \"type\": \"string\",\n          \"maxLength\": 4096\n        },\n        \"raw\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"stream\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"max_tokens\": {\n          \"type\": \"integer\",\n          \"default\": 256\n        }\n      },\n      \"required\": [\n        \"prompt\"\n      ]\n    },\n    {\n      \"properties\": {\n        \"messages\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"role\": {\n                \"type\": \"string\"\n              },\n              \"content\": {\n                \"type\": \"string\",\n                \"maxLength\": 4096\n              }\n            },\n            \"required\": [\n              \"role\",\n              \"content\"\n            ]\n          }\n        },\n        \"stream\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"max_tokens\": {\n          \"type\": \"integer\",\n          \"default\": 256\n        }\n      },\n      \"required\": [\n        \"messages\"\n      ]\n    }\n  ]\n}"
   output: "{\n  \"oneOf\": [\n    {\n      \"type\": \"object\",\n      \"contentType\": \"application/json\",\n      \"properties\": {\n        \"response\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    {\n      \"type\": \"string\",\n      \"contentType\": \"text/event-stream\",\n      \"format\": \"binary\"\n    }\n  ]\n}"
 ```
+
+## Drizzle ORM
+Drizzle is a modern TypeScript ORM and is serverless-ready by design. It lets you declare SQL schema and build both relational and SQL-like queries, while keeping the balance between type-safety and extensibility for toolmakers to build on top.
+### Usage with Cloudflare Workers
+```ts
+import { Client } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+
+export default {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext
+  ): Promise<Response> {
+    const client = new Client({ connectionString: env.DATABASE_URL });
+    await client.connect();
+    const db = drizzle(client);
+    const result = await db
+    .select()
+    .from(countries)
+    .leftJoin(cities, eq(cities.countryId, countries.id))
+    .where(eq(countries.id, 10))
+
+
+    // Clean up the client, ensuring we don't kill the worker before that is completed.
+    ctx.waitUntil(client.end());
+    return new Response(now);
+  }
+}
+```
+### SQL Insert
+```ts
+await db.insert(users).values({ name: 'Andrew' });
+// Insert returning
+await db.insert(users).values({ name: "Partial Dan" }).returning({ insertedId: users.id });
+// Insert multiple rows
+await db.insert(users).values([{ name: 'Andrew' }, { name: 'Dan' }]);
+// on conflict do nothing
+await db.insert(users)
+  .values({ id: 1, name: 'John' })
+  .onConflictDoNothing();
+// explicitly specify conflict target
+await db.insert(users)
+  .values({ id: 1, name: 'John' })
+  .onConflictDoNothing({ target: users.id });
+// on conflict do update
+await db.insert(users)
+  .values({ id: 1, name: 'Dan' })
+  .onConflictDoUpdate({ target: users.id, set: { name: 'John' } });
+// where clauses
+await db.insert(employees)
+  .values({ employeeId: 123, name: 'John Doe' })
+  .onConflictDoUpdate({
+    target: employees.employeeId,
+    set: { name: 'John Doe' },
+    setWhere: sql`name <> 'John Doe'`
+  });
+```
+### SQL Update
+```ts
+await db.update(users)
+  .set({ name: 'Mr. Dan' })
+  .where(eq(users.name, 'Dan'));
+// Update with returning
+const updatedUserId: { updatedId: number }[] = await db.update(users)
+  .set({ name: 'Mr. Dan' })
+  .where(eq(users.name, 'Dan'))
+  .returning({ updatedId: users.id });
+```
+### Filters
+You can import all filter & conditional from drizzle-orm:
+```ts
+import { eq, ne, gt, gte, ... } from "drizzle-orm";
+```
