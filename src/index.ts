@@ -140,7 +140,7 @@ export default {
 							const generatedWorker = await sendPrompt({
                                 model,
                                 prompts: generateWorkerPrompts,
-                                apiKey: model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY,
+                                apiKey,
                             });
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
 							if (!completedCode) {
