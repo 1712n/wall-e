@@ -59,7 +59,7 @@ async function sendOpenAIPrompt(prompts: PromptMessages, model: string, temperat
                 { role: 'user', content: prompts.user },
             ],
             max_tokens: 4000,
-            temperature:,
+            temperature,
             seed: 0,
         }),
     });
