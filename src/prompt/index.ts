@@ -39,7 +39,7 @@ async function sendAnthropicPrompt(prompts: PromptMessages, model: string, tempe
         system: prompts.system,
         messages: [{ role: 'user', content: prompts.user }],
         stream: false,
-        temperature: temperature ?? 0.3,
+        temperature,
     });
 
     return content[0].text;
