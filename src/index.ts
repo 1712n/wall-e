@@ -25,7 +25,7 @@ function parseCommandArgs(args: string[]): { basePath: string, model: string } {
 
     args.forEach(arg => {
         const [key, value] = arg.split(':');
-        if (key === 'basePath' && value) {
+        if (key === 'path' && value) {
             basePath = value;
         } else if (key === 'model' && value) {
             model = value;
