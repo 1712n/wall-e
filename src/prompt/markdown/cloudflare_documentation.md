@@ -438,6 +438,45 @@ export default {
   }
 }
 ```
+### Query
+```ts
+// find many
+const users = await db.query.users.findMany();
+// Partial fields select
+const posts = await db.query.posts.findMany({
+  columns: {
+    id: true,
+    content: true,
+  },
+  with: {
+    comments: true,
+  }
+});
+// Exclude and Include fields in the same query:
+const users = await db.query.users.findMany({
+  columns: {
+    name: true,
+    id: false //ignored
+  },
+});
+// find 5 posts
+await db.query.posts.findMany({
+  limit: 5,
+});
+// Find posts and get 3 comments at most:
+await db.query.posts.findMany({
+  with: {
+    comments: {
+      limit: 3,
+    },
+  },
+});
+// order by
+import { desc, asc } from 'drizzle-orm';
+await db.query.posts.findMany({
+  orderBy: [asc(posts.id)],
+});
+```
 ### SQL Insert
 ```ts
 await db.insert(users).values({ name: 'Andrew' });
