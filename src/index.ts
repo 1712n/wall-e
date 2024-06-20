@@ -1,5 +1,5 @@
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt } from './prompt';
+import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt, ALLOWED_MODELS } from './prompt';
 import { formatDebugInfo, getElapsedSeconds } from './utils';
 
 type GitHubJob = {
@@ -102,6 +102,13 @@ export default {
 				const { command, context, installationId } = message.body;
 				const { basePath, model } = parseCommandArgs(command.args || []);
 				const github = initializeGitHub(env, installationId);
+
+				if (!ALLOWED_MODELS.includes(model)) {
+					const allowedModels = ALLOWED_MODELS.map((m) => `- \`${m}\``).join('\n');
+					const body = `The model '${model}' is not valid. Please use one of the following options:\n\n${allowedModels}`;
+					await github.postComment(context, body);
+					return;
+				}
 
 				switch (command.name) {
 					case CommandName.Generate:

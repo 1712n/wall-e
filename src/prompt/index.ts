@@ -1,6 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { cloudflareDocumentation, documentationExtraction, generateWorker } from './markdown';
 
+export const ALLOWED_MODELS = [
+	'claude-3-opus-20240229',
+	'claude-3-sonnet-20240229',
+	'claude-3-haiku-20240307',
+	'claude-3-5-sonnet-20240620',
+	'gpt-4o',
+];
+
 type PromptMessages = {
 	user: string;
 	system: string;
