@@ -19,20 +19,27 @@ function initializeGitHub(env: Env, installationId: number) {
 	});
 }
 
-function parseCommandArgs(args: string[]): { basePath: string, model: string } {
-    let basePath = '';
-    let model = 'claude-3-opus-20240229';
+function parseCommandArgs(args: string[]) {
+	const result = { basePath: '', model: 'claude-3-5-sonnet-20240620' };
 
-    args.forEach(arg => {
-        const [key, value] = arg.split(':');
-        if (key === 'path' && value) {
-            basePath = value;
-        } else if (key === 'model' && value) {
-            model = value;
-        }
-    });
+	for (const arg of args) {
+		const [key, value] = arg.split(':');
 
-    return { basePath, model };
+		if (!value) {
+			continue;
+		}
+
+		switch (key) {
+			case 'path':
+				result.basePath = value;
+				break;
+			case 'model':
+				result.model = value;
+				break;
+		}
+	}
+
+	return result;
 }
 
 function ensurePath(basePath: string, subPath: string): string {
@@ -93,13 +100,16 @@ export default {
 		for (const message of batch.messages) {
 			try {
 				const { command, context, installationId } = message.body;
-				const github = initializeGitHub(env, installationId);
 				const { basePath, model } = parseCommandArgs(command.args || []);
+				const github = initializeGitHub(env, installationId);
 
 				switch (command.name) {
 					case CommandName.Generate:
 						{
 							const workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
+
+							// Use the appropriate API key based on the model
+							const apiKey = model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY;
 
 							// 1. Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
@@ -115,16 +125,14 @@ export default {
 							const testFileContent = await github.fetchFileContents(context, testFile.sha);
 
 							// 2. Use the test file and Cloudflare documentation to get only the relevant documentation
-
-							const documentationModel = model.startsWith('claude') ? 'claude-3-sonnet-20240229' : model;
 							const documentationPrompts = buildPromptForDocs(testFileContent);
-              				const apiKey = model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY;
 							const generatedDocumentation = await sendPrompt({
-								model: documentationModel,
-                				prompts: documentationPrompts,
-                				temperature: 0,
-                				apiKey
+								model,
+								prompts: documentationPrompts,
+								temperature: 0,
+								apiKey,
 							});
+
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 							if (!relevantDocumentation) {
 								const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
@@ -138,10 +146,11 @@ export default {
 							// 3. Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
 							const generatedWorker = await sendPrompt({
-                                model,
-                                prompts: generateWorkerPrompts,
-                                apiKey,
-                            });
+								model,
+								prompts: generateWorkerPrompts,
+								apiKey,
+							});
+
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
 							if (!completedCode) {
 								const debugInfo = formatDebugInfo({ prompts: generateWorkerPrompts });
@@ -152,25 +161,24 @@ export default {
 							// 4. Write the generated file (src/index.ts) to the pull request's branch
 							const srcFilePath = ensurePath(basePath, 'src/index.ts');
 							const file = { path: srcFilePath, content: completedCode };
-							await github
-								.pushFileToPullRequest(context, file, 'feat: generated code 🤖')
-								.then(async () => {
-									const elapsedTime = getElapsedSeconds(message.timestamp);
-									const debugInfo = formatDebugInfo({
-										elapsedTime,
-										documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-										relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
-										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
-									});
-									const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
-									await github.postComment(context, comment, workingCommentId);
-								})
-								.catch(async (error) => {
-									const elapsedTime = getElapsedSeconds(message.timestamp);
-									const debugInfo = formatDebugInfo({ elapsedTime, error });
-									const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
-									await github.postComment(context, comment, workingCommentId);
+
+							try {
+								await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');
+								const elapsedTime = getElapsedSeconds(message.timestamp);
+								const debugInfo = formatDebugInfo({
+									elapsedTime,
+									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+									relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
+									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
 								});
+								const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
+								await github.postComment(context, comment, workingCommentId);
+							} catch (error) {
+								const elapsedTime = getElapsedSeconds(message.timestamp);
+								const debugInfo = formatDebugInfo({ elapsedTime, error });
+								const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
+								await github.postComment(context, comment, workingCommentId);
+							}
 						}
 						break;
 
