@@ -142,7 +142,7 @@ export default {
 
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 							if (!relevantDocumentation) {
-								const debugInfo = formatDebugInfo({ prompts: documentationPrompts });
+								const debugInfo = formatDebugInfo({ model, prompts: documentationPrompts });
 								await github.postComment(
 									context,
 									`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
@@ -160,7 +160,7 @@ export default {
 
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
 							if (!completedCode) {
-								const debugInfo = formatDebugInfo({ prompts: generateWorkerPrompts });
+								const debugInfo = formatDebugInfo({ model, prompts: generateWorkerPrompts });
 								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
 								return;
 							}
@@ -174,6 +174,7 @@ export default {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
 									elapsedTime,
+									model,
 									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
 									relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
 									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
@@ -182,7 +183,7 @@ export default {
 								await github.postComment(context, comment, workingCommentId);
 							} catch (error) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({ elapsedTime, error });
+								const debugInfo = formatDebugInfo({ elapsedTime, model, error });
 								const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
 								await github.postComment(context, comment, workingCommentId);
 							}
