@@ -109,19 +109,7 @@ const answer = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
 
 ## Cloudflare Workers Ai Type
 
-The `Ai` type is a built-in type provided by the TypeScript compiler when using Cloudflare Workers. Important: it is automatically available in the global scope of your worker script, so you don't need to explicitly import it using an import statement.
-
-### Example tsconfig.json
-
-```json
-{
-  "compilerOptions": {
-    "types": [
-      "@cloudflare/workers-types/2023-07-01"
-    ]
-  }
-}
-```
+The `Ai` type is a built-in type provided by the TypeScript compiler when using Cloudflare Workers. It is automatically available in the global scope of your worker script. Important: you don't need to explicitly import it using an import statement.
 
 ## Cloudflare Vectorize
 
