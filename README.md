@@ -26,6 +26,8 @@ The [instructions section](markdown/instructions.md) of the prompt is there to e
 
 The test file is copied from the head branch and should contain 2 important sections: comments covering all functional requirements and Vitest integration tests covering all input/output interfaces, as well as any business logic-related edge cases.
 
+Please adhere to [our best practices](wiki/test_file_best_practices.md) when writing your test files!
+
 #### Additional Documentation
 
 LLMs can't keep up with Cloudflare documentation updates, so we maintain a separate [markdown file](markdown/documentation.md) with information about important features that were recently added to Cloudflare Workers.
