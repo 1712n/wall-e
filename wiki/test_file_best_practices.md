@@ -3,14 +3,15 @@
 ## Functional requirements section
 ⚠️ A non-technical person should be able to understand this section
 ### ✅️ Should be there
-- General overview of why we need the worker (an elevator pitch)
+- General overview containing the answer to "why" (an elevator pitch). Treat the worker as a product in itself, focusing on the variety of potential use cases, rather than your specific need of today.
+   > Similarity Search API built with Cloudflare Workers AI and Cloudflare Vectorize database. It's a simple Cloudflare worker that looks up incoming messages in a vector database and returns a similarity score. It's used by other services for near-duplicate detection, topic classification, and synthetic data generation purposes, among other things.
 - Key functionality description using high-level terms
-> *"Implement REST API for text embedding"* instead of *"Return JSON with embedding field"*
+   > *"Implement REST API for text embedding"* instead of *"Return JSON with embedding field"*
 - Specific project priorities
-> write *"Implement extensive error handling"* instead of listing specific errors you want to be handled)
+   > write *"Implement extensive error handling"* instead of listing specific errors you want to be handled)
 ### ❌ Shouldn't be there
 - Implementation details (names of frameworks, models, or programming language syntax)
-- Excessive or specific context (e.g. specific architectural details of the larger system)
+- Excessive context of the larger system (e.g. detailed descriptions of external components)
 - Step-by-step instructions (it's the LLM's job to figure out the best way to break down a problem into logical parts)
 - Technical requirements (giving performance expectations)
 - Schemas (if they are important, they should be tested)
