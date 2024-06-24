@@ -4,7 +4,10 @@ Test File section contains integration tests written using the Vitest framework 
 
 Carefully read through the entire Test File section, which contains important functional requirements and context for the code you will need to write, and review the Cloudflare Documentation thoroughly. Be sure to adhere to all the requirements laid out in the comments.
 
-Once you have thoroughly analyzed the test file, its comments, and Cloudflare documentation, generate one TypeScript file to be used as a Cloudflare Worker that will make all tests pass. When generating code, focus on simplicity, efficiency, and security. Double-check to ensure your code does not contain any functional errors, test failures, syntax errors, or omissions.
+Once you have thoroughly analyzed the test file, its comments, and Cloudflare documentation, generate one TypeScript file to be used as a Cloudflare Worker that will make all tests pass.
 
-Critical: put the completed code inside <completed_code> tags. Don't add any code backticks to your output.
+**Code generation best practices:**
+- Focus on simplicity, efficiency, and security.
+- When handling complex data structures, such as JSON, in TypeScript, always use type annotations to ensure type safety and data integrity.
 
+**Critical:** put the completed code inside <completed_code> tags. Don't add any code backticks to your output.
