@@ -20,7 +20,7 @@ function initializeGitHub(env: Env, installationId: number) {
 }
 
 function parseCommandArgs(args: string[]) {
-	const result = { basePath: '', model: 'claude-3-5-sonnet-20240620' };
+	const result = { basePath: '', model: 'claude-3-5-sonnet-20240620', temperature: 0.3 };
 
 	for (const arg of args) {
 		const [key, value] = arg.split(':');
@@ -35,6 +35,13 @@ function parseCommandArgs(args: string[]) {
 				break;
 			case 'model':
 				result.model = value;
+				break;
+			case 'temp':
+			case 'temperature':
+				const temp = parseFloat(value);
+				if (!Number.isNaN(temp)) {
+					result.temperature = temp;	
+				}
 				break;
 		}
 	}
@@ -100,7 +107,7 @@ export default {
 		for (const message of batch.messages) {
 			try {
 				const { command, context, installationId } = message.body;
-				const { basePath, model } = parseCommandArgs(command.args || []);
+				const { basePath, model, temperature } = parseCommandArgs(command.args || []);
 				const github = initializeGitHub(env, installationId);
 
 				if (!ALLOWED_MODELS.includes(model)) {
@@ -155,12 +162,13 @@ export default {
 							const generatedWorker = await sendPrompt({
 								model,
 								prompts: generateWorkerPrompts,
+								temperature,
 								apiKey,
 							});
 
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
 							if (!completedCode) {
-								const debugInfo = formatDebugInfo({ model, prompts: generateWorkerPrompts });
+								const debugInfo = formatDebugInfo({ model, prompts: generateWorkerPrompts, temperature });
 								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
 								return;
 							}
@@ -175,6 +183,7 @@ export default {
 								const debugInfo = formatDebugInfo({
 									elapsedTime,
 									model,
+									temperature,
 									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
 									relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
 									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
@@ -183,7 +192,7 @@ export default {
 								await github.postComment(context, comment, workingCommentId);
 							} catch (error) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({ elapsedTime, model, error });
+								const debugInfo = formatDebugInfo({ elapsedTime, model, temperature, error });
 								const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
 								await github.postComment(context, comment, workingCommentId);
 							}
