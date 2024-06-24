@@ -37,7 +37,7 @@ type SendPromptParams = {
 };
 
 async function sendAnthropicPrompt(params: SendPromptParams) {
-	const { apiKey, model, prompts, temperature = 0.3 } = params;
+	const { apiKey, model, prompts, temperature = 0.5 } = params;
 
 	const anthropic = new Anthropic({
 		apiKey: apiKey,
