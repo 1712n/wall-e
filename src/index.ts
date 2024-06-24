@@ -117,9 +117,12 @@ export default {
 
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 							if (!relevantDocumentation) {
+								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
+									elapsedTime,
 									model,
 									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+									documentationExtractionResponse: JSON.stringify(generatedDocumentation, null, 2),
 								});
 								await github.postComment(
 									context,
