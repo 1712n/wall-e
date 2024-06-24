@@ -4,8 +4,10 @@
 ⚠️ A non-technical person should be able to understand this section
 ### ✅️ Should be there
 - General overview of why we need the worker (an elevator pitch)
-- Key functionality description using high-level terms (using "implement REST API for text embedding" instead of "return JSON with `embedding` field") 
-- Specific project priorities (write "Implement extensive error handling" instead of listing specific errors you want to be handled)
+- Key functionality description using high-level terms
+> *"Implement REST API for text embedding"* instead of *"Return JSON with embedding field"*
+- Specific project priorities
+> write *"Implement extensive error handling"* instead of listing specific errors you want to be handled)
 ### ❌ Shouldn't be there
 - Implementation details (names of frameworks, models, or programming language syntax)
 - Unneeded context (e.g. specific architectural details of the larger system)
