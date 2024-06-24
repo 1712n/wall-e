@@ -10,7 +10,7 @@
 > write *"Implement extensive error handling"* instead of listing specific errors you want to be handled)
 ### ❌ Shouldn't be there
 - Implementation details (names of frameworks, models, or programming language syntax)
-- Unneeded context (e.g. specific architectural details of the larger system)
+- Excessive or specific context (e.g. specific architectural details of the larger system)
 - Step-by-step instructions (it's the LLM's job to figure out the best way to break down a problem into logical parts)
 - Technical requirements (giving performance expectations)
 - Schemas (if they are important, they should be tested)
