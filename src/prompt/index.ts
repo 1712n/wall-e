@@ -33,11 +33,11 @@ type SendPromptParams = {
 	apiKey: string;
 	model: string;
 	prompts: PromptMessages;
-	temperature?: number;
+	temperature: number;
 };
 
 async function sendAnthropicPrompt(params: SendPromptParams) {
-	const { apiKey, model, prompts, temperature = 0.5 } = params;
+	const { apiKey, model, prompts, temperature } = params;
 
 	const anthropic = new Anthropic({
 		apiKey: apiKey,
@@ -56,7 +56,7 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 }
 
 async function sendOpenAIPrompt(params: SendPromptParams) {
-	const { apiKey, model, prompts, temperature = 0.3 } = params;
+	const { apiKey, model, prompts, temperature } = params;
 
 	const response = await fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'POST',
