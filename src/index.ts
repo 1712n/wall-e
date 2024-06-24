@@ -20,7 +20,7 @@ function initializeGitHub(env: Env, installationId: number) {
 }
 
 function parseCommandArgs(args: string[]) {
-	const result = { basePath: '', model: 'claude-3-5-sonnet-20240620', temperature: 0.3 };
+	const result = { basePath: '', model: 'claude-3-5-sonnet-20240620', temperature: 0.5 };
 
 	for (const arg of args) {
 		const [key, value] = arg.split(':');
