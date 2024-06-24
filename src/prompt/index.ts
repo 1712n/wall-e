@@ -77,6 +77,10 @@ async function sendOpenAIPrompt(params: SendPromptParams) {
 	});
 
 	const data: any = await response.json();
+	if (data.error) {
+		throw Error(data.error.message);
+	}
+
 	return data.choices[0].message.content;
 }
 
