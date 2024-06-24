@@ -40,7 +40,7 @@ function parseCommandArgs(args: string[]) {
 			case 'temperature':
 				const temp = parseFloat(value);
 				if (!Number.isNaN(temp)) {
-					result.temperature = temp;	
+					result.temperature = temp;
 				}
 				break;
 		}
@@ -149,7 +149,10 @@ export default {
 
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 							if (!relevantDocumentation) {
-								const debugInfo = formatDebugInfo({ model, prompts: documentationPrompts });
+								const debugInfo = formatDebugInfo({
+									model,
+									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+								});
 								await github.postComment(
 									context,
 									`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
@@ -168,7 +171,11 @@ export default {
 
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
 							if (!completedCode) {
-								const debugInfo = formatDebugInfo({ model, prompts: generateWorkerPrompts, temperature });
+								const debugInfo = formatDebugInfo({
+									model,
+									temperature,
+									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
+								});
 								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
 								return;
 							}
