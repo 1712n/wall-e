@@ -43,16 +43,28 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 		apiKey: apiKey,
 	});
 
-	const { content } = await anthropic.messages.create({
-		model,
-		max_tokens: 4000,
-		system: prompts.system,
-		messages: [{ role: 'user', content: prompts.user }],
-		stream: false,
-		temperature,
-	});
+	const { content } = await anthropic.messages
+    .create({
+      model,
+      max_tokens: 4000,
+      system: prompts.system,
+      messages: [{ role: 'user', content: prompts.user }],
+      stream: false,
+      temperature,
+    })
+    .catch((err) => {
+      if (err instanceof Anthropic.APIError) {
+        throw new Error(`Anthropic API error: ${err.name} (Status ${err.status}) - ${err.message}`);
+      } else {
+        throw err;
+      }
+    });
 
-	return content[0].text;
+		if (content.length > 0 && 'type' in content[0] && content[0].type === 'text') {
+			return content[0].text;
+		} else {
+			throw new Error('Unexpected response format');
+		}
 }
 
 async function sendOpenAIPrompt(params: SendPromptParams) {
@@ -77,6 +89,10 @@ async function sendOpenAIPrompt(params: SendPromptParams) {
 	});
 
 	const data: any = await response.json();
+	if (data.error) {
+		throw Error(data.error.message);
+	}
+
 	return data.choices[0].message.content;
 }
 

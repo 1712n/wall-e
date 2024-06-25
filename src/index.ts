@@ -1,6 +1,6 @@
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
 import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt, ALLOWED_MODELS } from './prompt';
-import { formatDebugInfo, getElapsedSeconds } from './utils';
+import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs } from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -17,40 +17,6 @@ function initializeGitHub(env: Env, installationId: number) {
 			secret: env.GH_WEBHOOK_SECRET,
 		},
 	});
-}
-
-function parseCommandArgs(args: string[]) {
-	const result = { basePath: '', model: 'claude-3-5-sonnet-20240620', temperature: 0.5 };
-
-	for (const arg of args) {
-		const [key, value] = arg.split(':');
-
-		if (!value) {
-			continue;
-		}
-
-		switch (key) {
-			case 'path':
-				result.basePath = value;
-				break;
-			case 'model':
-				result.model = value;
-				break;
-			case 'temp':
-			case 'temperature':
-				const temp = parseFloat(value);
-				if (!Number.isNaN(temp)) {
-					result.temperature = temp;
-				}
-				break;
-		}
-	}
-
-	return result;
-}
-
-function ensurePath(basePath: string, subPath: string): string {
-	return basePath ? `${basePath}/${subPath}` : subPath;
 }
 
 export default {
@@ -105,11 +71,13 @@ export default {
 	},
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
-			try {
-				const { command, context, installationId } = message.body;
-				const { basePath, model, temperature } = parseCommandArgs(command.args || []);
-				const github = initializeGitHub(env, installationId);
+			const { command, context, installationId } = message.body;
+			const { basePath, model, temperature } = parseCommandArgs(command.args || []);
+			const github = initializeGitHub(env, installationId);
 
+			let workingCommentId: number | undefined = undefined;
+
+			try {
 				if (!ALLOWED_MODELS.includes(model)) {
 					const allowedModels = ALLOWED_MODELS.map((m) => `- \`${m}\``).join('\n');
 					const body = `The model '${model}' is not valid. Please use one of the following options:\n\n${allowedModels}`;
@@ -120,7 +88,7 @@ export default {
 				switch (command.name) {
 					case CommandName.Generate:
 						{
-							const workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
+							workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
 
 							// Use the appropriate API key based on the model
 							const apiKey = model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY;
@@ -149,9 +117,12 @@ export default {
 
 							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 							if (!relevantDocumentation) {
+								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
+									elapsedTime,
 									model,
 									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+									documentationExtractionResponse: JSON.stringify(generatedDocumentation, null, 2),
 								});
 								await github.postComment(
 									context,
@@ -213,8 +184,11 @@ export default {
 						}
 						break;
 				}
-			} catch (error) {
-				console.error(`Failed to process job: ${error}`);
+			} catch (error: any) {
+				const elapsedTime = getElapsedSeconds(message.timestamp);
+				const debugInfo = formatDebugInfo({ elapsedTime, model, temperature, error });
+				const comment = `Unable to process your command. Please check the Debug Info below for more information.\n\n${debugInfo}`;
+				await github.postComment(context, comment, workingCommentId);
 			} finally {
 				message.ack();
 			}
