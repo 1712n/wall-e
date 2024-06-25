@@ -150,7 +150,7 @@ Part of getting good results from text generation models is asking questions cor
 
 There are two ways to prompt text generation models with Workers AI:
 
-##### Scoped prompts
+#### Scoped prompts
 This is the recommended method. With scoped prompts, Workers AI takes the burden of knowing and using different chat templates for different models and provides a unified interface to developers when building prompts and creating text generation tasks.
 
 Scoped prompts are a list of messages. Each message defines two keys: the role and the content.
@@ -173,7 +173,7 @@ Here’s an input example of a scoped prompt using system and user roles:
 ```
 Note that different LLMs are trained with different templates for different use cases. While Workers AI tries its best to abstract the specifics of each LLM template from the developer through a unified API, you should always refer to the model documentation for details. For example, instruct models like Codellama are fine-tuned to respond to a user-provided instruction, while chat models expect fragments of dialogs as input.
 
-##### Unscoped prompts
+#### Unscoped prompts
 You can use unscoped prompts to send a single question to the model without worrying about providing any context. Workers AI will automatically convert your { prompt: } input to a reasonable default scoped prompt internally so that you get the best possible prediction.
 ```
 {
