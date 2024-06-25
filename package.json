@@ -11,16 +11,16 @@
 		"format:write": "prettier --write src/ test/"
 	},
 	"devDependencies": {
-		"@anthropic-ai/sdk": "^0.21.1",
-		"@cloudflare/vitest-pool-workers": "^0.1.0",
-		"@cloudflare/workers-types": "^4.20240512.0",
-		"@octokit/app": "^15.0.1",
+		"@anthropic-ai/sdk": "^0.24.0",
+		"@cloudflare/vitest-pool-workers": "^0.4.6",
+		"@cloudflare/workers-types": "^4.20240620.0",
+		"@octokit/app": "^15.1.0",
 		"@octokit/plugin-paginate-rest": "11.3.0",
 		"@octokit/webhooks": "^13.2.7",
-		"prettier": "^3.2.5",
-		"typescript": "^5.0.4",
-		"vitest": "1.3.0",
-		"wrangler": "^3.0.0"
+		"prettier": "^3.3.2",
+		"typescript": "^5.5.2",
+		"vitest": "^1.6.0",
+		"wrangler": "^3.61.0"
 	},
 	"packageManager": "yarn@4.2.2"
 }
