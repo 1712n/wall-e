@@ -108,21 +108,20 @@ export default {
 
 							// 2. Use the test file and Cloudflare documentation to get only the relevant documentation
 							const documentationPrompts = buildPromptForDocs(testFileContent);
-							const generatedDocumentation = await sendPrompt({
+							const relevantDocumentation = await sendPrompt({
 								model,
 								prompts: documentationPrompts,
 								temperature: 0,
 								apiKey,
 							});
 
-							const { relevant_documentation: relevantDocumentation } = extractXMLContent(generatedDocumentation);
 							if (!relevantDocumentation) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
 									elapsedTime,
 									model,
 									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-									documentationExtractionResponse: JSON.stringify(generatedDocumentation, null, 2),
+									documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
 								});
 								await github.postComment(
 									context,
