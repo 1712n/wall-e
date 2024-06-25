@@ -52,7 +52,7 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
       stream: false,
       temperature,
     })
-    .catch(async (err) => {
+    .catch((err) => {
       if (err instanceof Anthropic.APIError) {
         throw new Error(`Anthropic API error: ${err.name} (Status ${err.status}) - ${err.message}`);
       } else {
