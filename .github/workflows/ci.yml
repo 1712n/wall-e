@@ -21,6 +21,15 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
 
+      - name: Set up promptfoo cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/promptfoo
+          key: ${{ runner.os }}-promptfoo-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-promptfoo-
+
       - name: Enable corepack
         run: corepack enable
 
@@ -35,3 +44,4 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PROMPTFOO_CACHE_PATH: ~/.cache/promptfoo
