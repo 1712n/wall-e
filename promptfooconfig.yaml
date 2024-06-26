@@ -1,0 +1,54 @@
+description: 'Documentation RAG'
+
+prompts:
+  - id: file://./test/prompts.mjs:documentation_rag
+    label: documentation-rag
+
+providers:
+  - id: anthropic:messages:claude-3-5-sonnet-20240620
+    config:
+      temperature: 0
+
+defaultTest:
+  options:
+    provider: anthropic:messages:claude-3-5-sonnet-20240620
+
+tests:
+  - description: Hello World worker
+    vars:
+      test_file: file://./test/vars/hello.spec.ts
+    assert:
+      - type: icontains-all
+        value:
+          - 'Test APIs'
+          - '`cloudflare:test` module definition'
+
+      - type: not-icontains
+        value: 'Workers AI'
+
+      - type: not-icontains
+        value: 'env.AI.run()'
+
+      - type: not-icontains
+        value: 'Vectorize'
+
+      - type: not-icontains
+        value: 'embedding'
+
+      - type: not-icontains
+        value: 'LLM'
+
+  - description: Embeddings worker
+    vars:
+      test_file: file://./test/vars/embeddings.spec.ts
+    assert:
+      - type: icontains-all
+        value:
+          - 'Test APIs'
+          - '`cloudflare:test` module definition'
+          - 'Workers AI'
+          - 'env.AI.run()'
+          - 'embedding'
+
+      - type: not-icontains
+        value: 'Vectorize'
