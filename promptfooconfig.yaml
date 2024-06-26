@@ -13,15 +13,19 @@ defaultTest:
   options:
     provider: anthropic:messages:claude-3-5-sonnet-20240620
 
+assertionTemplates:
+  containsTestAPIs:
+    type: icontains-all
+    value:
+      - 'Test APIs'
+      - '`cloudflare:test` module definition'
+
 tests:
   - description: Hello World worker
     vars:
       test_file: file://./test/vars/hello.spec.ts
     assert:
-      - type: icontains-all
-        value:
-          - 'Test APIs'
-          - '`cloudflare:test` module definition'
+      - $ref: "#/assertionTemplates/containsTestAPIs"
 
       - type: not-icontains
         value: 'Workers AI'
@@ -42,10 +46,10 @@ tests:
     vars:
       test_file: file://./test/vars/embeddings.spec.ts
     assert:
+      - $ref: "#/assertionTemplates/containsTestAPIs"
+
       - type: icontains-all
         value:
-          - 'Test APIs'
-          - '`cloudflare:test` module definition'
           - 'Workers AI'
           - 'env.AI.run()'
           - 'embedding'
