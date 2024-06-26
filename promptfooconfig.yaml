@@ -8,6 +8,9 @@ providers:
   - id: anthropic:messages:claude-3-5-sonnet-20240620
     config:
       temperature: 0
+  # - id: openai:gpt-4o
+  #   config:
+  #     temperature: 0
 
 defaultTest:
   options:
