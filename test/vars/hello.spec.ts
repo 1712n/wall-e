@@ -1,9 +1,9 @@
-import { SELF } from 'cloudflare:test';
-import { describe, it, expect } from 'vitest';
-
 /**
  * The Hello World worker responds 'Hello World' to all requests.
  */
+
+import { SELF } from 'cloudflare:test';
+import { describe, it, expect } from 'vitest';
 
 describe('Hello World worker', () => {
   /**

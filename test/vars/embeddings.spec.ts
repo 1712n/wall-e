@@ -1,3 +1,9 @@
+/**
+ * The Embeddings Generator worker processes text and returns its corresponding embedding. 
+ * This worker demonstrates the capability to convert text input into a numerical representation, 
+ * useful for tasks such as semantic search, text classification, and other AI applications.
+ */
+
 import { SELF } from "cloudflare:test";
 import { describe, it, expect } from "vitest";
 
@@ -6,12 +12,6 @@ declare module "cloudflare:test" {
     AI: Ai;
   }
 }
-
-/**
- * The Embeddings Generator worker processes text and returns its corresponding embedding. 
- * This worker demonstrates the capability to convert text input into a numerical representation, 
- * useful for tasks such as semantic search, text classification, and other AI applications.
- */
 
 describe("Embeddings generator", () => {
   /**
