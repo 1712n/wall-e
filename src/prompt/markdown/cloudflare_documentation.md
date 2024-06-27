@@ -109,7 +109,7 @@ const answer = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
 Workers AI comes with a curated set of popular open-source models that enable you to do tasks such as image classification, text generation, object detection and more.
 
 #### Text Embeddings
-Feature extraction models transform raw data into numerical features that can be processed while preserving the information in the original dataset. These models are ideal as part of building vector search applications or Retrieval Augmented Generation workflows with Large Language Models (LLM).
+Feature extraction models transform raw data into numerical features that can be processed while preserving the information in the original dataset. These models are ideal as part of building vector search applications or Retrieval Augmented Generation workflows with LLMs.
 
 #### BAAI general embedding model
 
@@ -148,8 +148,6 @@ json_schema:
 #### Prompting
 Part of getting good results from text generation models is asking questions correctly. LLMs are usually trained with specific predefined templates, which should then be used with the model’s tokenizer for better results when doing inference tasks.
 
-There are two ways to prompt text generation models with Workers AI:
-
 #### Scoped prompts
 This is the recommended method. With scoped prompts, Workers AI takes the burden of knowing and using different chat templates for different models and provides a unified interface to developers when building prompts and creating text generation tasks.
 
@@ -172,21 +170,6 @@ Here’s an input example of a scoped prompt using system and user roles:
 };
 ```
 Note that different LLMs are trained with different templates for different use cases. While Workers AI tries its best to abstract the specifics of each LLM template from the developer through a unified API, you should always refer to the model documentation for details. For example, instruct models like Codellama are fine-tuned to respond to a user-provided instruction, while chat models expect fragments of dialogs as input.
-
-#### Unscoped prompts
-You can use unscoped prompts to send a single question to the model without worrying about providing any context. Workers AI will automatically convert your { prompt: } input to a reasonable default scoped prompt internally so that you get the best possible prediction.
-```
-{
-  prompt: "tell me a joke about cloudflare";
-}
-```
-You can also use unscoped prompts to construct the model chat template manually. In this case, you can use the raw parameter. Here’s an input example of a Mistral chat template prompt:
-```
-{
-  prompt: "<s>[INST]comedian[/INST]</s>\n[INST]tell me a joke about cloudflare[/INST]",
-  raw: true
-};
-```
 
 #### Big Context Use Cases - Mistral-7B-Instruct-v0.2 Large Language Model (LLM)
 
@@ -331,23 +314,7 @@ Query an index with the provided vector, returning the score(s) of the closest v
 let matches = await env.YOUR_INDEX.query(queryVector, { topK: 5, returnValues: true, returnMetadata: true })
 ```
 
-#### Get vectors by ID
-
-```ts
-let ids = ["11", "22", "33", "44"];
-const vectors = await env.YOUR_INDEX.getByIds(ids);
-```
-
 Retrieves the specified vectors by their ID, including values and metadata.
-
-#### Delete vectors by ID
-
-```ts
-let idsToDelete = ["11", "22", "33", "44"];
-const deleted = await env.YOUR_INDEX.deleteByIds(idsToDelete);
-```
-
-Deletes the vector IDs provided from the current index. Returns a count of the IDs provided and the list of vector IDs.
 
 ### Binding to a Worker
 
