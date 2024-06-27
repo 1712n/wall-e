@@ -59,3 +59,14 @@ tests:
 
       - type: not-icontains
         value: 'Vectorize'
+
+  - description: Similarity Search worker
+    vars:
+      test_file: file://./test/vars/similarity.spec.ts
+    assert:
+      - $ref: "#/assertionTemplates/containsTestAPIs"
+
+      - type: icontains-all
+        value:
+          - 'embedding'
+          - 'Vectorize'
