@@ -70,3 +70,6 @@ tests:
         value:
           - 'embedding'
           - 'Vectorize'
+
+      - type: not-icontains
+        value: 'Workers AI'
