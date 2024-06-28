@@ -20,7 +20,8 @@ _WALL-E_ is a GitHub bot that supercharges Test-Driven Development (TDD) through
    - Comments describing the functional requirements
 ### Activation Command
 WALL-E is activated within a pull request by leaving a comment containing `/wall-e generate`
-### Advanced Usage: Custom Parameters
+<details>
+<summary><h3>Advanced Usage</h3></summary>
 
 | Parameter | Description | Default |
 |--------|-------------|---------|
@@ -37,8 +38,8 @@ WALL-E is activated within a pull request by leaving a comment containing `/wall
 - `gpt-4o`
 </details>
 
-#### Example with custom parameters
-`/wall-e generate path:workers/generate-embeddings model:gpt-4o temperature:0.8`
+Example with custom parameters: `/wall-e generate path:workers/generate-embeddings model:gpt-4o temperature:0.8`
+</details>
 
 ## How does it work?
 
