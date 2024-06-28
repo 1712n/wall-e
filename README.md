@@ -31,7 +31,7 @@ WALL-E is activated within a pull request by leaving a comment containing `/wall
 
 <details>
 <summary>Available models:</summary>
-
+- `claude-3-5-sonnet-20240620` (default)
 - `claude-3-opus-20240229`
 - `claude-3-sonnet-20240229`
 - `claude-3-haiku-20240307`
