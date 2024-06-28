@@ -31,11 +31,13 @@ WALL-E is activated within a pull request by leaving a comment containing `/wall
 
 <details>
 <summary>Available models:</summary>
-- `claude-3-5-sonnet-20240620` (default)
-- `claude-3-opus-20240229`
-- `claude-3-sonnet-20240229`
-- `claude-3-haiku-20240307`
-- `gpt-4o`
+<ul>
+  <li><code>claude-3-5-sonnet-20240620</code> (default)</li>
+  <li><code>claude-3-opus-20240229</code></li>
+  <li><code>claude-3-sonnet-20240229</code></li>
+  <li><code>claude-3-haiku-20240307</code></li>
+  <li><code>gpt-4o</code></li>
+</ul>
 </details>
 
 Example with custom parameters: `/wall-e generate path:workers/generate-embeddings model:gpt-4o temperature:0.8`
