@@ -6,7 +6,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
 - env: import("cloudflare:test").ProvidedEnv
 
-  - Exposes the [`env` object](/workers/runtime-apis/handlers/fetch/#parameters) for use as the second argument passed to ES modules format exported handlers. This provides access to [bindings](/workers/runtime-apis/bindings/) that you have defined in your [Vitest configuration file](/workers/testing/vitest-integration/configuration/).
+  - Exposes the `env` object for use as the second argument passed to ES modules format exported handlers. This provides access to bindings that you have defined in your Vitest configuration file.
 
     ```ts
     import { env } from 'cloudflare:test';
@@ -31,7 +31,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
 - SELF: Fetcher
 
-  - [Service binding](/workers/runtime-apis/bindings/service-bindings/) to the default export defined in the `main` Worker. Use this to write integration tests against your Worker. The `main` Worker runs in the same isolate/context as tests so any global mocks will apply to it too.
+  - Service binding to the default export defined in the `main` Worker. Use this to write integration tests against your Worker. The `main` Worker runs in the same isolate/context as tests so any global mocks will apply to it too.
 
     ```ts
     import { SELF } from "cloudflare:test";
@@ -44,7 +44,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
 - fetchMock: import("undici").MockAgent
 
-  - Declarative interface for mocking outbound `fetch()` requests. Deactivated by default and reset before running each test file. Refer to [`undici`'s `MockAgent` documentation](https://undici.nodejs.org/#/docs/api/MockAgent) for more information. Note this only mocks `fetch()` requests for the current test runner Worker. Auxiliary Workers should mock `fetch()`es using the Miniflare `fetchMock`/`outboundService` options.
+  - Declarative interface for mocking outbound `fetch()` requests. Deactivated by default and reset before running each test file. Note this only mocks `fetch()` requests for the current test runner Worker. Auxiliary Workers should mock `fetch()`es using the Miniflare `fetchMock`/`outboundService` options.
 
     ```ts
     import { fetchMock } from 'cloudflare:test';
@@ -72,17 +72,16 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
 ### Workers AI Bindings
 
-To use Workers AI with Workers, you must create a Workers AI [binding](/workers/runtime-apis/bindings/). Bindings allow your Workers to interact with resources, like Workers AI, on the Cloudflare Developer Platform.
+To use Workers AI with Workers, you must create a Workers AI binding. Bindings allow your Workers to interact with resources, like Workers AI, on the Cloudflare Developer Platform. 
 
-To bind Workers AI to your Worker, add the following to the end of your `wrangler.toml` file:
-
-```toml
-[ai]
-binding = "AI" # i.e. available in your Worker on env.AI
-```
 ### Cloudflare Workers Ai Type
 
 The `Ai` type is a built-in type provided by the TypeScript compiler when using Cloudflare Workers. It is automatically available in the global scope of your worker script. Important: you don't need to explicitly import it using an import statement.
+```ts
+export interface Env {
+  AI: Ai;
+}
+```
 
 ### Changelog: Add AI native binding
 
@@ -318,16 +317,9 @@ Retrieves the specified vectors by their ID, including values and metadata.
 
 ### Binding to a Worker
 
-[Bindings](/workers/runtime-apis/bindings/) allow you to attach resources, including Vectorize indexes or R2 buckets, to your Worker.
-
-Bindings are defined in either the [`wrangler.toml`](/workers/wrangler/configuration/) configuration associated with your Workers project, or via the Cloudflare dashboard for your project.
-
-Vectorize indexes are bound by name. A binding for an index named `production-doc-search` would resemble the below:
-
-```toml
-[[vectorize]]
-binding = "PROD_SEARCH" # the index will be available as env.PROD_SEARCH in your Worker
-index_name = "production-doc-search"
+Bindings allow you to attach resources, including Vectorize indexes, to your Worker. In the Env, it's defined as:
+```ts
+export interface Env {
+  VECTORIZE_INDEX: VectorizeIndex;
+}
 ```
-
-
