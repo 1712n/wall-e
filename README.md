@@ -10,7 +10,34 @@
 
 ## What's WALL-E?
 
-_WALL-E_ is a GitHub bot that supercharges Test-Driven Development through automated generation of Cloudflare Workers. It can be activated by leaving a comment containing `/wall-e generate` in a pull request, as long as the head branch contains `test/index.spec.ts` with needed integration tests and comments describing general functional requirements for the worker. When done, WALL-E adds the resulting `src/index.ts` worker code to the head branch.
+_WALL-E_ is a GitHub bot that supercharges Test-Driven Development (TDD) through automated generation of Cloudflare Workers. Based on the worker functional requirements and integration tests, WALL-E creates corresponding worker code, streamlining the development process.
+
+## Usage
+### Prerequisites:
+1. An open pull request with `test/index.spec.ts`
+2. `test/index.spec.ts` file containing:
+   - Integration tests
+   - Comments describing the functional requirements
+### Activation Command
+WALL-E is activated within a pull request by leaving a comment containing `/wall-e generate`
+### Advanced Usage: Custom Parameters
+
+| Parameter | Description | Default |
+|--------|-------------|---------|
+| `path` | custom path to a worker dir | repository root |
+| `model` | model for code generation | claude-3-5-sonnet-20240620 |
+| `temp`/`temperature` | model temperature setting (0-1) | 0.5 |
+
+<details>
+<summary>Available models:</summary>
+
+- `claude-3-opus-20240229`
+- `claude-3-sonnet-20240229`
+- `claude-3-haiku-20240307`
+- `gpt-4o`
+
+#### Example with custom parameters
+`/wall-e generate path:workers/generate-embeddings model:gpt-4o temperature:0.8`
 
 ## How does it work?
 
