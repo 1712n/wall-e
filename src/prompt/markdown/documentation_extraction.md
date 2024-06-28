@@ -6,4 +6,4 @@ Critical:
 
 - Exclude irrelevant information, but ensure all potentially helpful content from the Documentation File is retained.
 - Don't include anything from outside of the Documentation File.
-- Ensure all output is enclosed within the <relevant_documentation> tags. Don't add any additional formatting or code backticks to your output.
+- Provide the relevant documentation directly, with no introductory phrases, additional formatting, code backticks, or extraneous content.
