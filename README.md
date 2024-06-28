@@ -35,6 +35,7 @@ WALL-E is activated within a pull request by leaving a comment containing `/wall
 - `claude-3-sonnet-20240229`
 - `claude-3-haiku-20240307`
 - `gpt-4o`
+</details>
 
 #### Example with custom parameters
 `/wall-e generate path:workers/generate-embeddings model:gpt-4o temperature:0.8`
