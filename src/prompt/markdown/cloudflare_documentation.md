@@ -6,7 +6,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
 - env: import("cloudflare:test").ProvidedEnv
 
-  - Exposes the [`env` object](/workers/runtime-apis/handlers/fetch/#parameters) for use as the second argument passed to ES modules format exported handlers. This provides access to [bindings](/workers/runtime-apis/bindings/) that you have defined in your [Vitest configuration file](/workers/testing/vitest-integration/configuration/).
+  - Exposes the `env` object for use as the second argument passed to ES modules format exported handlers. This provides access to bindings that you have defined in your Vitest configuration file.
 
     ```ts
     import { env } from 'cloudflare:test';
@@ -31,7 +31,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
 - SELF: Fetcher
 
-  - [Service binding](/workers/runtime-apis/bindings/service-bindings/) to the default export defined in the `main` Worker. Use this to write integration tests against your Worker. The `main` Worker runs in the same isolate/context as tests so any global mocks will apply to it too.
+  - Service binding to the default export defined in the `main` Worker. Use this to write integration tests against your Worker. The `main` Worker runs in the same isolate/context as tests so any global mocks will apply to it too.
 
     ```ts
     import { SELF } from "cloudflare:test";
@@ -44,7 +44,7 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
 - fetchMock: import("undici").MockAgent
 
-  - Declarative interface for mocking outbound `fetch()` requests. Deactivated by default and reset before running each test file. Refer to [`undici`'s `MockAgent` documentation](https://undici.nodejs.org/#/docs/api/MockAgent) for more information. Note this only mocks `fetch()` requests for the current test runner Worker. Auxiliary Workers should mock `fetch()`es using the Miniflare `fetchMock`/`outboundService` options. Refer to [Configuration](/workers/testing/vitest-integration/configuration/#workerspooloptions) for more information.
+  - Declarative interface for mocking outbound `fetch()` requests. Deactivated by default and reset before running each test file. Note this only mocks `fetch()` requests for the current test runner Worker. Auxiliary Workers should mock `fetch()`es using the Miniflare `fetchMock`/`outboundService` options.
 
     ```ts
     import { fetchMock } from 'cloudflare:test';
@@ -68,33 +68,29 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
     });
     ```
 
-## Workers AI Changelog
+## Workers AI
 
-## 2024-04-11 Add AI native binding
+### Workers AI Bindings
+
+To use Workers AI with Workers, you must create a Workers AI binding. Bindings allow your Workers to interact with resources, like Workers AI, on the Cloudflare Developer Platform. 
+
+### Cloudflare Workers Ai Type
+
+The `Ai` type is a built-in type provided by the TypeScript compiler when using Cloudflare Workers. It is automatically available in the global scope of your worker script. Important: you don't need to explicitly import it using an import statement.
+```ts
+export interface Env {
+  AI: Ai;
+}
+```
+
+### Changelog: Add AI native binding
 
 -   Added new AI native binding, you can now run models with `const resp = await env.AI.run(modelName, inputs)`
 -   Deprecated `@cloudflare/ai` npm package. While existing solutions using the @cloudflare/ai package will continue to work, no new Workers AI features will be supported. Moving to native AI bindings is highly recommended
 
-## Workers AI Bindings
-
-Workers provides a serverless execution environment that allows you to create new applications or augment existing ones.
-
-To use Workers AI with Workers, you must create a Workers AI [binding](/workers/runtime-apis/bindings/). Bindings allow your Workers to interact with resources, like Workers AI, on the Cloudflare Developer Platform. You create bindings on the Cloudflare dashboard or by updating your [`wrangler.toml` file](/workers/wrangler/configuration/).
-
-To bind Workers AI to your Worker, add the following to the end of your `wrangler.toml` file:
-
-```toml
----
-filename: wrangler.toml
----
-
-[ai]
-binding = "AI" # i.e. available in your Worker on env.AI
-```
-
 ### Methods
 
-### async env.AI.run()
+#### async env.AI.run()
 
 `async env.AI.run()` runs a model. Takes a model as the first parameter, and an object as the second parameter.
 
@@ -107,139 +103,12 @@ const answer = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
 **Parameters**
 - `model` string required - The model to run.
 
-## Cloudflare Workers Ai Type
-
-The `Ai` type is a built-in type provided by the TypeScript compiler when using Cloudflare Workers. It is automatically available in the global scope of your worker script. Important: you don't need to explicitly import it using an import statement.
-
-## Cloudflare Vectorize
-
-Vectorize is a globally distributed vector database that enables you to build full-stack, AI-powered applications with Cloudflare Workers. Vectorize makes querying embeddings — representations of values or objects like text, images, audio that are designed to be consumed by machine learning models and semantic search algorithms. By storing the embeddings (vectors) generated by a machine learning model, including those built-in to Workers AI or by bringing your own from platforms like OpenAI, you can build applications with powerful search, similarity, recommendation, classification and/or anomaly detection capabilities based on your own data.
-
-### Operations
-
-#### Insert vectors
-
-```ts
-let vectorsToInsert = [
-    {id: "123", values: [32.4, 6.5, 11.2, 10.3, 87.9]},
-    {id: "456", values: [2.5, 7.8, 9.1, 76.9, 8.5]},
-]
-let inserted = await env.YOUR_INDEX.insert(vectorsToInsert)
-```
-
-Inserts vectors into the index. Returns the count of vectors inserted and their IDs.
-
-If vectors with the same vector ID already exist in the index, only the vectors with new IDs will be inserted. The returned `VectorizeVectorMutation` will return a `count` and an `ids` array with IDs of the vectors inserted into the index, and omit IDs that already exist in the index.
-
-If you need to update existing vectors, use the [upsert](#upsert-vectors) operation.
-
-#### Upsert vectors
-
-```ts
-let vectorsToUpsert = [
-    {id: "123", values: [32.4, 6.5, 11.2, 10.3, 87.9]},
-    {id: "456", values: [2.5, 7.8, 9.1, 76.9, 8.5]},
-    {id: "768", values: [29.1, 5.7, 12.9, 15.4, 1.1]}
-]
-let upserted = await env.YOUR_INDEX.upsert(vectorsToUpsert)
-```
-
-Upserts vectors into an index. Returns the count of vectors upserted and their IDs.
-
-An upsert operation will insert vectors into the index if vectors with the same ID do not exist, and overwrite vectors with the same ID.
-
-Upserting does not merge or combine the values or metadata of an existing vector with the upserted vector: the upserted vector replaces the existing vector in full.
-
-#### Query vectors
-
-```ts
-let queryVector = [32.4, 6.55, 11.2, 10.3, 87.9]
-let matches = await env.YOUR_INDEX.query(queryVector)
-```
-
-Query an index with the provided vector, returning the score(s) of the closest vectors based on the configured distance metric.
-
-* Configure the number of returned matches by setting `topK` (default: 3)
-* Return vector values by setting `returnValues: true` (default: false)
-* Return vector metadata by setting `returnMetadata: true` (default: false)
-
-```ts
-let matches = await env.YOUR_INDEX.query(queryVector, { topK: 5, returnValues: true, returnMetadata: true })
-```
-
-#### Get vectors by ID
-
-```ts
-let ids = ["11", "22", "33", "44"];
-const vectors = await env.YOUR_INDEX.getByIds(ids);
-```
-
-Retrieves the specified vectors by their ID, including values and metadata.
-
-#### Delete vectors by ID
-
-```ts
-let idsToDelete = ["11", "22", "33", "44"];
-const deleted = await env.YOUR_INDEX.deleteByIds(idsToDelete);
-```
-
-Deletes the vector IDs provided from the current index. Returns a count of the IDs provided and the list of vector IDs.
-
-#### Retrieve index details
-
-```ts
-const details = await env.YOUR_INDEX.describe();
-```
-
-Retrieves the configuration of a given index directly, including its configured `dimensions` and distance `metric`.
-
-### Vectors
-
-A vector represents the vector embedding output from a machine learning model.
-
-- `id` - a unique `string` identifying the vector in the index. This should map back to the ID of the document, object or database identifier that the vector values were generated from.
-- `namespace` - an optional partition key within a index. Operations are performed per-namespace, so this can be used to create isolated segments within a larger index.
-- `values` - an array of `number`, `Float32Array`, or `Float64Array` as the vector embedding itself. This must be a dense array, and the length of this array must match the `dimensions` configured on the index.
-- `metadata` - an optional set of key-value pairs that can be used to store additional metadata alongside a vector.
-
-```ts
-let vectorExample = {
-    id: "12345",
-    values: [32.4, 6.55, 11.2, 10.3, 87.9],
-    metadata: {
-        "key": "value",
-        "hello": "world",
-        "url": "r2://bucket/some/object.json"
-    }
-}
-```
-
-### Binding to a Worker
-
-[Bindings](/workers/runtime-apis/bindings/) allow you to attach resources, including Vectorize indexes or R2 buckets, to your Worker.
-
-Bindings are defined in either the [`wrangler.toml`](/workers/wrangler/configuration/) configuration associated with your Workers project, or via the Cloudflare dashboard for your project.
-
-Vectorize indexes are bound by name. A binding for an index named `production-doc-search` would resemble the below:
-
-```toml
-[[vectorize]]
-binding = "PROD_SEARCH" # the index will be available as env.PROD_SEARCH in your Worker
-index_name = "production-doc-search"
-```
-
-```toml
-[[vectorize]]
-binding = "<BINDING_NAME>"
-index_name = "<INDEX_NAME>"
-```
-
-## Cloudflare Workers AI Models
+### Cloudflare Workers AI Models
 
 Workers AI comes with a curated set of popular open-source models that enable you to do tasks such as image classification, text generation, object detection and more.
 
-### Text Embeddings
-Feature extraction models transform raw data into numerical features that can be processed while preserving the information in the original dataset. These models are ideal as part of building vector search applications or Retrieval Augmented Generation workflows with Large Language Models (LLM).
+#### Text Embeddings
+Feature extraction models transform raw data into numerical features that can be processed while preserving the information in the original dataset. These models are ideal as part of building vector search applications or Retrieval Augmented Generation workflows with LLMs.
 
 #### BAAI general embedding model
 
@@ -273,14 +142,12 @@ json_schema:
   output: "{\n  \"type\": \"object\",\n  \"contentType\": \"application/json\",\n  \"properties\": {\n    \"shape\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"number\"\n      }\n    },\n    \"data\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"type\": \"number\"\n        }\n      }\n    }\n  }\n}"
 ```
 
-### Text Generation
+#### Text Generation
 
 #### Prompting
 Part of getting good results from text generation models is asking questions correctly. LLMs are usually trained with specific predefined templates, which should then be used with the model’s tokenizer for better results when doing inference tasks.
 
-There are two ways to prompt text generation models with Workers AI:
-
-##### Scoped prompts
+#### Scoped prompts
 This is the recommended method. With scoped prompts, Workers AI takes the burden of knowing and using different chat templates for different models and provides a unified interface to developers when building prompts and creating text generation tasks.
 
 Scoped prompts are a list of messages. Each message defines two keys: the role and the content.
@@ -290,7 +157,7 @@ Typically, the role can be one of three options:
 `system` - System messages define the AI’s personality. You can use them to set rules and how you expect the AI to behave.
 `user` - User messages are where you actually query the AI by providing a question or a conversation.
 assistant - Assistant messages hint to the AI about the desired output format. Not all models support this role.
-OpenAI has a good explanation of how they use these roles with their GPT models. Even though chat templates are flexible, other text generation models tend to follow the same conventions.
+Even though chat templates are flexible, other text generation models tend to follow the same conventions.
 
 Here’s an input example of a scoped prompt using system and user roles:
 ```
@@ -301,35 +168,7 @@ Here’s an input example of a scoped prompt using system and user roles:
   ],
 };
 ```
-Here’s a better example of a chat session using multiple iterations between the user and the assistant.
-```
-{
-  messages: [
-    { role: "system", content: "you are a professional computer science assistant" },
-    { role: "user", content: "what is WASM?" },
-    { role: "assistant", content: "WASM (WebAssembly) is a binary instruction format that is designed to be a platform-agnostic" },
-    { role: "user", content: "does Python compile to WASM?" },
-    { role: "assistant", content: "No, Python does not directly compile to WebAssembly" },
-    { role: "user", content: "what about Rust?" },
-  ],
-};
-```
-Note that different LLMs are trained with different templates for different use cases. While Workers AI tries its best to abstract the specifics of each LLM template from the developer through a unified API, you should always refer to the model documentation for details (we provide links in the table above.) For example, instruct models like Codellama are fine-tuned to respond to a user-provided instruction, while chat models expect fragments of dialogs as input.
-
-##### Unscoped prompts
-You can use unscoped prompts to send a single question to the model without worrying about providing any context. Workers AI will automatically convert your { prompt: } input to a reasonable default scoped prompt internally so that you get the best possible prediction.
-```
-{
-  prompt: "tell me a joke about cloudflare";
-}
-```
-You can also use unscoped prompts to construct the model chat template manually. In this case, you can use the raw parameter. Here’s an input example of a Mistral chat template prompt:
-```
-{
-  prompt: "<s>[INST]comedian[/INST]</s>\n[INST]tell me a joke about cloudflare[/INST]",
-  raw: true
-};
-```
+Note that different LLMs are trained with different templates for different use cases. While Workers AI tries its best to abstract the specifics of each LLM template from the developer through a unified API, you should always refer to the model documentation for details. For example, instruct models like Codellama are fine-tuned to respond to a user-provided instruction, while chat models expect fragments of dialogs as input.
 
 #### Big Context Use Cases - Mistral-7B-Instruct-v0.2 Large Language Model (LLM)
 
@@ -395,4 +234,92 @@ title: "llama-3-8b-instruct"
 json_schema:
   input: "{\n  \"type\": \"object\",\n  \"oneOf\": [\n    {\n      \"properties\": {\n        \"prompt\": {\n          \"type\": \"string\",\n          \"maxLength\": 4096\n        },\n        \"raw\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"stream\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"max_tokens\": {\n          \"type\": \"integer\",\n          \"default\": 256\n        }\n      },\n      \"required\": [\n        \"prompt\"\n      ]\n    },\n    {\n      \"properties\": {\n        \"messages\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"role\": {\n                \"type\": \"string\"\n              },\n              \"content\": {\n                \"type\": \"string\",\n                \"maxLength\": 4096\n              }\n            },\n            \"required\": [\n              \"role\",\n              \"content\"\n            ]\n          }\n        },\n        \"stream\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"max_tokens\": {\n          \"type\": \"integer\",\n          \"default\": 256\n        }\n      },\n      \"required\": [\n        \"messages\"\n      ]\n    }\n  ]\n}"
   output: "{\n  \"oneOf\": [\n    {\n      \"type\": \"object\",\n      \"contentType\": \"application/json\",\n      \"properties\": {\n        \"response\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    {\n      \"type\": \"string\",\n      \"contentType\": \"text/event-stream\",\n      \"format\": \"binary\"\n    }\n  ]\n}"
+```
+
+## Cloudflare Vectorize
+
+Vectorize is a globally distributed vector database that enables you to build full-stack, AI-powered applications with Cloudflare Workers. Vectorize makes querying embeddings faster and easier. By storing the embeddings generated by a machine learning model, including those built-in to Workers AI or by bringing your own from platforms like OpenAI, you can build applications with powerful search, similarity, recommendation, classification and/or anomaly detection capabilities based on your own data.
+
+### Vectors
+
+A vector represents the vector embedding output from a machine learning model.
+
+- `id` - a unique `string` identifying the vector in the index. This should map back to the ID of the document, object or database identifier that the vector values were generated from.
+- `namespace` - an optional partition key within a index. Operations are performed per-namespace, so this can be used to create isolated segments within a larger index.
+- `values` - an array of `number`, `Float32Array`, or `Float64Array` as the vector embedding itself. This must be a dense array, and the length of this array must match the `dimensions` configured on the index.
+- `metadata` - an optional set of key-value pairs that can be used to store additional metadata alongside a vector.
+
+```ts
+let vectorExample = {
+    id: "12345",
+    values: [32.4, 6.55, 11.2, 10.3, 87.9],
+    metadata: {
+        "key": "value",
+        "hello": "world",
+        "url": "r2://bucket/some/object.json"
+    }
+}
+```
+
+### Operations
+
+#### Insert vectors
+
+```ts
+let vectorsToInsert = [
+    {id: "123", values: [32.4, 6.5, 11.2, 10.3, 87.9]},
+    {id: "456", values: [2.5, 7.8, 9.1, 76.9, 8.5]},
+]
+let inserted = await env.YOUR_INDEX.insert(vectorsToInsert)
+```
+
+Inserts vectors into the index. Returns the count of vectors inserted and their IDs.
+
+If vectors with the same vector ID already exist in the index, only the vectors with new IDs will be inserted. The returned `VectorizeVectorMutation` will return a `count` and an `ids` array with IDs of the vectors inserted into the index, and omit IDs that already exist in the index.
+
+If you need to update existing vectors, use the [upsert](#upsert-vectors) operation.
+
+#### Upsert vectors
+
+```ts
+let vectorsToUpsert = [
+    {id: "123", values: [32.4, 6.5, 11.2, 10.3, 87.9]},
+    {id: "456", values: [2.5, 7.8, 9.1, 76.9, 8.5]},
+    {id: "768", values: [29.1, 5.7, 12.9, 15.4, 1.1]}
+]
+let upserted = await env.YOUR_INDEX.upsert(vectorsToUpsert)
+```
+
+Upserts vectors into an index. Returns the count of vectors upserted and their IDs.
+
+An upsert operation will insert vectors into the index if vectors with the same ID do not exist, and overwrite vectors with the same ID.
+
+Upserting does not merge or combine the values or metadata of an existing vector with the upserted vector: the upserted vector replaces the existing vector in full.
+
+#### Query vectors
+
+```ts
+let queryVector = [32.4, 6.55, 11.2, 10.3, 87.9]
+let matches = await env.YOUR_INDEX.query(queryVector)
+```
+
+Query an index with the provided vector, returning the score(s) of the closest vectors based on the configured distance metric.
+
+* Configure the number of returned matches by setting `topK` (default: 3)
+* Return vector values by setting `returnValues: true` (default: false)
+* Return vector metadata by setting `returnMetadata: true` (default: false)
+
+```ts
+let matches = await env.YOUR_INDEX.query(queryVector, { topK: 5, returnValues: true, returnMetadata: true })
+```
+
+Retrieves the specified vectors by their ID, including values and metadata.
+
+### Binding to a Worker
+
+Bindings allow you to attach resources, including Vectorize indexes, to your Worker. In the Env, it's defined as:
+```ts
+export interface Env {
+  VECTORIZE_INDEX: VectorizeIndex;
+}
 ```
