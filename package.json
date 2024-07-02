@@ -7,7 +7,7 @@
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
 		"test": "vitest",
-		"eval:prompts": "npx promptfoo@latest eval",
+		"eval:prompts": "npx promptfoo@0.66.0 eval",
 		"format:check": "prettier --check src/ test/",
 		"format:write": "prettier --write src/ test/"
 	},
