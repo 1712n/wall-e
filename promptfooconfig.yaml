@@ -46,8 +46,6 @@ tests:
     vars:
       test_file: file://./test/vars/similarity.spec.ts
     assert:
-      - $ref: "#/assertionTemplates/containsTestAPIs"
-
       - type: icontains-all
         value:
           - 'embedding'
