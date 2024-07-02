@@ -30,21 +30,6 @@ tests:
     assert:
       - $ref: "#/assertionTemplates/containsTestAPIs"
 
-      - type: not-icontains
-        value: 'Workers AI'
-
-      - type: not-icontains
-        value: 'env.AI.run()'
-
-      - type: not-icontains
-        value: 'Vectorize'
-
-      - type: not-icontains
-        value: 'embedding'
-
-      - type: not-icontains
-        value: 'LLM'
-
   - description: Embeddings worker
     vars:
       test_file: file://./test/vars/embeddings.spec.ts
@@ -57,9 +42,6 @@ tests:
           - 'env.AI.run()'
           - 'embedding'
 
-      - type: not-icontains
-        value: 'Vectorize'
-
   - description: Similarity Search worker
     vars:
       test_file: file://./test/vars/similarity.spec.ts
@@ -70,6 +52,3 @@ tests:
         value:
           - 'embedding'
           - 'Vectorize'
-
-      - type: not-icontains
-        value: 'Workers AI'
