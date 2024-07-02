@@ -8,6 +8,7 @@ Once you have thoroughly analyzed the test file, its comments, and Cloudflare do
 
 **Code generation best practices:**
 - Focus on simplicity, efficiency, and security.
-- When handling complex data structures, such as JSON, in TypeScript, always use type annotations to ensure type safety and data integrity.
+- Use TypeScript's type inference by default.
+- Add explicit type annotations only when TypeScript cannot infer them correctly or for complex data structures to ensure type safety and data integrity.
 
 **Critical:** put the completed code inside <completed_code> tags. Don't add any code backticks to your output.
