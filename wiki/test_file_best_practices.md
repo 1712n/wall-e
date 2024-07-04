@@ -8,7 +8,7 @@
 - Key functionality description using high-level terms
    > *"The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding."* instead of *"The worker returns JSON with embedding field"*
 - Specific project priorities
-   > write *"Implement extensive error handling"* instead of "Handle specific error cases X, Y, Z"
+   > write *"The worker should include extensive error handling"* instead of *"The worker should handle specific error cases X, Y, Z"*
 ### ❌ Shouldn't be there
 - Implementation details (names of frameworks, models, or programming language syntax)
 - Excessive context of the larger system (e.g. detailed descriptions of external components)
