@@ -19,10 +19,50 @@
 ⚠️ We need to be testing workers as a black box without any assumptions about its implementation
 ### ✅️ Should be there
 - Input/output schema validations (without any assumptions about how those inputs and outputs are generated)
+```ts
+expect(typeof result).toBe("object");
+expect(result).toHaveProperty("embedding");
+expect(Array.isArray(result["embedding"])).toBe(true);
+expect(result["embedding"].every((x) => typeof x === "number")).toBeTruthy();
+```
 - Real-world data mocks (where possible, something a human would believe)
+```ts
+const mockMessages = [
+  {
+    id: "1645479494256594945",
+    platform: "RSS",
+    text: `#Cryptocurrency valued at over $13.9 million was stolen from the #SouthKorean exchange #GDAC.`,
+  },
+  {
+    id: "1645471171851300864",
+    platform: "Twitter",
+    text: `South Korean crypto exchange GDAC hacked for nearly $14M`,
+  },
+];
+```
 - Descriptive test names aligned with functional requirements (instead of dev jargon)
+```ts
+// Do
+it('should select latest unclassified texts from DB', async () => {
+  });
+// Avoid
+it('should call embeddings API and return vector', async () => {
+  });
+it('DB update', async () => {
+  });
+```
 ### ❌ Shouldn't be there
 - Unit tests or internal implementation checks (anything that goes against the black-box approach)
+```ts
+it('should calculate similarity score correctly', () => {
+    const posScore = 0.8;
+    const negScore = 0.3;
+    
+    const result = calculateSimilarityScore(posScore, negScore);
+    
+    expect(result).toBeCloseTo(0.7273, 4);
+  });
+```
 - Random data mocks (including data generator functions)
 - Basic functionality tests (e.g., simple error message checks)
 ### 🤔 Philosophical points that need to be debated each time
