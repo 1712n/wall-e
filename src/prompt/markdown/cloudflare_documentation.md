@@ -364,3 +364,156 @@ export default {
   },
 } satisfies ExportedHandler<Env>;
 ```
+## Cloudflare AI Gateway
+Cloudflare's AI Gateway is a proxy between your Cloudflare Worker and Cloudflare Workers' AI models, as well as other popular providers such as Anthropic and OpenAI. It offers built-in caching, logging, an analytics dashboard, rate limiting, request retries, and model fallback.
+### Caching
+#### Cache TTL (cf-cache-ttl)
+Set the caching duration in milliseconds. Example:
+```bash
+curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/completions \
+  --header 'Authorization: Bearer $TOKEN' \
+  --header 'Content-Type: application/json' \
+  --header 'cf-cache-ttl: 3600000' \
+  --data '{
+     "model": "gpt-3.5-turbo",
+     "messages": [
+       {
+         "role": "user",
+         "content": "how to build a wooden spoon in 3 short steps? give as short as answer as possible"
+       }
+     ]
+   }'
+```
+#### Custom Cache Key (cf-aig-cache-key)
+Custom cache keys let you override the default cache key in order to precisely set the cacheability setting for any resource. When you use the cf-aig-cache-key header for the first time, you will receive a response from the provider. Subsequent requests with the same header will return the cached response. If the cf-cache-ttl header is used, responses will be cached according to the specified Cache Time To Live. Otherwise, responses will be cached according to the cache settings in the dashboard. If caching is not enabled for the gateway, responses will be cached for 5 minutes by default.
+```bash
+curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/completions \
+  --header 'Authorization: Bearer {openai_token}' \
+  --header 'Content-Type: application/json' \
+  --header 'cf-aig-cache-key: responseA' \
+  --data ' {
+   		 "model": "gpt-3.5-turbo",
+   		 "messages": [
+   			 {
+   				 "role": "user",
+   				 "content": "how to build a wooden spoon in 3 short steps? give as short as answer as possible"
+   			 }
+   		 ]
+   	 }
+'
+```
+#### Caching Workers AI
+To use AI Gateway's caching within a Worker, include the gateway configuration as an object in the Workers AI request options.
+```ts
+const response = await env.AI.run(
+      "@cf/meta/llama-3-8b-instruct",
+      {
+        prompt: "Why should you use Cloudflare for your AI inference?"
+      },
+      {
+        gateway: {
+          id: "{gateway_id}",
+          skipCache: false,
+          cacheTtl: 3360
+        }
+      }
+    );
+```
+
+## Cloudflare Workers Cache API
+Cloudflare Workers Cache API is a service that allows Workers to programmatically cache both internal and external fetch requests, including `POST` requests that can't be cached automatically by Cloudflare network. 
+The Cache API can be thought of as an ephemeral key-value store, whereby the `Request` object (or more specifically, the request URL) is the key, and the `Response` is the value.
+
+There are two types of cache namespaces available to the Cloudflare Cache:
+- **`caches.default`** – You can access the default cache (the same cache shared with `fetch` requests) by accessing `caches.default`. This is useful when needing to override content that is already cached, after receiving the response.
+- **`caches.open()`** – You can access a namespaced cache (separate from the cache shared with `fetch` requests) using `let cache = await caches.open(CACHE_NAME)`. Note that caches.open is an async function, unlike `caches.default`.
+
+When to use the Cache API:
+- When you want to programmatically save and/or delete responses from a cache. For example, say an origin is responding with a `Cache-Control: max-age:0` header and cannot be changed. Instead, you can clone the `Response`, adjust the header to the `max-age=3600` value, and then use the Cache API to save the modified `Response` for an hour.
+- When you want to programmatically access a Response from a cache without relying on a `fetch` request. For example, you can check to see if you have already cached a `Response` for the `https://example.com/slow-response` endpoint. If so, you can avoid the slow request.
+### Using the Cache API
+```ts
+interface Env {}
+export default {
+  async fetch(request, env, ctx): Promise<Response> {
+    const cacheUrl = new URL(request.url);
+
+    // Construct the cache key from the cache URL
+    const cacheKey = new Request(cacheUrl.toString(), request);
+    const cache = caches.default;
+
+    // Check whether the value is already available in the cache
+    // if not, you will need to fetch it from origin, and store it in the cache
+    let response = await cache.match(cacheKey);
+
+    if (!response) {
+      console.log(
+        `Response for request url: ${request.url} not present in cache. Fetching and caching request.`
+      );
+      // If not in cache, get it from origin
+      response = await fetch(request);
+
+      // Must use Response constructor to inherit all of response's fields
+      response = new Response(response.body, response);
+
+      // Cache API respects Cache-Control headers. Setting s-max-age to 10
+      // will limit the response to be in cache for 10 seconds max
+
+      // Any changes made to the response here will be reflected in the cached value
+      response.headers.append("Cache-Control", "s-maxage=10");
+
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+    } else {
+      console.log(`Cache hit for: ${request.url}.`);
+    }
+    return response;
+  },
+} satisfies ExportedHandler<Env>;
+```
+### Cache POST requests
+```ts
+interface Env {}
+export default {
+  async fetch(request, env, ctx): Promise<Response> {
+    async function sha256(message) {
+      // encode as UTF-8
+      const msgBuffer = await new TextEncoder().encode(message);
+      // hash the message
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+      // convert bytes to hex string
+      return [...new Uint8Array(hashBuffer)]
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+    try {
+      if (request.method.toUpperCase() === "POST") {
+        const body = await request.clone().text();
+        // Hash the request body to use it as a part of the cache key
+        const hash = await sha256(body);
+        const cacheUrl = new URL(request.url);
+        // Store the URL in cache by prepending the body's hash
+        cacheUrl.pathname = "/posts" + cacheUrl.pathname + hash;
+        // Convert to a GET to be able to cache
+        const cacheKey = new Request(cacheUrl.toString(), {
+          headers: request.headers,
+          method: "GET",
+        });
+
+        const cache = caches.default;
+        // Find the cache key in the cache
+        let response = await cache.match(cacheKey);
+        // Otherwise, fetch response to POST request from origin
+        if (!response) {
+          response = await fetch(request);
+          ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        }
+        return response;
+      }
+      return fetch(request);
+    } catch (e) {
+      return new Response("Error thrown " + e.message);
+    }
+  },
+} satisfies ExportedHandler<Env>;
+```
+
