@@ -517,3 +517,28 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 
+## Drizzle ORM
+
+Drizzle ORM is a lightweight, type-safe SQL query builder and ORM (Object-Relational Mapping) for TypeScript and JavaScript.
+
+### Usage with Cloudflare Workers
+
+```ts
+import { Client } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+export default {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext
+  ): Promise<Response> {
+    const client = new Client({ connectionString: env.DATABASE_URL });
+    await client.connect();
+    const db = drizzle(client);
+    const result = await db.select().from(...);
+    // Clean up the client, ensuring we don't kill the worker before that is completed.
+    ctx.waitUntil(client.end());
+    return new Response(now);
+  }
+}
+```
