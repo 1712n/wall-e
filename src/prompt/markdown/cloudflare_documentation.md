@@ -365,7 +365,7 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 ## AI Gateway
-Cloudflare's AI Gateway allows you to gain visibility and control over your AI apps. By connecting your apps to AI Gateway, you can gather insights on how people are using your application with analytics and logging and then control how your application scales with features such as caching, rate limiting, as well as request retries, model fallback, and more. 
+Cloudflare's AI Gateway is a proxy between your Cloudflare Worker and Cloudflare Workers' AI models, as well as other popular providers such as Anthropic and OpenAI. It offers built-in caching, logging, an analytics dashboard, rate limiting, request retries, and model fallback.
 ### Caching
 #### Cache TTL (cf-cache-ttl)
 Set the caching duration in milliseconds. Example:
