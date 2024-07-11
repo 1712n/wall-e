@@ -364,7 +364,7 @@ export default {
   },
 } satisfies ExportedHandler<Env>;
 ```
-## AI Gateway
+## Cloudflare AI Gateway
 Cloudflare's AI Gateway is a proxy between your Cloudflare Worker and Cloudflare Workers' AI models, as well as other popular providers such as Anthropic and OpenAI. It offers built-in caching, logging, an analytics dashboard, rate limiting, request retries, and model fallback.
 ### Caching
 #### Cache TTL (cf-cache-ttl)
@@ -403,7 +403,7 @@ curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/
 '
 ```
 #### Caching Workers AI
-Example:
+To use AI Gateway's caching within a Worker, include the gateway configuration as an object in the Workers AI request options.
 ```ts
 const response = await env.AI.run(
       "@cf/meta/llama-3-8b-instruct",
@@ -420,7 +420,8 @@ const response = await env.AI.run(
     );
 ```
 
-## Cache API
+## Cloudflare Workers Cache API
+Cloudflare Workers Cache API is a service that allows Workers to programmatically cache both internal and external fetch requests, including `POST` requests that can't be cached automatically by Cloudflare network. 
 The Cache API can be thought of as an ephemeral key-value store, whereby the `Request` object (or more specifically, the request URL) is the key, and the `Response` is the value.
 
 There are two types of cache namespaces available to the Cloudflare Cache:
