@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { cloudflareDocumentation, documentationExtraction, generateWorker } from './markdown';
+import { cloudflareDocumentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
 
 export const ALLOWED_MODELS = [
 	'claude-3-opus-20240229',
@@ -26,6 +26,13 @@ export function buildPromptForWorkers(testFile: string, relevantDocs?: string): 
 	return {
 		system: generateWorker,
 		user: `# Test File\n${testFile}\n\n# Documentation File\n${documentationFile}\n\n`,
+	};
+}
+
+export function buildPromptForAnalyzeTestFile(testFile: string): PromptMessages {
+	return {
+		system: analyzeTestFile,
+		user: `# Test File\n${testFile}\n\n# Best Practices\n${testFileBestPractices}\n\n`,
 	};
 }
 
