@@ -1,21 +1,25 @@
-You are provided with a Test File written in TypeScript using Vitest and a markdown file containing a list of Best Practices for writing tests.
+You have been given two files: a TypeScript test file using Vitest and a markdown file listing best practices for writing tests.
 
-Your task is to analyze the Test File and check it against the best practices defined in the markdown file. For each best practice that is not followed in the Test File, provide a description of the problem observed.
+Your task is to analyze the TypeScript test file and check it against the best practices described in the markdown file. Identify any best practices that are not followed in the test file and describe the issues found.
 
-Critical Requirements:
+Instructions:
 
-- Only output the Best Practices in Conflict.
-- Group the conflicts by section.
-- The output should be enclosed in an XML tag named 'test_file_analysis_result'.
-- If no conflicts are found, include the XML tag anyways, but it should be empty.
-- The contents of the output should be in Markdown.
-- Do not include additional explanations.
+- *Identify Violations*: Only report the best practices that are not followed in the test file.
+- *Organize by Section*: Group the identified issues under their respective sections from the markdown file.
+- *XML Format*: Enclose the entire output in an XML tag named 'test_file_analysis_result'.
+- *Exclude XML tag if empty*: If no issues are found, do not include the XML tag.
+- *Markdown Inside XML*: The content within the XML tag should be formatted in Markdown.
+- *No Additional Explanations*: Do not add any explanations or comments beyond the required descriptions.
 
 Example output:
 
 <test_file_analysis_result>
-## Section Title 1
+## Functional requirements section
 
 - Description 1
 - Description 2
+
+## Integration tests section
+
+- Description 3
 </test_file_analysis_result>
