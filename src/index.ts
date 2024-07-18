@@ -1,5 +1,12 @@
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import { buildPromptForDocs, buildPromptForWorkers, extractXMLContent, sendPrompt, ALLOWED_MODELS } from './prompt';
+import {
+	buildPromptForDocs,
+	buildPromptForWorkers,
+	extractXMLContent,
+	sendPrompt,
+	ALLOWED_MODELS,
+	buildPromptForAnalyzeTestFile,
+} from './prompt';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs } from './utils';
 
 type GitHubJob = {
@@ -93,7 +100,7 @@ export default {
 							// Use the appropriate API key based on the model
 							const apiKey = model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY;
 
-							// 1. Get the test file from the repository
+							// Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
 							const testFilePath = ensurePath(basePath, 'test/index.spec.ts');
 							const testFile = changedFiles.find((file) => file.filename === testFilePath);
@@ -106,7 +113,35 @@ export default {
 
 							const testFileContent = await github.fetchFileContents(context, testFile.sha);
 
-							// 2. Use the test file and Cloudflare documentation to get only the relevant documentation
+							// Analyze the test file to check for conflicts with Best Practices
+							const analyzeTestFilePrompts = buildPromptForAnalyzeTestFile(testFileContent);
+							const analyzedTestFile = await sendPrompt({
+								model,
+								prompts: analyzeTestFilePrompts,
+								temperature: 0,
+								apiKey,
+							});
+
+							if (!analyzedTestFile) {
+								const elapsedTime = getElapsedSeconds(message.timestamp);
+								const debugInfo = formatDebugInfo({
+									elapsedTime,
+									model,
+									analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
+									analyzeTestFileResponse: JSON.stringify(analyzedTestFile, null, 2),
+								});
+								await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
+								return;
+							}
+
+							const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
+							if (testFileAnalysisResult) {
+								const body = `The test file contains conflicts that need to be resolved before generating the code. Please fix the following issues:\n\n${testFileAnalysisResult}`;
+								await github.postComment(context, body, workingCommentId);
+								return;
+							}
+
+							// Use the test file and Cloudflare documentation to get only the relevant documentation
 							const documentationPrompts = buildPromptForDocs(testFileContent);
 							const relevantDocumentation = await sendPrompt({
 								model,
@@ -130,7 +165,7 @@ export default {
 								);
 							}
 
-							// 3. Generate the code based on the test file and relevant documentation
+							// Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
 							const generatedWorker = await sendPrompt({
 								model,
@@ -150,7 +185,7 @@ export default {
 								return;
 							}
 
-							// 4. Write the generated file (src/index.ts) to the pull request's branch
+							// Write the generated file (src/index.ts) to the pull request's branch
 							const srcFilePath = ensurePath(basePath, 'src/index.ts');
 							const file = { path: srcFilePath, content: completedCode };
 
