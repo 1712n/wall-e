@@ -1,3 +1,4 @@
+# Cloudflare
 ## Test APIs
 
 The Workers Vitest integration provides runtime helpers for writing tests in the `cloudflare:test` module. The `cloudflare:test` module is provided by the `@cloudflare/vitest-pool-workers` package, but can only be imported from test files that execute in the Workers runtime.
@@ -517,7 +518,7 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 
-## Drizzle ORM
+# DrizzleORM
 
 Drizzle ORM is a lightweight, type-safe SQL query builder and ORM (Object-Relational Mapping) for TypeScript and JavaScript.
 
