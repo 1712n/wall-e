@@ -1,4 +1,4 @@
-import cloudflareDocumentation from './cloudflare_documentation.md';
+import cloudflareDocumentation from './documentation.md';
 import documentationExtraction from './documentation_extraction.md';
 import generateWorker from './generate_worker.md';
 
