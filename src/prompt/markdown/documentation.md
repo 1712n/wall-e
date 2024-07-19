@@ -518,7 +518,7 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 
-# DrizzleORM
+# Drizzle ORM
 
 Drizzle ORM is a lightweight, type-safe SQL query builder and ORM (Object-Relational Mapping) for TypeScript and JavaScript.
 
