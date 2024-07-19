@@ -1,3 +1,4 @@
+# Cloudflare
 ## Test APIs
 
 The Workers Vitest integration provides runtime helpers for writing tests in the `cloudflare:test` module. The `cloudflare:test` module is provided by the `@cloudflare/vitest-pool-workers` package, but can only be imported from test files that execute in the Workers runtime.
@@ -517,3 +518,66 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 
+# Drizzle ORM
+
+Drizzle ORM is a lightweight, type-safe SQL query builder and ORM (Object-Relational Mapping) for TypeScript and JavaScript.
+
+### Usage with Cloudflare Workers
+
+```ts
+import { Client } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+export default {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx: ExecutionContext
+  ): Promise<Response> {
+    const client = new Client({ connectionString: env.DATABASE_URL });
+    await client.connect();
+    const db = drizzle(client);
+    const result = await db.select().from(...);
+    // Clean up the client, ensuring we don't kill the worker before that is completed.
+    ctx.waitUntil(client.end());
+    return new Response(now);
+  }
+}
+```
+
+### Update many with different values for each row
+
+To implement update many with different values for each row within 1 request you can use sql operator with case statement and .update().set() methods like this:
+
+```ts
+import { SQL, inArray, sql } from 'drizzle-orm';
+import { users } from './schema';
+const db = drizzle(...);
+const inputs = [
+  {
+    id: 1,
+    city: 'New York',
+  },
+  {
+    id: 2,
+    city: 'Los Angeles',
+  },
+  {
+    id: 3,
+    city: 'Chicago',
+  },
+];
+// You have to be sure that inputs array is not empty
+if (inputs.length === 0) {
+  return;
+}
+const sqlChunks: SQL[] = [];
+const ids: number[] = [];
+sqlChunks.push(sql`(case`);
+for (const input of inputs) {
+  sqlChunks.push(sql`when ${users.id} = ${input.id} then ${input.city}`);
+  ids.push(input.id);
+}
+sqlChunks.push(sql`end)`);
+const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
+await db.update(users).set({ city: finalSql }).where(inArray(users.id, ids));
+```
