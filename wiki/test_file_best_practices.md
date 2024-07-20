@@ -15,6 +15,8 @@
 - Specific project priorities
   > write _"The worker should include extensive error handling"_ instead of _"The worker should handle specific error cases X, Y, Z"_
 
+- Include some technical information if it helps guide the code generator to use specific models or technologies
+
 ### ❌ Avoid
 
 - Excessive implementation details (unless necessary for guiding the code generator)
