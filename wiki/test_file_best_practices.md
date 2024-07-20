@@ -27,7 +27,7 @@
 
 ### 🎯 Key Principle
 
-Test workers as a black box, without assumptions about internal implementation. Some technical information in test descriptions is acceptable.
+Test workers as a black box, without assumptions about internal implementation.
 
 ### ✅️ Do
 
