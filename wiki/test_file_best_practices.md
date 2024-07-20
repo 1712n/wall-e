@@ -82,6 +82,8 @@ const randomMockMessage = () => ({
 const mockMessages = Array.from({ length: 10 }, randomMockMessage);
 ```
 
+- Common sense functionality tests: Refrain from testing common sense functionality that LLMs can generate code for without relying on specific tests.
+
 ### 🤔 Philosophical points that need to be debated each time
 
 - Imports from `cloudflare:test` and `vitest` are acceptable without justification. Any other imports should be carefully considered and justified based on their necessity and impact on test simplicity and clarity.
