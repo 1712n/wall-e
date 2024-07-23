@@ -589,13 +589,14 @@ Tables are defined in schema using pgTable() calls. For example:
 ```ts
 import { pgTable, serial, text, varchar } from 'drizzle-orm/pg-core';
 
-
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   fullName: text('full_name'),
   phone: varchar('phone', { length: 256 }),
 });
 ```
+
+### Using Drizzle Queries
 
 Relational queries are an extension to Drizzle’s original query builder. You need to provide all tables and relations from your schema file/files upon drizzle() initialization and then just use the db.query API.
 
