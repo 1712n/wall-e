@@ -15,7 +15,7 @@
 - Specific project priorities
   > write _"The worker should include extensive error handling"_ instead of _"The worker should handle specific error cases X, Y, Z"_
 
-- Optional: describe the characteristics of the technologies you want to be used, rather than providing specific names. For example, say that a worker needs a latest-gen LLM with large context window and good reasoning capabilities, rather than providing a model name.
+- Optional: Describe the desired characteristics and capabilities of technologies rather than specifying exact names. For instance, instead of naming a particular model, indicate that a worker requires a latest-gen LLM with a large context window and advanced reasoning capabilities.
 
 ### ❌ Avoid
 
