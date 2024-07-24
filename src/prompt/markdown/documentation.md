@@ -607,7 +607,9 @@ import { drizzle } from 'drizzle-orm/...';
 const db = drizzle(client, { schema });
 await db.query.users.findMany();
 ```
+
 #### Filtering and Conditions
+
 The relational queries API enables the definition of filters and conditions using Drizzle's operators. When referencing table columns in operators, the tables exported from the schema are used:
 
 When referencing table columns in operators, reference tables exported from schema:
