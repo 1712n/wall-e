@@ -31,9 +31,9 @@ export function buildPromptForWorkers(testFile: string, relevantDocs?: string): 
 
 export function buildPromptForAnalyzeTestFile(testFile: string): PromptMessages {
 	return {
-		system: analyzeTestFile,
-		user: `# Test File\n${testFile}\n\n# Best Practices\n${testFileBestPractices}\n\n`,
-	};
+    system: `${analyzeTestFile}\n\n---\n\n${testFileBestPractices}`,
+    user: testFile,
+	};	
 }
 
 type SendPromptParams = {
