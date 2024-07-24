@@ -1,18 +1,18 @@
-You're given two files: a TypeScript test file (Vitest) and a markdown file of test-writing best practices.
+You're given a TypeScript test file (in Vitest) and a markdown file with best practices for Tests.
 
-Task: Analyze the TypeScript test file against the best practices. Identify and report only violations.
+**Task:** Analyze the TypeScript test file against the best practices. Identify and report only violations.
 
-Output format:
-- Enclose in <test_file_analysis_result> XML tag (omit if no issues)
+**Output format:**
+
+- Enclose in `<test_file_analysis_result>` XML tag (omit if no issues)
 - Use Markdown inside XML
-- Group issues by sections from the best practices file
-- Maintain section order from best practices
+- Group issues by sections and keep the same order as in the best practices file
 - For each violation:
-  - List best practice not followed
+  - List the best practice not followed
   - Describe the issue
-  - Quote relevant test file portion
+  - Quote the relevant test file portion
 
-Structure:
+**Structure:**
 
 ```xml
 <test_file_analysis_result>
@@ -21,12 +21,12 @@ Structure:
 ### Conflicts
 
 1. [Best Practice]
-   - [Issue Description]
-   - [Relevant Quote]
+  - [Issue Description]
+  - [Relevant test file portion]
 </test_file_analysis_result>
 ```
 
-Important:
+**Important:**
 
 - Report only violations
 - No additional explanations or comments
