@@ -6,8 +6,7 @@
 
 ### ✅️ Do
 
-- General overview containing the answer to **why** (an elevator pitch). Treat the worker as a product in itself, focusing on the variety of potential use cases, rather than your specific need of today.
-  > Similarity Search API built with Cloudflare Workers AI and Cloudflare Vectorize database. It's a simple Cloudflare worker that looks up incoming messages in a vector database and returns a similarity score. It's used by other services for near-duplicate detection, topic classification, and synthetic data generation purposes, among other things.
+- Provide a general overview explaining why the worker is important. Think of this as an elevator pitch: describe the purpose and potential uses of the functionality, not just the immediate need. This helps anyone, regardless of technical background, understand the value and scope of the worker's functionality.
 
 - Key functionality description using high-level terms
   > _"The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding."_ instead of _"The worker returns JSON with embedding field"_
