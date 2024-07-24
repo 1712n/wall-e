@@ -15,6 +15,8 @@
 - Specific project priorities
   > write _"The worker should include extensive error handling"_ instead of _"The worker should handle specific error cases X, Y, Z"_
 
+- Optional: Describe the desired characteristics and capabilities of technologies rather than specifying exact names. For instance, instead of naming a particular model, indicate that a worker requires a latest-gen LLM with a large context window and advanced reasoning capabilities.
+
 ### ❌ Avoid
 
 - Excessive implementation details (unless necessary for guiding the code generator)
