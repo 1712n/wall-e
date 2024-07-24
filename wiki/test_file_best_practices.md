@@ -6,14 +6,15 @@
 
 ### ✅️ Do
 
-- General overview containing the answer to **why** (an elevator pitch). Treat the worker as a product in itself, focusing on the variety of potential use cases, rather than your specific need of today.
-  > Similarity Search API built with Cloudflare Workers AI and Cloudflare Vectorize database. It's a simple Cloudflare worker that looks up incoming messages in a vector database and returns a similarity score. It's used by other services for near-duplicate detection, topic classification, and synthetic data generation purposes, among other things.
+- Provide a general overview explaining why the worker is important. Think of this as an elevator pitch: describe the purpose and potential uses of the functionality, not just the immediate need. This helps anyone, regardless of technical background, understand the value and scope of the worker's functionality.
 
 - Key functionality description using high-level terms
   > _"The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding."_ instead of _"The worker returns JSON with embedding field"_
 
 - Specific project priorities
   > write _"The worker should include extensive error handling"_ instead of _"The worker should handle specific error cases X, Y, Z"_
+
+- Optional: Describe the desired characteristics and capabilities of technologies rather than specifying exact names. For instance, instead of naming a particular model, indicate that a worker requires a latest-gen LLM with a large context window and advanced reasoning capabilities.
 
 ### ❌ Avoid
 
