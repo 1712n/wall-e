@@ -598,7 +598,7 @@ export const users = pgTable('users', {
 
 ### Using Drizzle Queries
 
-Relational queries are an extension to the existing schema definition and query builder. To use this API, all tables and relations from the schema file/files upon drizzle() initialization should be provided
+Relational queries are an extension to the existing schema definition and query builder. To use this API, all tables and relations from the schema file/files upon drizzle() initialization should be provided.
 
 ```ts
 import * as schema from './schema';
@@ -611,8 +611,6 @@ await db.query.users.findMany();
 #### Filtering and Conditions
 
 The relational queries API enables the definition of filters and conditions using Drizzle's operators. When referencing table columns in operators, the tables exported from the schema are used:
-
-When referencing table columns in operators, reference tables exported from schema:
 
 ```ts
 const users = await db.query.users.findMany({
