@@ -2,7 +2,7 @@
 
 ## Functional requirements section
 
-⚠️ A non-technical person should be able to understand this section.
+⚠️ This section should be easy to understand for someone without technical knowledge. It is placed at the beginning of the test file within a comment block.
 
 ### ✅️ Do
 
