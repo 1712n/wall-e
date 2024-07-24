@@ -584,7 +584,7 @@ await db.update(users).set({ city: finalSql }).where(inArray(users.id, ids));
 
 ### Using table columns
 
-Tables are defined in schema using pgTable() calls. For example:
+Tables are defined in the schema using pgTable() calls. For example:
 
 ```ts
 import { pgTable, serial, text, varchar } from 'drizzle-orm/pg-core';
@@ -598,7 +598,7 @@ export const users = pgTable('users', {
 
 ### Using Drizzle Queries
 
-Relational queries are an extension to Drizzle’s original query builder. You need to provide all tables and relations from your schema file/files upon drizzle() initialization and then just use the db.query API.
+Relational queries are an extension to the existing schema definition and query builder. To use this API, all tables and relations from the schema file/files upon drizzle() initialization should be provided
 
 ```ts
 import * as schema from './schema';
@@ -607,8 +607,8 @@ import { drizzle } from 'drizzle-orm/...';
 const db = drizzle(client, { schema });
 await db.query.users.findMany();
 ```
-
-Just like in our SQL-like query builder, relational queries API lets you define filters and conditions with the list of our operators.
+#### Filtering and Conditions
+The relational queries API enables the definition of filters and conditions using Drizzle's operators. When referencing table columns in operators, the tables exported from the schema are used:
 
 When referencing table columns in operators, reference tables exported from schema:
 
