@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { cloudflareDocumentation, documentationExtraction, generateWorker } from './markdown';
+import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
 
 export const ALLOWED_MODELS = [
 	'claude-3-opus-20240229',
@@ -17,16 +17,24 @@ type PromptMessages = {
 export function buildPromptForDocs(testFile: string): PromptMessages {
 	return {
 		system: documentationExtraction,
-		user: `# Test File\n${testFile}\n\n# Documentation File\n${cloudflareDocumentation}\n\n`,
+		user: `# Test File\n${testFile}\n\n# Documentation File\n${documentation}\n\n`,
 	};
 }
 
 export function buildPromptForWorkers(testFile: string, relevantDocs?: string): PromptMessages {
-	const documentationFile = relevantDocs ?? cloudflareDocumentation;
+	const documentationFile = relevantDocs ?? documentation;
 	return {
 		system: generateWorker,
 		user: `# Test File\n${testFile}\n\n# Documentation File\n${documentationFile}\n\n`,
 	};
+}
+
+export function buildPromptForAnalyzeTestFile(testFile: string): PromptMessages {
+	return {
+    system: `${analyzeTestFile}\n\n<best_practices>\n\n${testFileBestPractices}</best_practices>`,
+    user: `<test_file>\n\n${testFile}\n\n</test_file>
+`,
+	};	
 }
 
 type SendPromptParams = {
