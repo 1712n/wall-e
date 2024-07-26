@@ -18,7 +18,7 @@
 
 ### ❌ Avoid
 
-- Excessive implementation details (unless necessary for guiding the code generator)
+- Excessive implementation details
 - Excessive context of the larger system (e.g. detailed descriptions of external components)
 - Step-by-step instructions (it's the LLM's job to figure out the best way to break down a problem into logical parts)
 - Detailed technical requirements (giving performance expectations)
