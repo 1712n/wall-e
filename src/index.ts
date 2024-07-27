@@ -131,14 +131,12 @@ export default {
 									analyzeTestFileResponse: JSON.stringify(analyzedTestFile, null, 2),
 								});
 								await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
-								return;
-							}
-
-							const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
-							if (testFileAnalysisResult) {
-								const body = `The test file contains conflicts that need to be resolved before generating the code. Please fix the following issues:\n\n${testFileAnalysisResult}`;
-								await github.postComment(context, body, workingCommentId);
-								return;
+							} else {
+								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
+								if (testFileAnalysisResult) {
+									const body = `The test file contains conflicts that need to be resolved before generating the code. Please fix the following issues:\n\n${testFileAnalysisResult}\n\n`;
+									await github.postComment(context, body);
+								}
 							}
 
 							// Use the test file and Cloudflare documentation to get only the relevant documentation
