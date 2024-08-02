@@ -22,7 +22,7 @@
 
 - **Excessive System Context**: Refrain from providing detailed descriptions of the broader system or external components. Concentrate on the worker’s specific role, as too much additional context can obscure its primary function.
 
-- **Step-by-Step Instructions**: Do not include step-by-step instructions for tasks. The aim is for the LLM to determine the best way to break down and solve problems on its own.
+- **Step-by-Step Instructions**: Do not include step-by-step instructions for tasks. The aim is for the LLM to effectively break down complex problems into manageable, logical steps.
 
 - **Detailed Technical Requirements**: Avoid specifying exact technical details. Instead, concentrate on the overall functional objectives and leave the technical specifics to be determined by the LLM.
 
