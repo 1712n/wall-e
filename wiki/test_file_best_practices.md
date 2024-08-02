@@ -26,7 +26,7 @@
 
 - **Detailed Technical Requirements**: Avoid specifying exact technical details. Instead, concentrate on the overall functional objectives and leave the technical specifics to be determined by the LLM.
 
-- Schemas (if they are important, they should be tested)
+- **Schemas**: If schemas are important, they should be tested rather than included in the functional requirements
 
 ## Integration tests section
 
