@@ -18,11 +18,15 @@
 
 ### ❌ Avoid
 
-- Excessive implementation details
-- Excessive context of the larger system (e.g. detailed descriptions of external components)
-- Step-by-step instructions (it's the LLM's job to figure out the best way to break down a problem into logical parts)
-- Detailed technical requirements (giving performance expectations)
-- Schemas (if they are important, they should be tested)
+- **Excessive Implementation Details**: Avoid including detailed instructions on how to build or implement the worker. Focus on what the worker should accomplish, not on the specific steps to achieve it.
+
+- **Excessive System Context**: Refrain from providing detailed descriptions of the broader system or external components. Concentrate on the worker’s specific role, as too much additional context can obscure its primary function.
+
+- **Step-by-Step Instructions**: Do not include step-by-step instructions for tasks. The aim is for the LLM to effectively break down complex problems into manageable, logical steps.
+
+- **Detailed Technical Requirements**: Avoid specifying exact technical details. Instead, concentrate on the overall functional objectives and leave the technical specifics to be determined by the LLM.
+
+- **Schemas**: If schemas are important, they should be tested rather than included in the functional requirements.
 
 ## Integration tests section
 
