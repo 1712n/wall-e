@@ -6,7 +6,7 @@
 
 ### ✅️ Do
 
-- **Provide a General Overview**: Start with a brief explanation of why this worker is important. Think of this as an elevator pitch: clearly describe what the worker does and how it can be used. This helps everyone, regardless of their technical background, understand the worker's purpose and value.
+- **Provide a General Overview**: Start with a brief explanation of why this worker is important. Think of this as an elevator pitch: clearly describe what the worker does and how it can be used. This helps everyone, regardless of their technical background, understand the worker's purpose and value. Example: _"This worker generates vector embeddings for input text using Workers AI Text Embedding Model and is used in applications requiring vector search. The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding. The worker should include extensive error handling and logging."_
 
 - **Describe Key Functionality in Simple Terms**: Use high-level language to explain what the worker does. For example, say _"The worker provides an HTTP API endpoint that accepts a single text input and returns a vector embedding,"_ instead of _"The worker returns JSON with an embedding field."_ This makes the functionality easy to grasp.
 
