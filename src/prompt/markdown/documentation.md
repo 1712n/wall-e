@@ -1,7 +1,7 @@
 # Knowledge Map
 
 ## Cloudflare Workers
-- [Cloudflare Test APIs](#cloudflare-test-apis) are needed for all Cloudflare Workers, no matter what.
+- [Cloudflare Test APIs](#cloudflare-test-apis) are required for all Cloudflare Workers. 
 ## Data Stores
 - For any data store interactions, we need to leverage [Drizzle ORM](#drizzle-orm) for consistency and safety.
   - [Drizzle Usage with Cloudflare Workers](#drizzle-usage-with-cloudflare-workers) demonstrates how to use Drizzle ORM within Workers.
