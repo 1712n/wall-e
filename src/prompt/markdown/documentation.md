@@ -11,7 +11,7 @@
   - Hyperdrive is an intelligent caching layer between Cloudflare Workers and external databases.
 
 ## AI Models
-- Advanced Reasoning use cases need to rely on frontier models from external LLM services, such as [GPT4o](#cloudflare-workers-ai-superior-reasoning-use-cases---meta-llama-3-llm) and [Claude Sonnet 3.5](#cloudflare-workers-ai-superior-reasoning-use-cases---meta-llama-3-llm).
+- Advanced Reasoning use cases need to rely on frontier models from external LLM services, such as GPT4o and Claude Sonnet 3.5.
 - Cost-Efficient models - [Cloudflare Workers AI](#cloudflare-workers-ai) are good for simpler use cases. 
   - Cloudflare Workers AI are also great for use cases that require [text embeddings](#cloudflare-workers-ai-text-embeddings), such as similarity search.
 
