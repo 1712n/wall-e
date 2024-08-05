@@ -40,8 +40,8 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
     import { env } from 'cloudflare:test';
 
     it('uses binding', async () => {
-    await env.KV_NAMESPACE.put('key', 'value');
-    expect(await env.KV_NAMESPACE.get('key')).toBe('value');
+      await env.KV_NAMESPACE.put('key', 'value');
+      expect(await env.KV_NAMESPACE.get('key')).toBe('value');
     });
     ```
 
@@ -49,11 +49,11 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
 
     ```ts
     declare module 'cloudflare:test' {
-    interface ProvidedEnv {
-    KV_NAMESPACE: KVNamespace;
-    }
-    // ...or if you have an existing `Env` type...
-    interface ProvidedEnv extends Env {}
+      interface ProvidedEnv {
+        KV_NAMESPACE: KVNamespace;
+      }
+      // ...or if you have an existing `Env` type...
+      interface ProvidedEnv extends Env {}
     }
     ```
 
@@ -79,20 +79,20 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
     import { beforeAll, afterEach, it, expect } from 'vitest';
 
     beforeAll(() => {
-    // Enable outbound request mocking...
-    fetchMock.activate();
-    // ...and throw errors if an outbound request isn't mocked
-    fetchMock.disableNetConnect();
+      // Enable outbound request mocking...
+      fetchMock.activate();
+      // ...and throw errors if an outbound request isn't mocked
+      fetchMock.disableNetConnect();
     });
     // Ensure we matched every mock we defined
     afterEach(() => fetchMock.assertNoPendingInterceptors());
 
     it('mocks requests', async () => {
-    // Mock the first request to `https://example.com`
-    fetchMock.get('https://example.com').intercept({ path: '/' }).reply(200, 'body');
+      // Mock the first request to `https://example.com`
+      fetchMock.get('https://example.com').intercept({ path: '/' }).reply(200, 'body');
 
-    const response = await fetch('https://example.com/');
-    expect(await response.text()).toBe('body');
+      const response = await fetch('https://example.com/');
+      expect(await response.text()).toBe('body');
     });
     ```
 
@@ -420,12 +420,12 @@ curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/
   --data ' {
     "model": "gpt-3.5-turbo",
     "messages": [
-    {
-    "role": "user",
-    "content": "how to build a wooden spoon in 3 short steps? give as short as answer as possible"
-    }
+      {
+        "role": "user",
+        "content": "how to build a wooden spoon in 3 short steps? give as short as answer as possible"
+      }
     ]
-    }
+  }
 '
 ```
 #### Cloudflare AI Gateway - Caching Workers AI
