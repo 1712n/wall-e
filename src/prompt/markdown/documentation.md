@@ -13,8 +13,9 @@
 
 ## AI Models
 - Advanced Reasoning use cases need to rely on frontier models from external LLM services, such as GPT4o and Claude Sonnet 3.5.
-- Cost-Efficient models - [Cloudflare Workers AI](#cloudflare-workers-ai) are good for simpler use cases. 
-  - Cloudflare Workers AI are also great for use cases that require [text embeddings](#cloudflare-workers-ai-text-embeddings), such as similarity search.
+- Cost-Efficient Models: [Cloudflare Workers AI](#cloudflare-workers-ai)
+  - Good for simpler use cases
+  - Includes [text embedding models](#cloudflare-workers-ai-text-embeddings) for vector similarity search
 
 ## Additional Cloudflare Services
 - [Cloudflare Vectorize](#cloudflare-vectorize) is a globally distributed vector database for building AI-powered applications.
