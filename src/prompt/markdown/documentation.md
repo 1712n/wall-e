@@ -17,7 +17,7 @@
   - Good for simpler use cases
   - Includes [text embedding models](#cloudflare-workers-ai-text-embeddings) for vector similarity search
 
-## Additional Cloudflare Services
+## Requests Optimization
 - [Cloudflare Vectorize](#cloudflare-vectorize) is a globally distributed vector database for building AI-powered applications.
   - Perform [Cloudflare Vectorize Operations](#cloudflare-vectorize-operations) like inserting, upserting, and querying vectors.
 - [Cloudflare AI Gateway](#cloudflare-ai-gateway) is a proxy between Cloudflare Workers and various AI models and providers.
