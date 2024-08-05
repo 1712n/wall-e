@@ -7,6 +7,7 @@ export const ALLOWED_MODELS = [
 	'claude-3-haiku-20240307',
 	'claude-3-5-sonnet-20240620',
 	'gpt-4o',
+	'gpt-4o-mini',
 ];
 
 type PromptMessages = {
@@ -54,7 +55,7 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 	const { content } = await anthropic.messages
 		.create({
 			model,
-			max_tokens: 8192,
+			max_tokens: 8_192,
 			system: prompts.system,
 			messages: [{ role: 'user', content: prompts.user }],
 			stream: false,
@@ -94,7 +95,7 @@ async function sendOpenAIPrompt(params: SendPromptParams) {
 				{ role: 'system', content: prompts.system },
 				{ role: 'user', content: prompts.user },
 			],
-			max_tokens: 4000,
+			max_tokens: model === 'gpt-4o-mini' ? 16_384 : 4_096,
 			temperature,
 			seed: 0,
 		}),
