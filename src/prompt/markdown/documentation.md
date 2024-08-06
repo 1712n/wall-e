@@ -1,26 +1,26 @@
-# Knowledge Map
+## Knowledge Map
 
-## Cloudflare Workers
+### Cloudflare Workers
 - [Cloudflare Test APIs](#cloudflare-test-apis) are required for all Cloudflare Workers. 
-## Data Management
-### Persistent Storage
+### Data Management
+#### Persistent Storage
 - For any data store interactions, we need to leverage [Drizzle ORM](#drizzle-orm) for consistency and safety.
   - [Drizzle Usage with Cloudflare Workers](#drizzle-usage-with-cloudflare-workers) demonstrates how to use Drizzle ORM within Workers.
   - [Drizzle Operations](#drizzle-operations) cover various data manipulation tasks.
   - [Drizzle Vector Storage](#drizzle---vector-storage) enables storing vector embeddings alongside other data.
 - Any data stores outside the Cloudflare Ecosystem need to be accessed through [Cloudflare Hyperdrive](#cloudflare-hyperdrive) to increase performance.
   - Hyperdrive is an intelligent caching layer between Cloudflare Workers and external databases.
-### Vector Database
+#### Vector Database
 - [Cloudflare Vectorize](#cloudflare-vectorize)
   - Globally distributed vector database for AI-powered applications
   - Supports [vector operations](#cloudflare-vectorize-operations) like insert, upsert, and query
-## AI Models
+### AI Models
 - Advanced Reasoning use cases need to rely on frontier models from external LLM services, such as GPT4o and Claude Sonnet 3.5.
 - Cost-Efficient Models: [Cloudflare Workers AI](#cloudflare-workers-ai)
   - Good for simpler use cases
   - Includes [text embedding models](#cloudflare-workers-ai-text-embeddings) for vector similarity search
 
-## Requests Optimization
+### Requests Optimization
 - [Cloudflare Vectorize](#cloudflare-vectorize) is a globally distributed vector database for building AI-powered applications.
   - Perform [Cloudflare Vectorize Operations](#cloudflare-vectorize-operations) like inserting, upserting, and querying vectors.
 - [Cloudflare AI Gateway](#cloudflare-ai-gateway) is a proxy between Cloudflare Workers and various AI models and providers.
@@ -28,12 +28,12 @@
 - [Cloudflare Workers Cache API](#cloudflare-workers-cache-api) allows Workers to programmatically cache both internal and external fetch requests.
   - Useful for overriding content that is already cached and accessing cached responses without relying on fetch requests.
 
-# Cloudflare
-## Cloudflare Test APIs
+## Cloudflare
+### Cloudflare Test APIs
 
 The Workers Vitest integration provides runtime helpers for writing tests in the `cloudflare:test` module. The `cloudflare:test` module is provided by the `@cloudflare/vitest-pool-workers` package, but can only be imported from test files that execute in the Workers runtime.
 
-### `cloudflare:test` module definition
+#### `cloudflare:test` module definition
 
 - env: import("cloudflare:test").ProvidedEnv
 
@@ -99,13 +99,13 @@ The Workers Vitest integration provides runtime helpers for writing tests in the
     });
     ```
 
-## Cloudflare Workers AI
+### Cloudflare Workers AI
 
-### Cloudflare Workers AI Bindings
+#### Cloudflare Workers AI Bindings
 
 To use Workers AI with Workers, you must create a Workers AI binding. Bindings allow your Workers to interact with resources, like Workers AI, on the Cloudflare Developer Platform.
 
-### Cloudflare Workers Ai Type
+#### Cloudflare Workers Ai Type
 
 The `Ai` type is a built-in type provided by the TypeScript compiler when using Cloudflare Workers. It is automatically available in the global scope of your worker script. Important: you don't need to explicitly import it using an import statement.
 ```ts
@@ -114,14 +114,14 @@ export interface Env {
 }
 ```
 
-### Cloudflare Workers AI Changelog: Add AI native binding
+#### Cloudflare Workers AI Changelog: Add AI native binding
 
 -   Added new AI native binding, you can now run models with `const resp = await env.AI.run(modelName, inputs)`
 -   Deprecated `@cloudflare/ai` npm package. While existing solutions using the @cloudflare/ai package will continue to work, no new Workers AI features will be supported. Moving to native AI bindings is highly recommended
 
-### Cloudflare Workers AI Methods
+#### Cloudflare Workers AI Methods
 
-#### async env.AI.run()
+##### async env.AI.run()
 
 `async env.AI.run()` runs a model. Takes a model as the first parameter, and an object as the second parameter.
 
@@ -134,14 +134,14 @@ const answer = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
 **Parameters**
 - `model` string required - The model to run.
 
-### Cloudflare Workers AI Models
+#### Cloudflare Workers AI Models
 
 Workers AI comes with a curated set of popular open-source models that enable you to do tasks such as image classification, text generation, object detection and more.
 
-#### Cloudflare Workers AI Text Embeddings
+##### Cloudflare Workers AI Text Embeddings
 Feature extraction models transform raw data into numerical features that can be processed while preserving the information in the original dataset. These models are ideal as part of building vector search applications or Retrieval Augmented Generation workflows with LLMs.
 
-#### Cloudflare Workers AI BAAI general embedding model
+##### Cloudflare Workers AI BAAI general embedding model
 ```
 model:
   id: "429b9e8b-d99e-44de-91ad-706cf8183658"
@@ -172,9 +172,9 @@ json_schema:
   output: "{\n  \"type\": \"object\",\n  \"contentType\": \"application/json\",\n  \"properties\": {\n    \"shape\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"number\"\n      }\n    },\n    \"data\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"type\": \"number\"\n        }\n      }\n    }\n  }\n}"
 ```
 
-#### Cloudflare Workers AI Text Generation
+##### Cloudflare Workers AI Text Generation
 
-#### Scoped prompts
+##### Scoped prompts
 This is the recommended method. With scoped prompts, Workers AI takes the burden of knowing and using different chat templates for different models and provides a unified interface to developers when building prompts and creating text generation tasks.
 
 Scoped prompts are a list of messages. Each message defines two keys: the role and the content.
@@ -197,7 +197,7 @@ Here’s an input example of a scoped prompt using system and user roles:
 ```
 Note that different LLMs are trained with different templates for different use cases. While Workers AI tries its best to abstract the specifics of each LLM template from the developer through a unified API, you should always refer to the model documentation for details. For example, instruct models like Codellama are fine-tuned to respond to a user-provided instruction, while chat models expect fragments of dialogs as input.
 
-#### Cloudflare Workers AI Big Context Use Cases - Mistral-7B-Instruct-v0.2 Large Language Model (LLM)
+##### Cloudflare Workers AI Big Context Use Cases - Mistral-7B-Instruct-v0.2 Large Language Model (LLM)
 
 ```
 model:
@@ -233,7 +233,7 @@ json_schema:
   output: "{\n  \"oneOf\": [\n    {\n      \"type\": \"object\",\n      \"contentType\": \"application/json\",\n      \"properties\": {\n        \"response\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    {\n      \"type\": \"string\",\n      \"contentType\": \"text/event-stream\",\n      \"format\": \"binary\"\n    }\n  ]\n}"
 ```
 
-#### Cloudflare Workers AI Superior Reasoning Use Cases - Meta Llama 3 LLM
+##### Cloudflare Workers AI Superior Reasoning Use Cases - Meta Llama 3 LLM
 
 ```
 model:
@@ -263,11 +263,11 @@ json_schema:
   output: "{\n  \"oneOf\": [\n    {\n      \"type\": \"object\",\n      \"contentType\": \"application/json\",\n      \"properties\": {\n        \"response\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    {\n      \"type\": \"string\",\n      \"contentType\": \"text/event-stream\",\n      \"format\": \"binary\"\n    }\n  ]\n}"
 ```
 
-## Cloudflare Vectorize
+### Cloudflare Vectorize
 
 Vectorize is a globally distributed vector database that enables you to build full-stack, AI-powered applications with Cloudflare Workers. Vectorize makes querying embeddings faster and easier. By storing the embeddings generated by a machine learning model, including those built-in to Workers AI or by bringing your own from platforms like OpenAI, you can build applications with powerful search, similarity, recommendation, classification and/or anomaly detection capabilities based on your own data.
 
-### Cloudflare Vectorize Vectors
+#### Cloudflare Vectorize Vectors
 
 A vector represents the vector embedding output from a machine learning model.
 
@@ -288,9 +288,9 @@ let vectorExample = {
 }
 ```
 
-### Cloudflare Vectorize Operations
+#### Cloudflare Vectorize Operations
 
-#### Cloudflare Vectorize - Insert vectors
+##### Cloudflare Vectorize - Insert vectors
 
 ```ts
 let vectorsToInsert = [
@@ -306,7 +306,7 @@ If vectors with the same vector ID already exist in the index, only the vectors 
 
 If you need to update existing vectors, use the [upsert](#upsert-vectors) operation.
 
-#### Cloudflare Vectorize - Upsert vectors
+##### Cloudflare Vectorize - Upsert vectors
 
 ```ts
 let vectorsToUpsert = [
@@ -323,7 +323,7 @@ An upsert operation will insert vectors into the index if vectors with the same 
 
 Upserting does not merge or combine the values or metadata of an existing vector with the upserted vector: the upserted vector replaces the existing vector in full.
 
-#### Cloudflare Vectorize - Query vectors
+##### Cloudflare Vectorize - Query vectors
 
 ```ts
 let queryVector = [32.4, 6.55, 11.2, 10.3, 87.9]
@@ -342,7 +342,7 @@ let matches = await env.YOUR_INDEX.query(queryVector, { topK: 5, returnValues: t
 
 Retrieves the specified vectors by their ID, including values and metadata.
 
-### Cloudflare Vectorize - Binding to a Worker
+#### Cloudflare Vectorize - Binding to a Worker
 
 Bindings allow you to attach resources, including Vectorize indexes, to your Worker. In the Env, it's defined as:
 ```ts
@@ -351,7 +351,7 @@ export interface Env {
 }
 ```
 
-## Cloudflare Hyperdrive
+### Cloudflare Hyperdrive
 
 Cloudflare Hyperdrive is an intelligent caching layer between Cloudflare Workers and databases outside Cloudflare Network, significantly reducing query latency and improving overall application responsiveness. By caching frequently accessed data and query results, Hyperdrive minimizes the need for repeated round-trips to the origin database, resulting in faster response times and reduced load on the database server. It's particularly beneficial for applications using Object-Relational Mapping (ORM) tools, as it can automatically optimize and cache complex queries generated by these ORMs without requiring changes to the application code.
 
@@ -392,11 +392,11 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 
-## Cloudflare AI Gateway
+### Cloudflare AI Gateway
 Cloudflare's AI Gateway is a proxy between your Cloudflare Worker and Cloudflare Workers' AI models, as well as other popular providers such as Anthropic and OpenAI. It offers built-in caching, logging, an analytics dashboard, rate limiting, request retries, and model fallback.
 
-### Cloudflare AI Gateway - Caching
-#### Cloudflare AI Gateway Cache TTL (cf-cache-ttl)
+#### Cloudflare AI Gateway - Caching
+##### Cloudflare AI Gateway Cache TTL (cf-cache-ttl)
 Set the caching duration in milliseconds. Example:
 ```bash
 curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/completions \
@@ -413,7 +413,7 @@ curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/
      ]
    }'
 ```
-#### Cloudflare AI Gateway - Custom Cache Key (cf-aig-cache-key)
+##### Cloudflare AI Gateway - Custom Cache Key (cf-aig-cache-key)
 Custom cache keys let you override the default cache key in order to precisely set the cacheability setting for any resource. When you use the cf-aig-cache-key header for the first time, you will receive a response from the provider. Subsequent requests with the same header will return the cached response. If the cf-cache-ttl header is used, responses will be cached according to the specified Cache Time To Live. Otherwise, responses will be cached according to the cache settings in the dashboard. If caching is not enabled for the gateway, responses will be cached for 5 minutes by default.
 ```bash
 curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/completions \
@@ -431,7 +431,7 @@ curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/
   }
 '
 ```
-#### Cloudflare AI Gateway - Caching Workers AI
+##### Cloudflare AI Gateway - Caching Workers AI
 To use AI Gateway's caching within a Worker, include the gateway configuration as an object in the Workers AI request options.
 ```ts
 const response = await env.AI.run(
@@ -449,7 +449,7 @@ const response = await env.AI.run(
     );
 ```
 
-## Cloudflare Workers Cache API
+### Cloudflare Workers Cache API
 Cloudflare Workers Cache API is a service that allows Workers to programmatically cache both internal and external fetch requests, including `POST` requests that can't be cached automatically by Cloudflare network.
 The Cache API can be thought of as an ephemeral key-value store, whereby the `Request` object (or more specifically, the request URL) is the key, and the `Response` is the value.
 
@@ -460,7 +460,7 @@ There are two types of cache namespaces available to the Cloudflare Cache:
 When to use the Cache API:
 - When you want to programmatically save and/or delete responses from a cache. For example, say an origin is responding with a `Cache-Control: max-age:0` header and cannot be changed. Instead, you can clone the `Response`, adjust the header to the `max-age=3600` value, and then use the Cache API to save the modified `Response` for an hour.
 - When you want to programmatically access a Response from a cache without relying on a `fetch` request. For example, you can check to see if you have already cached a `Response` for the `https://example.com/slow-response` endpoint. If so, you can avoid the slow request.
-### Using the Cache API
+#### Using the Cache API
 ```ts
 interface Env {}
 export default {
@@ -499,7 +499,7 @@ export default {
   },
 } satisfies ExportedHandler<Env>;
 ```
-### Cache POST requests
+#### Cache POST requests
 ```ts
 interface Env {}
 export default {
@@ -546,11 +546,11 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 
-# Drizzle ORM
+## Drizzle ORM
 
 Drizzle ORM is a lightweight, type-safe SQL query builder and ORM (Object-Relational Mapping) for TypeScript and JavaScript.
 
-## Drizzle Usage with Cloudflare Workers
+### Drizzle Usage with Cloudflare Workers
 
 ```ts
 import { Client } from "pg";
@@ -571,8 +571,8 @@ export default {
   }
 }
 ```
-## Drizzle Operations
-### Drizzle - Update many with different values for each row
+### Drizzle Operations
+#### Drizzle - Update many with different values for each row
 
 To implement update many with different values for each row within 1 request you can use sql operator with case statement and .update().set() methods like this:
 
@@ -610,7 +610,7 @@ const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
 await db.update(users).set({ city: finalSql }).where(inArray(users.id, ids));
 ```
 
-### Drizzle - Using table columns
+#### Drizzle - Using table columns
 
 Tables are defined in the schema using pgTable() calls. For example:
 
@@ -624,7 +624,7 @@ export const users = pgTable('users', {
 });
 ```
 
-### Drizzle - Using Drizzle Queries
+#### Drizzle - Using Drizzle Queries
 
 Relational queries are an extension to the existing schema definition and query builder. To use this API, all tables and relations from the schema file/files upon drizzle() initialization should be provided.
 
@@ -636,7 +636,7 @@ const db = drizzle(client, { schema });
 await db.query.users.findMany();
 ```
 
-#### Drizzle - Filtering and Conditions
+##### Drizzle - Filtering and Conditions
 
 The relational queries API enables the definition of filters and conditions using Drizzle's operators. When referencing table columns in operators, the tables exported from the schema are used:
 
@@ -646,7 +646,7 @@ const users = await db.query.users.findMany({
 })
 ```
 
-## Drizzle - Vector storage
+### Drizzle - Vector storage
 
 Store your vectors with the rest of your data with column type `vector`:
 
