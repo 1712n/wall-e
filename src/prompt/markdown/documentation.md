@@ -10,7 +10,10 @@
   - [Drizzle Vector Storage](#drizzle---vector-storage) enables storing vector embeddings alongside other data.
 - Any data stores outside the Cloudflare Ecosystem need to be accessed through [Cloudflare Hyperdrive](#cloudflare-hyperdrive) to increase performance.
   - Hyperdrive is an intelligent caching layer between Cloudflare Workers and external databases.
-
+### Vector Database
+- [Cloudflare Vectorize](#cloudflare-vectorize)
+  - Globally distributed vector database for AI-powered applications
+  - Supports [vector operations](#cloudflare-vectorize-operations) like insert, upsert, and query
 ## AI Models
 - Advanced Reasoning use cases need to rely on frontier models from external LLM services, such as GPT4o and Claude Sonnet 3.5.
 - Cost-Efficient Models: [Cloudflare Workers AI](#cloudflare-workers-ai)
