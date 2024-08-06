@@ -4,12 +4,12 @@
 - [Cloudflare Test APIs](#cloudflare-test-apis) are required for all Cloudflare Workers. 
 ### Data Management
 #### Persistent Storage
-- For any data store interactions, we need to leverage [Drizzle ORM](#drizzle-orm) for consistency and safety.
-  - [Drizzle Usage with Cloudflare Workers](#drizzle-usage-with-cloudflare-workers) demonstrates how to use Drizzle ORM within Workers.
+- [Drizzle ORM](#drizzle-orm) for all data store interactions
+  - [Usage with Cloudflare Workers](#drizzle-usage-with-cloudflare-workers)
   - [Drizzle Operations](#drizzle-operations) cover various data manipulation tasks.
-  - [Drizzle Vector Storage](#drizzle---vector-storage) enables storing vector embeddings alongside other data.
-- Any data stores outside the Cloudflare Ecosystem need to be accessed through [Cloudflare Hyperdrive](#cloudflare-hyperdrive) to increase performance.
-  - Hyperdrive is an intelligent caching layer between Cloudflare Workers and external databases.
+  - Supports [vector storage](#drizzle---vector-storage)
+- [Cloudflare Hyperdrive](#cloudflare-hyperdrive) for any data stores outside the Cloudflare Ecosystem to improve performance
+  - Intelligent caching layer between Workers and external databases
 #### Vector Database
 - [Cloudflare Vectorize](#cloudflare-vectorize)
   - Globally distributed vector database for AI-powered applications
