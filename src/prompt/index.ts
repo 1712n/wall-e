@@ -54,11 +54,15 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 	const { content } = await anthropic.messages
 		.create({
 			model,
-			max_tokens: 4000,
+			max_tokens: 8_192,
 			system: prompts.system,
 			messages: [{ role: 'user', content: prompts.user }],
 			stream: false,
 			temperature,
+		}, {
+			headers: {
+				'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
+			}
 		})
 		.catch((err) => {
 			if (err instanceof Anthropic.APIError) {
@@ -90,7 +94,7 @@ async function sendOpenAIPrompt(params: SendPromptParams) {
 				{ role: 'system', content: prompts.system },
 				{ role: 'user', content: prompts.user },
 			],
-			max_tokens: 4000,
+			max_tokens: 4_096,
 			temperature,
 			seed: 0,
 		}),
