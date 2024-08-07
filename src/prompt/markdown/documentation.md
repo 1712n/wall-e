@@ -555,15 +555,16 @@ Drizzle ORM is a lightweight, type-safe SQL query builder and ORM (Object-Relati
 ```ts
 import { Client } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { users } from "./schema";
 export default {
   async fetch(
     request: Request,
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
-    const client = new Client({ connectionString: env.DATABASE_URL });
+    const client = new Client({ connectionString: env.HYPERDRIVE.connectionString });
     await client.connect();
-    const db = drizzle(client);
+    const db = drizzle(client, { schema: { users }, logger: true } );
     const result = await db.select().from(...);
     // Clean up the client, ensuring we don't kill the worker before that is completed.
     ctx.waitUntil(client.end());
@@ -608,42 +609,6 @@ for (const input of inputs) {
 sqlChunks.push(sql`end)`);
 const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
 await db.update(users).set({ city: finalSql }).where(inArray(users.id, ids));
-```
-
-#### Drizzle - Using table columns
-
-Tables are defined in the schema using pgTable() calls. For example:
-
-```ts
-import { pgTable, serial, text, varchar } from 'drizzle-orm/pg-core';
-
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  fullName: text('full_name'),
-  phone: varchar('phone', { length: 256 }),
-});
-```
-
-#### Drizzle - Using Drizzle Queries
-
-Relational queries are an extension to the existing schema definition and query builder. To use this API, all tables and relations from the schema file/files upon drizzle() initialization should be provided.
-
-```ts
-import * as schema from './schema';
-import { drizzle } from 'drizzle-orm/...';
-
-const db = drizzle(client, { schema });
-await db.query.users.findMany();
-```
-
-##### Drizzle - Filtering and Conditions
-
-The relational queries API enables the definition of filters and conditions using Drizzle's operators. When referencing table columns in operators, the tables exported from the schema are used:
-
-```ts
-const users = await db.query.users.findMany({
-  where: eq(schema.users.id, 1)
-})
 ```
 
 ### Drizzle - Vector storage
