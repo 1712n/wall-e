@@ -17,7 +17,7 @@ type PromptMessages = {
 export function buildPromptForDocs(testFile: string): PromptMessages {
 	return {
 		system: documentationExtraction,
-		user: `<test_file>\n${testFile}</test_file>\n\n<documentation_file>\n${documentation}\n\n</documentation_file>`,
+		user: `<test_file>\n\n${testFile}\n\n</test_file>\n\n<documentation_file>\n${documentation}\n\n</documentation_file>`,
 	};
 }
 
@@ -25,7 +25,7 @@ export function buildPromptForWorkers(testFile: string, relevantDocs?: string): 
 	const documentationFile = relevantDocs ?? documentation;
 	return {
 		system: generateWorker,
-		user: `<test_file>\n${testFile}\n\n</test_file><documentation_file>\n${documentationFile}\n\n</documentation_file>`,
+		user: `<test_file>\n\n${testFile}\n\n</test_file>\n\n<documentation_file>\n\n${documentationFile}\n\n</documentation_file>`,
 	};
 }
 
