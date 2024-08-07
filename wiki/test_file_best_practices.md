@@ -65,14 +65,14 @@ it('DB update', async () => {
 
 ### ❌ Avoid
 
-- Unit tests or internal implementation checks (anything that goes against the black-box approach)
+- **Unit Tests or Internal Implementation Checks**: Do not include tests that check specific internal functions or logic, as integration tests should treat the worker as a black box. Example:
 ```ts
 it('calculates similarity score', () => {
 	expect(calculateScore(0.8, 0.3)).toBeCloseTo(0.7273);
 });
 ```
 
-- Random data mocks (including data generator functions)
+- **Random Data Mocks**: Avoid using randomly generated data in mocks, as it can introduce unnecessary variability and make tests less predictable. Example:
 ```ts
 const randomMockMessage = () => ({
 	id: Math.random().toString(36).substring(7),
@@ -83,9 +83,10 @@ const randomMockMessage = () => ({
 const mockMessages = Array.from({ length: 10 }, randomMockMessage);
 ```
 
-- Common sense functionality tests: Refrain from testing common sense functionality that LLMs can generate code for without relying on specific tests.
+- **Common Sense Functionality Tests**: Refrain from testing trivial functionality that can be assumed to work as expected or can be covered by LLM-generated code without specific tests.
 
-### 🤔 Philosophical points that need to be debated each time
+### 🤔 Philosophical Points for Consideration
 
-- Imports from `cloudflare:test` and `vitest` are acceptable without justification. Any other imports should be carefully considered and justified based on their necessity and impact on test simplicity and clarity.
-- Anything that significantly increases the size of the test file should be scrutinized. Assess if the additional content is essential for comprehensive testing or if it can be modularized or simplified. The goal is to keep test files manageable, readable, and maintainable.
+- **Imports Justification**: Imports from `cloudflare:test` and `vitest` are generally acceptable. However, any additional imports should be carefully evaluated for their necessity and impact on the test’s simplicity and clarity.
+
+- **File Size Management**: Any content that significantly increases the size of the test file should be scrutinized. Consider whether the additional content is essential for comprehensive testing or if it can be modularized or simplified. The goal is to keep test files manageable, readable, and maintainable.
