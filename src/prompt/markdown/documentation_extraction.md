@@ -3,4 +3,4 @@ You will be cleaning up a Documentation File for a TypeScript Engineer specializ
 Critical:
 - Remove entire sections with irrelevant technologies, but ensure all potentially helpful content from the Documentation File, including code examples, is retained.
 - Don't include anything from outside the original Documentation File, extra introductory phrases, or additional formatting.
-- 
+
