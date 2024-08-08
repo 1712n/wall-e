@@ -17,7 +17,7 @@ type PromptMessages = {
 export function buildPromptForDocs(testFile: string): PromptMessages {
 	return {
 		system: documentationExtraction,
-		user: `<test_file>\n\n${testFile}\n\n</test_file>\n\n<documentation_file>\n${documentation}\n\n</documentation_file>`,
+		user: `#Test File\n\n${testFile}\n\n${documentation}`,
 	};
 }
 
