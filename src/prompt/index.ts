@@ -31,9 +31,8 @@ export function buildPromptForWorkers(testFile: string, relevantDocs?: string): 
 
 export function buildPromptForAnalyzeTestFile(testFile: string): PromptMessages {
 	return {
-    system: `${analyzeTestFile}\n\n<best_practices>\n\n${testFileBestPractices}</best_practices>`,
-    user: `<test_file>\n\n${testFile}\n\n</test_file>
-`,
+		system: `${analyzeTestFile}\n\n<best_practices>\n\n${testFileBestPractices}</best_practices>`,
+		user: `<test_file>\n\n${testFile}\n\n</test_file>`,
 	};	
 }
 
@@ -42,86 +41,87 @@ type SendPromptParams = {
 	model: string;
 	prompts: PromptMessages;
 	temperature: number;
+	functionName: string; // New field to track the calling function
 };
 
 async function sendAnthropicPrompt(params: SendPromptParams) {
-	const { apiKey, model, prompts, temperature } = params;
-  
-	const anthropic = new Anthropic({
-	  apiKey: apiKey,
-	});
-  
-	try {
-	  const { content } = await anthropic.messages
-		.create({
-		  model,
-		  max_tokens: 8_192,
-		  system: prompts.system,
-		  messages: [{ role: 'user', content: prompts.user }],
-		  stream: false,
-		  temperature,
-		}, {
-		  headers: {
-			'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
-		  }
-		});
-  
-	  if (content.length > 0 && 'type' in content[0] && content[0].type === 'text') {
-		return content[0].text;
-	  } else {
-		throw new Error('Unexpected response format');
-	  }
-	} catch (err) {
-	  if (err instanceof Anthropic.APIError) {
-		throw new Error(`Anthropic API error in sendAnthropicPrompt: ${err.name} (Status ${err.status}) - ${err.message}\nPrompt: ${JSON.stringify(prompts)}`);
-	  } else {
-		throw err;
-	  }
-	}
-  }
+	const { apiKey, model, prompts, temperature, functionName } = params;
 
-  async function sendOpenAIPrompt(params: SendPromptParams) {
-	const { apiKey, model, prompts, temperature } = params;
-  
+	const anthropic = new Anthropic({
+		apiKey: apiKey,
+	});
+
 	try {
-	  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-		method: 'POST',
-		headers: {
-		  'Content-Type': 'application/json',
-		  Authorization: `Bearer ${apiKey}`,
-		},
-		body: JSON.stringify({
-		  model,
-		  messages: [
-			{ role: 'system', content: prompts.system },
-			{ role: 'user', content: prompts.user },
-		  ],
-		  max_tokens: 4_096,
-		  temperature,
-		  seed: 0,
-		}),
-	  });
-  
-	  const data: any = await response.json();
-	  if (data.error) {
-		throw new Error(`OpenAI API error in sendOpenAIPrompt: ${data.error.message}\nPrompt: ${JSON.stringify(prompts)}`);
-	  }
-  
-	  return data.choices[0].message.content;
+		const { content } = await anthropic.messages
+			.create({
+				model,
+				max_tokens: 8_192,
+				system: prompts.system,
+				messages: [{ role: 'user', content: prompts.user }],
+				stream: false,
+				temperature,
+			}, {
+				headers: {
+					'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
+				}
+			});
+
+		if (content.length > 0 && 'type' in content[0] && content[0].type === 'text') {
+			return content[0].text;
+		} else {
+			throw new Error('Unexpected response format');
+		}
 	} catch (err) {
-	  throw new Error(`Error in sendOpenAIPrompt: ${err.message}\nPrompt: ${JSON.stringify(prompts)}`);
+		if (err instanceof Anthropic.APIError) {
+			throw new Error(`Anthropic API error in ${functionName}: ${err.name} (Status ${err.status}) - ${err.message} - Prompt: ${JSON.stringify(prompts)}`);
+		} else {
+			throw new Error(`Error in ${functionName}: ${err.message} - Prompt: ${JSON.stringify(prompts)}`);
+		}
 	}
-  }
+}
+
+async function sendOpenAIPrompt(params: SendPromptParams) {
+	const { apiKey, model, prompts, temperature, functionName } = params;
+
+	try {
+		const response = await fetch('https://api.openai.com/v1/chat/completions', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${apiKey}`,
+			},
+			body: JSON.stringify({
+				model,
+				messages: [
+					{ role: 'system', content: prompts.system },
+					{ role: 'user', content: prompts.user },
+				],
+				max_tokens: 4_096,
+				temperature,
+				seed: 0,
+			}),
+		});
+
+		const data: any = await response.json();
+		if (data.error) {
+			throw new Error(data.error.message);
+		}
+
+		return data.choices[0].message.content;
+	} catch (err) {
+		throw new Error(`OpenAI API error in ${functionName}: ${err.message} - Prompt: ${JSON.stringify(prompts)}`);
+	}
+}
 
 export async function sendPrompt(params: SendPromptParams): Promise<string> {
 	const { model } = params;
 
 	if (model.startsWith('claude')) {
-		return sendAnthropicPrompt(params);
+		return sendAnthropicPrompt({ ...params, functionName: 'sendAnthropicPrompt' });
 	}
 
 	if (model.startsWith('gpt')) {
-		return sendOpenAIPrompt(params);
+		return sendOpenAIPrompt({ ...params, functionName: 'sendOpenAIPrompt' });
 	}
 
 	throw new Error('Unsupported model specified.');
