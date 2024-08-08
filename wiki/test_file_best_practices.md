@@ -87,6 +87,6 @@ const mockMessages = Array.from({ length: 10 }, randomMockMessage);
 
 ### 🤔 Philosophical Points for Consideration
 
-- **Imports Justification**: Imports from `cloudflare:test` and `vitest` are generally acceptable. However, any additional imports should be carefully evaluated for their necessity and impact on the test’s simplicity and clarity.
+- **Import Statement Justification**: Imports from the `cloudflare:test` and `vitest` packages do not require justification. For all other packages, include a comment directly above the import statement that explains the purpose of the import to the test.
 
 - **File Size Management**: Any content that significantly increases the size of the test file should be scrutinized. Consider whether the additional content is essential for comprehensive testing or if it can be modularized or simplified. The goal is to keep test files manageable, readable, and maintainable.
