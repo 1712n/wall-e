@@ -1,5 +1,3 @@
-# Knowledge Map
-
 ### Cloudflare Workers
 - [Cloudflare Test APIs](#cloudflare-test-apis) are required for all Cloudflare Workers. 
 
@@ -30,7 +28,6 @@
 - [Cloudflare Workers Cache API](#cloudflare-workers-cache-api) allows Workers to programmatically cache both internal and external fetch requests.
   - Useful for overriding content that is already cached and accessing cached responses without relying on fetch requests.
 
-# Documentation File
 ## Cloudflare
 ### Cloudflare Test APIs
 
