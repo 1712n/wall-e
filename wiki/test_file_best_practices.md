@@ -28,18 +28,16 @@
 
 ## Integration tests section
 
-### 🎯 Key Principle
-
-Test workers as a black box, without assumptions about internal implementation.
+⚠️ This section should focus on testing the worker as a black box, ensuring functionality without making assumptions about internal implementation.
 
 ### ✅️ Do
 
-- Input/output schema validations (without any assumptions about how those inputs and outputs are generated)
+- **Validate Input/Output Schemas**: Ensure that the test cases check the validity of input and output schemas without any assumptions about how those inputs and outputs are generated. Example: 
 ```ts
 expect(result['embedding'].every((x) => typeof x === 'number')).toBeTruthy();
 ```
 
-- Use real-world data mocks where possible, ensuring they resemble something a human would believe.
+- **Use Real-World Data Mocks**: Utilize mock data that closely resembles real-world scenarios. This ensures the tests are relevant and reflect actual use cases. Example:
 ```ts
 const mockMessages = [
 	{
@@ -50,19 +48,43 @@ const mockMessages = [
 ];
 ```
 
-- Use descriptive test names aligned with functional requirements. Optionally include technical information in test descriptions if it helps clarify the test's purpose.
+- **Descriptive Test Names**: Write clear and descriptive test names that align with the functional requirements of the worker. If needed, include technical details in the test description to clarify the test's purpose. Example:
 ```ts
-// Do
-it('should select the latest unclassified texts from DB', async () => {
-	// This test checks that the worker correctly fetches the most recent unclassified texts from the database, ensuring proper database query functionality.
-});
-
-// Avoid
-it('DB update', async () => {
-	// This test lacks clarity about the specific functionality being tested.
+it('should fetch the latest unclassified texts from DB', async () => {
+	/**
+	 * This test checks that the worker correctly fetches the most recent unclassified texts 
+	 * from the database, ensuring proper database query functionality.
+	 */
 });
 ```
 
+- **Test Database Interactions**: When testing database operations (e.g., with Drizzle ORM), use mocking techniques to simulate interactions without requiring a real database connection.
+
+1. Replace actual database calls with mock methods to prevent real database interactions during testing.
+2. Use spies or mocks to capture the arguments passed to these mock methods, allowing you to inspect the data being used.
+3. Assert that the mocked methods are called with the expected data to verify that the database interactions are functioning as expected.
+
+Example:
+
+```ts
+it('should correctly insert JSON data into the database', async () => {
+    const expectedData = { id: 1, name: 'Test' };
+
+    // Mock the Drizzle ORM insert method to prevent real database interaction
+    const insertMock = vi.fn().mockResolvedValue([expectedData]);
+    (drizzle.pgTable as any).mockReturnValue({
+      insert: insertMock,
+    });
+
+    // Simulate the action that triggers the database insert
+    const response = await SELF.fetch('https://example.com/insert', {
+      method: 'POST',
+      body: JSON.stringify(expectedData),
+    });
+
+    // Verify that the insert method was called with the correct data
+    expect(insertMock).toHaveBeenCalledWith(expectedData);
+});
 ### ❌ Avoid
 
 - Unit tests or internal implementation checks (anything that goes against the black-box approach)
