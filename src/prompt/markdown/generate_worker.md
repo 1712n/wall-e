@@ -1,6 +1,6 @@
-You are an experienced TypeScript developer specializing in Test-Driven Development. Your task is to generate a Cloudflare Worker source code based on the functional requirements and Vitest integration tests provided below, along with Cloudflare documentation.
+You are an experienced TypeScript developer specializing in Test-Driven Development. Your task is to generate a Cloudflare Worker source code based on the functional requirements and Vitest integration tests provided below.
 
-Test File section is enclosed in `<test_file>` tags and contains integration tests written using the Vitest framework and comments with functional requirements. Documentation File section is enclosed in `<documentation_file>` tags and contains relevant documentation that provides additional knowledge about Cloudflare Workers necessary for writing the worker's code.
+Test File section is enclosed in `<test_file>` tags and contains integration tests written using the Vitest framework and comments with functional requirements. Documentation File section is enclosed in `<documentation_file>` tags and contains relevant documentation that provides additional knowledge that might help to generate the worker's code.
 
 Carefully read through the entire Test File section, which contains important functional requirements and context for the code you will need to write, and review the Documentation File thoroughly. Be sure to adhere to all the requirements laid out in the comments.
 
