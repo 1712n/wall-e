@@ -65,7 +65,7 @@ it('DB update', async () => {
 
 ### ❌ Avoid
 
-- **Unit Tests or Internal Implementation Checks**: Do not include tests that check specific internal functions or logic, as integration tests should treat the worker as a black box. Example:
+- **Unit Tests or Internal Implementation Checks**: Avoid testing specific internal functions or logic, as integration tests should generally treat the worker as a black box. However, it is acceptable to include Drizzle ORM function calls, such as SQL query construction and validation. Example:
 ```ts
 it('calculates similarity score', () => {
 	expect(calculateScore(0.8, 0.3)).toBeCloseTo(0.7273);
