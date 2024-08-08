@@ -1,7 +1,8 @@
-## Knowledge Map
+# Knowledge Map
 
 ### Cloudflare Workers
 - [Cloudflare Test APIs](#cloudflare-test-apis) are required for all Cloudflare Workers. 
+
 ### Data Management
 #### Persistent Storage
 - [Drizzle ORM](#drizzle-orm) for all data store interactions
@@ -14,6 +15,7 @@
 - [Cloudflare Vectorize](#cloudflare-vectorize)
   - Globally distributed vector database for AI-powered applications
   - Supports [vector operations](#cloudflare-vectorize-operations) like insert, upsert, and query
+
 ### AI Models
 - Advanced Reasoning use cases need to rely on frontier models from external LLM services, such as GPT4o and Claude Sonnet 3.5.
 - Cost-Efficient Models: [Cloudflare Workers AI](#cloudflare-workers-ai)
@@ -28,6 +30,7 @@
 - [Cloudflare Workers Cache API](#cloudflare-workers-cache-api) allows Workers to programmatically cache both internal and external fetch requests.
   - Useful for overriding content that is already cached and accessing cached responses without relying on fetch requests.
 
+# Documentation File
 ## Cloudflare
 ### Cloudflare Test APIs
 
