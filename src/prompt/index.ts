@@ -46,67 +46,72 @@ type SendPromptParams = {
 
 async function sendAnthropicPrompt(params: SendPromptParams) {
 	const { apiKey, model, prompts, temperature } = params;
-
+  
 	const anthropic = new Anthropic({
-		apiKey: apiKey,
+	  apiKey: apiKey,
 	});
-
-	const { content } = await anthropic.messages
+  
+	try {
+	  const { content } = await anthropic.messages
 		.create({
-			model,
-			max_tokens: 8_192,
-			system: prompts.system,
-			messages: [{ role: 'user', content: prompts.user }],
-			stream: false,
-			temperature,
+		  model,
+		  max_tokens: 8_192,
+		  system: prompts.system,
+		  messages: [{ role: 'user', content: prompts.user }],
+		  stream: false,
+		  temperature,
 		}, {
-			headers: {
-				'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
-			}
-		})
-		.catch((err) => {
-			if (err instanceof Anthropic.APIError) {
-				throw new Error(`Anthropic API error: ${err.name} (Status ${err.status}) - ${err.message}`);
-			} else {
-				throw err;
-			}
+		  headers: {
+			'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
+		  }
 		});
-
-	if (content.length > 0 && 'type' in content[0] && content[0].type === 'text') {
+  
+	  if (content.length > 0 && 'type' in content[0] && content[0].type === 'text') {
 		return content[0].text;
-	} else {
+	  } else {
 		throw new Error('Unexpected response format');
+	  }
+	} catch (err) {
+	  if (err instanceof Anthropic.APIError) {
+		throw new Error(`Anthropic API error in sendAnthropicPrompt: ${err.name} (Status ${err.status}) - ${err.message}\nPrompt: ${JSON.stringify(prompts)}`);
+	  } else {
+		throw err;
+	  }
 	}
-}
+  }
 
-async function sendOpenAIPrompt(params: SendPromptParams) {
+  async function sendOpenAIPrompt(params: SendPromptParams) {
 	const { apiKey, model, prompts, temperature } = params;
-
-	const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  
+	try {
+	  const response = await fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${apiKey}`,
+		  'Content-Type': 'application/json',
+		  Authorization: `Bearer ${apiKey}`,
 		},
 		body: JSON.stringify({
-			model,
-			messages: [
-				{ role: 'system', content: prompts.system },
-				{ role: 'user', content: prompts.user },
-			],
-			max_tokens: 4_096,
-			temperature,
-			seed: 0,
+		  model,
+		  messages: [
+			{ role: 'system', content: prompts.system },
+			{ role: 'user', content: prompts.user },
+		  ],
+		  max_tokens: 4_096,
+		  temperature,
+		  seed: 0,
 		}),
-	});
-
-	const data: any = await response.json();
-	if (data.error) {
-		throw Error(data.error.message);
+	  });
+  
+	  const data: any = await response.json();
+	  if (data.error) {
+		throw new Error(`OpenAI API error in sendOpenAIPrompt: ${data.error.message}\nPrompt: ${JSON.stringify(prompts)}`);
+	  }
+  
+	  return data.choices[0].message.content;
+	} catch (err) {
+	  throw new Error(`Error in sendOpenAIPrompt: ${err.message}\nPrompt: ${JSON.stringify(prompts)}`);
 	}
-
-	return data.choices[0].message.content;
-}
+  }
 
 export async function sendPrompt(params: SendPromptParams): Promise<string> {
 	const { model } = params;
