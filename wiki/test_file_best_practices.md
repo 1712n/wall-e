@@ -61,7 +61,7 @@ it('should fetch the latest unclassified texts from DB', async () => {
 });
 ```
 
-- **Test Database Interactions**: When testing database operations (e.g., with Drizzle ORM), use mocking techniques to simulate interactions without requiring a real database connection.
+- **Test Database Interactions**: If your worker interacts with a database, simulate these interactions using mock methods instead of real database calls. This allows you to test database operations without a live connection and inspect the data being used. This best practice can be omitted if your worker doesn't involve a database.
 
 1. Replace actual database calls with mock methods to prevent real database interactions during testing.
 2. Use spies or mocks to capture the arguments passed to these mock methods, allowing you to inspect the data being used.
