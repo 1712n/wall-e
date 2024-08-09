@@ -134,7 +134,7 @@ export default {
 							} else {
 								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
 								if (testFileAnalysisResult) {
-									const body = `The test file contains conflicts that need to be resolved before generating the code. Please fix the following issues:\n\n${testFileAnalysisResult}\n\n`;
+									const body = `The following best practices conflicts were detected in the test file: ${testFileAnalysisResult}`;
 									await github.postComment(context, body);
 								}
 							}

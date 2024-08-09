@@ -13,10 +13,12 @@ Follow this structure:
 
 ```xml
 <test_file_analysis_result>
-## [Section Name]
+<details>
+<summary>[Section Name]</summary>
 ### Conflicts
 1. [Best Practice]
 - [Issue Description]
 - [Relevant test file portion]
+</details>
 </test_file_analysis_result>
 ```
