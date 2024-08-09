@@ -32,12 +32,14 @@
 
 ### ✅️ Do
 
-- **Validate Input/Output Schemas**: Ensure that the test cases check the validity of input and output schemas without any assumptions about how those inputs and outputs are generated. Example: 
+- **Validate Input/Output Schemas**: Ensure that the test cases check the validity of input and output schemas without any assumptions about how those inputs and outputs are generated. Example:
+
 ```ts
 expect(result['embedding'].every((x) => typeof x === 'number')).toBeTruthy();
 ```
 
 - **Use Real-World Data Mocks**: Utilize mock data that closely resembles real-world scenarios. This ensures the tests are relevant and reflect actual use cases. Example:
+
 ```ts
 const mockMessages = [
 	{
@@ -49,16 +51,17 @@ const mockMessages = [
 ```
 
 - **Descriptive Test Names**: Write clear and descriptive test names that align with the functional requirements of the worker. If needed, include technical details in the test description to clarify the test's purpose. Example:
+
 ```ts
 it('should fetch the latest unclassified texts from DB', async () => {
 	/**
-	 * This test checks that the worker correctly fetches the most recent unclassified texts 
+	 * This test checks that the worker correctly fetches the most recent unclassified texts
 	 * from the database, ensuring proper database query functionality.
 	 */
 });
 ```
 
-- **Test Database Interactions**: When testing database operations (e.g., with Drizzle ORM), use mocking techniques to simulate interactions without requiring a real database connection.
+- **Test Database Interactions**: If your worker interacts with a database, simulate these interactions using mock methods instead of real database calls. This allows you to test database operations without a live connection and inspect the data being used. This best practice can be omitted if your worker doesn't involve a database.
 
 1. Replace actual database calls with mock methods to prevent real database interactions during testing.
 2. Use spies or mocks to capture the arguments passed to these mock methods, allowing you to inspect the data being used.
@@ -68,26 +71,29 @@ Example:
 
 ```ts
 it('should correctly insert JSON data into the database', async () => {
-    const expectedData = { id: 1, name: 'Test' };
+	const expectedData = { id: 1, name: 'Test' };
 
-    // Mock the Drizzle ORM insert method to prevent real database interaction
-    const insertMock = vi.fn().mockResolvedValue([expectedData]);
-    (drizzle.pgTable as any).mockReturnValue({
-      insert: insertMock,
-    });
+	// Mock the Drizzle ORM insert method to prevent real database interaction
+	const insertMock = vi.fn().mockResolvedValue([expectedData]);
+	(drizzle.pgTable as any).mockReturnValue({
+		insert: insertMock,
+	});
 
-    // Simulate the action that triggers the database insert
-    const response = await SELF.fetch('https://example.com/insert', {
-      method: 'POST',
-      body: JSON.stringify(expectedData),
-    });
+	// Simulate the action that triggers the database insert
+	const response = await SELF.fetch('https://example.com/insert', {
+		method: 'POST',
+		body: JSON.stringify(expectedData),
+	});
 
-    // Verify that the insert method was called with the correct data
-    expect(insertMock).toHaveBeenCalledWith(expectedData);
+	// Verify that the insert method was called with the correct data
+	expect(insertMock).toHaveBeenCalledWith(expectedData);
 });
+```
+
 ### ❌ Avoid
 
 - **Unit Tests or Internal Implementation Checks**: Avoid testing specific internal functions or logic, as integration tests should generally treat the worker as a black box. Example:
+
 ```ts
 it('calculates similarity score', () => {
 	expect(calculateScore(0.8, 0.3)).toBeCloseTo(0.7273);
@@ -95,6 +101,7 @@ it('calculates similarity score', () => {
 ```
 
 - **Random Data Mocks**: Avoid using randomly generated data in mocks, as it can introduce unnecessary variability and make tests less predictable. Example:
+
 ```ts
 const randomMockMessage = () => ({
 	id: Math.random().toString(36).substring(7),
