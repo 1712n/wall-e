@@ -5,9 +5,9 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@anthropic-ai/sdk@npm:^0.24.0":
-  version: 0.24.0
-  resolution: "@anthropic-ai/sdk@npm:0.24.0"
+"@anthropic-ai/sdk@npm:^0.25.1":
+  version: 0.25.1
+  resolution: "@anthropic-ai/sdk@npm:0.25.1"
   dependencies:
     "@types/node": "npm:^18.11.18"
     "@types/node-fetch": "npm:^2.6.4"
@@ -16,8 +16,7 @@ __metadata:
     form-data-encoder: "npm:1.7.2"
     formdata-node: "npm:^4.3.2"
     node-fetch: "npm:^2.6.7"
-    web-streams-polyfill: "npm:^3.2.1"
-  checksum: 10c0/0f1bb1777d3f7ff172fd9f63391e8023cfcd723e9051149763dd7fc84e3fcdd8b759a0377471e01019c1663e9fdf0862453f602b5440907faf480c3ee9d856fd
+  checksum: 10c0/3fd9c75a2559fca8db28b74b7d8cdb24de1689f6afe6c9152aa95f6cd0a270037e231cbaa13b8f39fd4d3b9e20ae892cde9cdbd8072f61963e6de6418f621c51
   languageName: node
   linkType: hard
 
@@ -3170,7 +3169,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "wall-e@workspace:."
   dependencies:
-    "@anthropic-ai/sdk": "npm:^0.24.0"
+    "@anthropic-ai/sdk": "npm:^0.25.1"
     "@cloudflare/vitest-pool-workers": "npm:^0.4.6"
     "@cloudflare/workers-types": "npm:^4.20240620.0"
     "@octokit/app": "npm:^15.1.0"
@@ -3187,13 +3186,6 @@ __metadata:
   version: 4.0.0-beta.3
   resolution: "web-streams-polyfill@npm:4.0.0-beta.3"
   checksum: 10c0/a9596779db2766990117ed3a158e0b0e9f69b887a6d6ba0779940259e95f99dc3922e534acc3e5a117b5f5905300f527d6fbf8a9f0957faf1d8e585ce3452e8e
-  languageName: node
-  linkType: hard
-
-"web-streams-polyfill@npm:^3.2.1":
-  version: 3.3.3
-  resolution: "web-streams-polyfill@npm:3.3.3"
-  checksum: 10c0/64e855c47f6c8330b5436147db1c75cb7e7474d924166800e8e2aab5eb6c76aac4981a84261dd2982b3e754490900b99791c80ae1407a9fa0dcff74f82ea3a7f
   languageName: node
   linkType: hard
 

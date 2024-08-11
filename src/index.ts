@@ -62,7 +62,7 @@ export default {
 
 			return github.verifyRequest({ headers: request.headers, payload });
 		} catch (error) {
-			console.error(error);
+			console.error(error as Error);
 
 			const response = JSON.stringify({
 				error: 'An error occurred while processing the request. Check the logs for more information.',
@@ -113,64 +113,92 @@ export default {
 
 							const testFileContent = await github.fetchFileContents(context, testFile.sha);
 
-							// Analyze the test file to check for conflicts with Best Practices
+							// Test File QA - Analyze the test file to check for conflicts with Best Practices
 							const analyzeTestFilePrompts = buildPromptForAnalyzeTestFile(testFileContent);
-							const analyzedTestFile = await sendPrompt({
-								model,
-								prompts: analyzeTestFilePrompts,
-								temperature: 0,
-								apiKey,
-							});
-
-							if (!analyzedTestFile) {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({
-									elapsedTime,
+							let analyzedTestFile;
+							try {
+								analyzedTestFile = await sendPrompt({
 									model,
-									analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
-									analyzeTestFileResponse: JSON.stringify(analyzedTestFile, null, 2),
+									prompts: analyzeTestFilePrompts,
+									temperature: 0,
+									apiKey,
 								});
-								await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
-							} else {
-								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
-								if (testFileAnalysisResult) {
-									const body = `The test file contains conflicts that need to be resolved before generating the code. Please fix the following issues:\n\n${testFileAnalysisResult}\n\n`;
-									await github.postComment(context, body);
-								}
-							}
-
-							// Use the test file and Cloudflare documentation to get only the relevant documentation
-							const documentationPrompts = buildPromptForDocs(testFileContent);
-							const relevantDocumentation = await sendPrompt({
-								model,
-								prompts: documentationPrompts,
-								temperature: 0,
-								apiKey,
-							});
-
-							if (!relevantDocumentation) {
+							} catch (error) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
 									elapsedTime,
 									model,
-									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-									documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
+									stage: 'Test File QA',
+									analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
+									error: (error as Error).message,
 								});
 								await github.postComment(
 									context,
-									`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
+									`Unable to process Test File QA. Please check the Debug Info below for more information.\n\n${debugInfo}`,
 									workingCommentId,
 								);
+								return;
 							}
 
-							// Generate the code based on the test file and relevant documentation
+							const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
+							if (testFileAnalysisResult) {
+								const body = `The test file contains conflicts that need to be resolved before generating the code. Please fix the following issues:\n\n${testFileAnalysisResult}\n\n`;
+								await github.postComment(context, body);
+								return;
+							}
+
+							// Documentation Cleanup - Use the test file and Cloudflare documentation to get only the relevant documentation
+							const documentationPrompts = buildPromptForDocs(testFileContent);
+							let relevantDocumentation;
+							try {
+								relevantDocumentation = await sendPrompt({
+									model,
+									prompts: documentationPrompts,
+									temperature: 0,
+									apiKey,
+								});
+							} catch (error) {
+								const elapsedTime = getElapsedSeconds(message.timestamp);
+								const debugInfo = formatDebugInfo({
+									elapsedTime,
+									model,
+									stage: 'Documentation Cleanup',
+									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+									error: (error as Error).message,
+								});
+								await github.postComment(
+									context,
+									`Unable to process Documentation Cleanup. Please check the Debug Info below for more information.\n\n${debugInfo}`,
+									workingCommentId,
+								);
+								return;
+							}
+
+							// Code Generation - Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
-							const generatedWorker = await sendPrompt({
-								model,
-								prompts: generateWorkerPrompts,
-								temperature,
-								apiKey,
-							});
+							let generatedWorker;
+							try {
+								generatedWorker = await sendPrompt({
+									model,
+									prompts: generateWorkerPrompts,
+									temperature,
+									apiKey,
+								});
+							} catch (error) {
+								const debugInfo = formatDebugInfo({
+									model,
+									temperature,
+									stage: 'Code Generation',
+									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
+									error: (error as Error).message,
+								});
+								await github.postComment(
+									context,
+									`Unable to process Code Generation. Please check the Debug Info below for more information.\n\n${debugInfo}`,
+									workingCommentId,
+								);
+								return;
+							}
 
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
 							if (!completedCode) {
