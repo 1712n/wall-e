@@ -132,19 +132,17 @@ export default {
 									analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
 									error: (error as Error).message,
 								});
-
-								await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
-							} else {
-								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
-								if (testFileAnalysisResult) {
-									const body = `The following best practices conflicts were detected in the test file: ${testFileAnalysisResult}`;
-									await github.postComment(context, body);
-								}
+								await github.postComment(
+									context,
+									`Unable to process Test File QA. Please check the Debug Info below for more information.\n\n${debugInfo}`,
+									workingCommentId,
+								);
+								return;
 							}
 
 							const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
 							if (testFileAnalysisResult) {
-								const body = `The test file contains conflicts that need to be resolved before generating the code. Please fix the following issues:\n\n${testFileAnalysisResult}\n\n`;
+								const body = `The following best practices conflicts were detected in the test file: ${testFileAnalysisResult}`;
 								await github.postComment(context, body);
 								return;
 							}
