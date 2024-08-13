@@ -125,17 +125,17 @@ export default {
 							// Analyze the test file to check for conflicts with Best Practices
 							const analyzeTestFilePrompts = buildPromptForAnalyzeTestFile(testFileContent);
 							const analyzedTestFile = await sendPrompt({
-								model,
+								model: 'claude-3-5-sonnet-20240620',
 								prompts: analyzeTestFilePrompts,
 								temperature: 0,
-								apiKey,
+								apiKey: env.ANTHROPIC_API_KEY,
 							});
 
 							if (!analyzedTestFile) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
 									elapsedTime,
-									model,
+									model: 'claude-3-5-sonnet-20240620',
 									analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
 									analyzeTestFileResponse: JSON.stringify(analyzedTestFile, null, 2),
 								});
@@ -151,17 +151,17 @@ export default {
 							// Use the test file and Cloudflare documentation to get only the relevant documentation
 							const documentationPrompts = buildPromptForDocs(testFileContent);
 							const relevantDocumentation = await sendPrompt({
-								model,
+								model: 'claude-3-5-sonnet-20240620',
 								prompts: documentationPrompts,
 								temperature: 0,
-								apiKey,
+								apiKey: env.ANTHROPIC_API_KEY,
 							});
 
 							if (!relevantDocumentation) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
 									elapsedTime,
-									model,
+									model: 'claude-3-5-sonnet-20240620',
 									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
 									documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
 								});
