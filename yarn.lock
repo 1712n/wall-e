@@ -444,6 +444,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@google/generative-ai@npm:^0.16.0":
+  version: 0.16.0
+  resolution: "@google/generative-ai@npm:0.16.0"
+  checksum: 10c0/5d561a41cb7be60fc9b49965b66359e15df907bf6679009de7917beff138ba69d4a0772ab2a9d6f0e543d658d72bd19b83e6abdb87a6cdfa402a8764b08eed4c
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -3173,6 +3180,7 @@ __metadata:
     "@anthropic-ai/sdk": "npm:^0.24.0"
     "@cloudflare/vitest-pool-workers": "npm:^0.4.6"
     "@cloudflare/workers-types": "npm:^4.20240620.0"
+    "@google/generative-ai": "npm:^0.16.0"
     "@octokit/app": "npm:^15.1.0"
     "@octokit/plugin-paginate-rest": "npm:11.3.0"
     "@octokit/webhooks": "npm:^13.2.7"
