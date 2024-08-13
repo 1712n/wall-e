@@ -9,6 +9,7 @@ export const ALLOWED_MODELS = [
 	'claude-3-5-sonnet-20240620',
 	'gpt-4o',
 	'gemini-1.5-pro',
+	'gemini-1.5-pro-exp-0801'
 ];
 
 type PromptMessages = {
