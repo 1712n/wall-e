@@ -119,13 +119,19 @@ async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
 		generationConfig: {
 			temperature: temperature,
 		},
+		systemInstruction: {
+			role: 'system',
+			parts: [{ 
+				text: prompts.system 
+			}],
+		},
 	});
 
-	const geminiPrompt = {
-		text: `${prompts.system}\n\n${prompts.user}`,
+	const textPart = {
+		text: prompts.user,
 	};
 
-	const result = await geminiModel.generateContent(geminiPrompt);
+	const result = await geminiModel.generateContent([textPart]);
 	return result.response.text();
 }
 
