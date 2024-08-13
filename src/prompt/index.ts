@@ -7,6 +7,7 @@ export const ALLOWED_MODELS = [
 	'claude-3-haiku-20240307',
 	'claude-3-5-sonnet-20240620',
 	'gpt-4o',
+	'gemini-1.5-pro'
 ];
 
 type PromptMessages = {
@@ -108,6 +109,23 @@ async function sendOpenAIPrompt(params: SendPromptParams) {
 	return data.choices[0].message.content;
 }
 
+async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
+	const { GoogleGenerativeAI } = require("@google/generative-ai");
+	const { apiKey, model, prompts, temperature } = params; 
+
+	const genAI = new GoogleGenerativeAI(apiKey);
+	const geminiModel = genAI.getGenerativeModel({ model, generationConfig: {
+		temperature: temperature, 
+}});
+
+	const geminiPrompt = {
+			text: `${prompts.system}\n\n${prompts.user}` 
+	};
+
+	const result = await geminiModel.generateText(geminiPrompt);
+	return result.response.text();
+}
+
 export async function sendPrompt(params: SendPromptParams): Promise<string> {
 	const { model } = params;
 
@@ -117,6 +135,10 @@ export async function sendPrompt(params: SendPromptParams): Promise<string> {
 
 	if (model.startsWith('gpt')) {
 		return sendOpenAIPrompt(params);
+	}
+	
+	if (model.startsWith('gemini')) {
+		return sendGeminiPrompt(params);
 	}
 
 	throw new Error('Unsupported model specified.');
