@@ -611,12 +611,36 @@ const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
 await db.update(users).set({ city: finalSql }).where(inArray(users.id, ids));
 ```
 
-### Drizzle - Vector storage
-
+### Drizzle - Vectors
+#### Vector Storage
 Store your vectors with the rest of your data with column type `vector`:
 
 ```ts
 const table = pgTable('table', { 
    embedding: vector('embedding', { dimensions: 3 })
 })
+```
+#### Vector Similarity Search
+To perform vector similarity search, you can use gt and sql operators with cosineDistance function to calculate the similarity between the embedding column and the generated embedding:
+```ts
+import { cosineDistance, desc, gt, sql } from 'drizzle-orm';
+import { generateEmbedding } from './embedding';
+import { guides } from './schema';
+
+const db = drizzle(...);
+
+const findSimilarGuides = async (description: string) => {
+  const embedding = await generateEmbedding(description);
+
+  const similarity = sql<number>`1 - (${cosineDistance(guides.embedding, embedding)})`;
+
+  const similarGuides = await db
+    .select({ name: guides.title, url: guides.url, similarity })
+    .from(guides)
+    .where(gt(similarity, 0.5))
+    .orderBy((t) => desc(t.similarity))
+    .limit(4);
+
+  return similarGuides;
+};
 ```
