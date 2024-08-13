@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
 
 export const ALLOWED_MODELS = [
@@ -110,7 +111,6 @@ async function sendOpenAIPrompt(params: SendPromptParams) {
 }
 
 async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
-	const { GoogleGenerativeAI } = require('@google/generative-ai');
 	const { apiKey, model, prompts, temperature } = params;
 
 	const genAI = new GoogleGenerativeAI(apiKey);
