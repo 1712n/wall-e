@@ -17,8 +17,6 @@
   - Includes [text embedding models](#cloudflare-workers-ai-text-embeddings) for vector similarity search
 
 ### Requests Optimization
-- [Cloudflare Vectorize](#cloudflare-vectorize) is a globally distributed vector database for building AI-powered applications.
-  - Perform [Cloudflare Vectorize Operations](#cloudflare-vectorize-operations) like inserting, upserting, and querying vectors.
 - [Cloudflare AI Gateway](#cloudflare-ai-gateway) is a proxy between Cloudflare Workers and various AI models and providers.
   - Offers built-in caching, logging, analytics, rate limiting, request retries, and model fallback.
 - [Cloudflare Workers Cache API](#cloudflare-workers-cache-api) allows Workers to programmatically cache both internal and external fetch requests.
