@@ -98,7 +98,16 @@ export default {
 							workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
 
 							// Use the appropriate API key based on the model
-							const apiKey = model.startsWith('claude') ? env.ANTHROPIC_API_KEY : env.OPENAI_API_KEY;
+							let apiKey;
+		          if (model.startsWith('claude')) {
+								apiKey = env.ANTHROPIC_API_KEY;
+							} else if (model.startsWith('gpt')) {
+								apiKey = env.OPENAI_API_KEY;
+							} else if (model.startsWith('gemini')) {
+								apiKey = env.GEMINI_API_KEY;
+							} else {
+								throw new Error('Unsupported model specified.');
+							}
 
 							// Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
