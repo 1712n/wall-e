@@ -144,7 +144,6 @@ export default {
 							if (testFileAnalysisResult) {
 								const body = `The following best practices conflicts were detected in the test file: ${testFileAnalysisResult}`;
 								await github.postComment(context, body);
-								return;
 							}
 
 							// Documentation Cleanup - Use the test file and Cloudflare documentation to get only the relevant documentation
