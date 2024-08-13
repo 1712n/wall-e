@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
 
 export const ALLOWED_MODELS = [
@@ -7,6 +8,8 @@ export const ALLOWED_MODELS = [
 	'claude-3-haiku-20240307',
 	'claude-3-5-sonnet-20240620',
 	'gpt-4o',
+	'gemini-1.5-pro',
+	'gemini-1.5-pro-exp-0801'
 ];
 
 type PromptMessages = {
@@ -108,6 +111,25 @@ async function sendOpenAIPrompt(params: SendPromptParams) {
 	return data.choices[0].message.content;
 }
 
+async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
+	const { apiKey, model, prompts, temperature } = params;
+
+	const genAI = new GoogleGenerativeAI(apiKey);
+	const geminiModel = genAI.getGenerativeModel({
+		model,
+		generationConfig: {
+			temperature: temperature,
+		},
+	});
+
+	const textPart = {
+		text: `${prompts.system}\n\n${prompts.user}`,
+	};
+
+	const result = await geminiModel.generateContent([textPart]);
+	return result.response.text();
+}
+
 export async function sendPrompt(params: SendPromptParams): Promise<string> {
 	const { model } = params;
 
@@ -117,6 +139,10 @@ export async function sendPrompt(params: SendPromptParams): Promise<string> {
 
 	if (model.startsWith('gpt')) {
 		return sendOpenAIPrompt(params);
+	}
+
+	if (model.startsWith('gemini')) {
+		return sendGeminiPrompt(params);
 	}
 
 	throw new Error('Unsupported model specified.');
