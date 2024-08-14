@@ -122,11 +122,7 @@ async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
 		},
 	});
 
-	const textPart = {
-		text: `${prompts.system}\n\n${prompts.user}`,
-	};
-
-	const result = await geminiModel.generateContent([textPart]);
+	const result = await geminiModel.generateContent(`${prompts.system}\n\n${prompts.user}`);
 	return result.response.text();
 }
 
