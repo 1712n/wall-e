@@ -136,21 +136,36 @@ async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
 }
 
 export async function sendPrompt(params: SendPromptParams): Promise<string> {
-	const { model } = params;
+  const { model } = params;
 
-	if (model.startsWith('claude')) {
-		return sendAnthropicPrompt(params);
-	}
+  try {
+    if (model.startsWith('claude')) {
+      return await sendAnthropicPrompt(params);
+    }
 
-	if (model.startsWith('gpt')) {
-		return sendOpenAIPrompt(params);
-	}
+    if (model.startsWith('gpt')) {
+      return await sendOpenAIPrompt(params);
+    }
 
-	if (model.startsWith('gemini')) {
-		return sendGeminiPrompt(params);
-	}
+    if (model.startsWith('gemini')) {
+      return await sendGeminiPrompt(params);
+    }
 
-	throw new Error('Unsupported model specified.');
+    throw new Error('Unsupported model specified.');
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Error in ${getModelProvider(model)} API: ${error.message}`);
+    } else {
+      throw new Error(`An unknown error occurred in the ${getModelProvider(model)} API`);
+    }
+  }
+}
+
+function getModelProvider(model: string): string {
+  if (model.startsWith('claude')) return 'Anthropic';
+  if (model.startsWith('gpt')) return 'OpenAI';
+  if (model.startsWith('gemini')) return 'Google AI';
+  return 'Unknown';
 }
 
 export function extractXMLContent(text: string): { [key: string]: string } {
