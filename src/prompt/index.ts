@@ -121,9 +121,18 @@ async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
 			temperature: temperature,
 		},
 	});
-
-	const result = await geminiModel.generateContent(`${prompts.system}\n\n${prompts.user}`);
-	return result.response.text();
+  
+	try {
+		const result = await geminiModel.generateContent(`${prompts.system}\n\n${prompts.user}`);
+		return result.response.text();
+	}
+	catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Error in Google AI API: ${error.message}`);
+    } else {
+      throw new Error('An unknown error occurred in the Google AI API');
+    }
+  }
 }
 
 export async function sendPrompt(params: SendPromptParams): Promise<string> {
