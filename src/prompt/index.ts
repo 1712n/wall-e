@@ -69,7 +69,7 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 
 	if (!response.ok) {
 		const data: any = await response.json();
-		throw new Error(`${data.error.type} (Status ${response.status}) - ${data.error.message}`);
+		throw new SendPromptError(`${data.error.type}: ${response.status} -> ${data.error.message}`, params);
 	}
 
 	const data: any = await response.json();
@@ -79,7 +79,7 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 		return content[0].text;
 	}
 
-	throw new Error('Unexpected response format');
+	throw new SendPromptError('Unexpected response format', params);
 }
 
 async function sendOpenAIPrompt(params: SendPromptParams): Promise<string> {
