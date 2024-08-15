@@ -6,6 +6,7 @@ import {
 	sendPrompt,
 	ALLOWED_MODELS,
 	buildPromptForAnalyzeTestFile,
+	SendPromptError,
 } from './prompt';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs } from './utils';
 
@@ -227,8 +228,19 @@ export default {
 				}
 			} catch (error: any) {
 				const elapsedTime = getElapsedSeconds(message.timestamp);
-				const debugInfo = formatDebugInfo({ elapsedTime, model, temperature, error });
-				const comment = `Unable to process your command. Please check the Debug Info below for more information.\n\n${debugInfo}`;
+				const debugInfo = formatDebugInfo({
+					elapsedTime,
+					error: error.message,
+					stack: JSON.stringify(error.stack, null, 2),
+					...(error instanceof SendPromptError ? error.params : {}),
+					...(error instanceof SendPromptError && { prompts: JSON.stringify(error.params.prompts.system, null, 2) }),
+				});
+
+				const comment =
+					error instanceof SendPromptError
+						? `A request to '${error.provider}' could not be completed. Please check the Debug Info below for more information.\n\n${debugInfo}`
+						: `Unable to process your command. Please check the Debug Info below for more information.\n\n${debugInfo}`;
+
 				await github.postComment(context, comment, workingCommentId);
 			} finally {
 				message.ack();
