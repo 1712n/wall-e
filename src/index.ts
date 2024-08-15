@@ -226,7 +226,7 @@ export default {
 
 				const comment =
 					error instanceof SendPromptError
-						? `A request to '${error.provider}' could not be completed. Please check the Debug Info below for more information.\n\n${debugInfo}`
+						? `A request to \`${error.provider}\` could not be completed. Please check the Debug Info below for more information.\n\n${debugInfo}`
 						: `Unable to process your command. Please check the Debug Info below for more information.\n\n${debugInfo}`;
 
 				await github.postComment(context, comment, workingCommentId);
