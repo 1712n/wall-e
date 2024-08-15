@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
+import { getModelProvider, ModelProvider } from '../utils';
 
 export const ALLOWED_MODELS = [
 	'claude-3-opus-20240229',
@@ -100,11 +101,13 @@ async function sendOpenAIPrompt(params: SendPromptParams): Promise<string> {
 			temperature,
 			seed: 0,
 		}),
+	}).catch((error) => {
+		throw new SendPromptError(error.message, params);
 	});
 
 	const data: any = await response.json();
 	if (data.error) {
-		throw Error(data.error.message);
+		throw new SendPromptError(data.error.message, params);
 	}
 
 	return data.choices[0].message.content;
@@ -120,51 +123,45 @@ async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
 			temperature: temperature,
 		},
 	});
-  
-	try {
-		const result = await geminiModel.generateContent(`${prompts.system}\n\n${prompts.user}`);
-		return result.response.text();
+
+	return geminiModel
+		.generateContent(`${prompts.system}\n\n${prompts.user}`)
+		.then((response) => response.response.text())
+		.catch((error) => {
+			throw new SendPromptError(error.message, params);
+		});
+}
+
+export class SendPromptError extends Error {
+	public params: SendPromptParams;
+	public provider: ModelProvider;
+
+	constructor(message: string, params: SendPromptParams) {
+		super(message);
+		this.name = this.constructor.name;
+		this.params = {
+			...params,
+			apiKey: '***',
+		};
+		this.provider = getModelProvider(params.model);
 	}
-	catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Error in Google AI API: ${error.message}`);
-    } else {
-      throw new Error('An unknown error occurred in the Google AI API');
-    }
-  }
 }
 
 export async function sendPrompt(params: SendPromptParams): Promise<string> {
-  const { model } = params;
+	const modelProvider = getModelProvider(params.model);
+	switch (modelProvider) {
+		case ModelProvider.Anthropic:
+			return sendAnthropicPrompt(params);
 
-  try {
-    if (model.startsWith('claude')) {
-      return await sendAnthropicPrompt(params);
-    }
+		case ModelProvider.OpenAI:
+			return sendOpenAIPrompt(params);
 
-    if (model.startsWith('gpt')) {
-      return await sendOpenAIPrompt(params);
-    }
+		case ModelProvider.GoogleAI:
+			return sendGeminiPrompt(params);
 
-    if (model.startsWith('gemini')) {
-      return await sendGeminiPrompt(params);
-    }
-
-    throw new Error('Unsupported model specified.');
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Error in ${getModelProvider(model)} API: ${error.message}`);
-    } else {
-      throw new Error(`An unknown error occurred in the ${getModelProvider(model)} API`);
-    }
-  }
-}
-
-function getModelProvider(model: string): string {
-  if (model.startsWith('claude')) return 'Anthropic';
-  if (model.startsWith('gpt')) return 'OpenAI';
-  if (model.startsWith('gemini')) return 'Google AI';
-  return 'Unknown';
+		default:
+			throw new Error('Unsupported model specified.');
+	}
 }
 
 export function extractXMLContent(text: string): { [key: string]: string } {
