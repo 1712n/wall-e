@@ -7,7 +7,15 @@ export function formatDebugInfo(debugInfo: DebugInfo): string {
     <details>
       <summary>Debug info</summary>
       <ul>${Object.keys(debugInfo)
-				.map((key) => `<li><strong>${key}</strong>: <code>${debugInfo[key].replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></li>`)
+				.map((key) => {
+					let value = debugInfo[key];
+
+					if (typeof value === 'string') {
+						value = value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+					}
+
+					return `<li><strong>${key}</strong>: <code>${value}</code></li>`
+				})
 				.join('<br>')}</ul>
     </details>`.trim();
 }
