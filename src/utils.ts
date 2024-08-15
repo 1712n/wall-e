@@ -70,6 +70,23 @@ export function getModelProvider(model: string): ModelProvider {
 	return ModelProvider.Unknown;
 }
 
+export function getApiKeyForModel(env: Env, model: string): string {
+	const modelProvider = getModelProvider(model);
+	switch (modelProvider) {
+		case ModelProvider.Anthropic:
+			return env.ANTHROPIC_API_KEY;
+
+		case ModelProvider.OpenAI:
+			return env.OPENAI_API_KEY;
+
+		case ModelProvider.GoogleAI:
+			return env.GEMINI_API_KEY;
+
+		default:
+			throw new Error('Unsupported model provider specified.');
+	}
+}
+
 export function ensurePath(basePath: string, subPath: string): string {
 	return basePath ? `${basePath}/${subPath}` : subPath;
 }

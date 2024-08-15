@@ -8,7 +8,7 @@ import {
 	buildPromptForAnalyzeTestFile,
 	SendPromptError,
 } from './prompt';
-import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs } from './utils';
+import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, getApiKeyForModel } from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -98,18 +98,6 @@ export default {
 						{
 							workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
 
-							// Use the appropriate API key based on the model
-							let apiKey;
-		          if (model.startsWith('claude')) {
-								apiKey = env.ANTHROPIC_API_KEY;
-							} else if (model.startsWith('gpt')) {
-								apiKey = env.OPENAI_API_KEY;
-							} else if (model.startsWith('gemini')) {
-								apiKey = env.GEMINI_API_KEY;
-							} else {
-								throw new Error('Unsupported model specified.');
-							}
-
 							// Get the test file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
 							const testFilePath = ensurePath(basePath, 'test/index.spec.ts');
@@ -179,7 +167,7 @@ export default {
 								model,
 								prompts: generateWorkerPrompts,
 								temperature,
-								apiKey,
+								apiKey: getApiKeyForModel(env, model),
 							});
 
 							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
