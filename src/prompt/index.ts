@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
+import { getModelProvider, ModelProvider } from '../utils';
 
 export const ALLOWED_MODELS = [
 	'claude-3-opus-20240229',
@@ -9,7 +10,7 @@ export const ALLOWED_MODELS = [
 	'claude-3-5-sonnet-20240620',
 	'gpt-4o',
 	'gemini-1.5-pro',
-	'gemini-1.5-pro-exp-0801'
+	'gemini-1.5-pro-exp-0801',
 ];
 
 type PromptMessages = {
@@ -34,10 +35,9 @@ export function buildPromptForWorkers(testFile: string, relevantDocs?: string): 
 
 export function buildPromptForAnalyzeTestFile(testFile: string): PromptMessages {
 	return {
-    system: `${analyzeTestFile}\n\n<best_practices>\n\n${testFileBestPractices}</best_practices>`,
-    user: `<test_file>\n\n${testFile}\n\n</test_file>
-`,
-	};	
+		system: `${analyzeTestFile}\n\n<best_practices>\n\n${testFileBestPractices}</best_practices>`,
+		user: `<test_file>\n\n${testFile}\n\n</test_file>`,
+	};
 }
 
 type SendPromptParams = {
@@ -55,31 +55,30 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 	});
 
 	const { content } = await anthropic.messages
-		.create({
-			model,
-			max_tokens: 8_192,
-			system: prompts.system,
-			messages: [{ role: 'user', content: prompts.user }],
-			stream: false,
-			temperature,
-		}, {
-			headers: {
-				'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
-			}
-		})
-		.catch((err) => {
-			if (err instanceof Anthropic.APIError) {
-				throw new Error(`Anthropic API error: ${err.name} (Status ${err.status}) - ${err.message}`);
-			} else {
-				throw err;
-			}
+		.create(
+			{
+				model,
+				max_tokens: 8_192,
+				system: prompts.system,
+				messages: [{ role: 'user', content: prompts.user }],
+				stream: false,
+				temperature,
+			},
+			{
+				headers: {
+					'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15',
+				},
+			},
+		)
+		.catch((error) => {
+			throw new SendPromptError(error.message, params);
 		});
 
 	if (content.length > 0 && 'type' in content[0] && content[0].type === 'text') {
 		return content[0].text;
-	} else {
-		throw new Error('Unexpected response format');
 	}
+
+	throw new SendPromptError('Unexpected response format.', params);
 }
 
 async function sendOpenAIPrompt(params: SendPromptParams) {
@@ -101,11 +100,13 @@ async function sendOpenAIPrompt(params: SendPromptParams) {
 			temperature,
 			seed: 0,
 		}),
+	}).catch((error) => {
+		throw new SendPromptError(error.message, params);
 	});
 
 	const data: any = await response.json();
 	if (data.error) {
-		throw Error(data.error.message);
+		throw new SendPromptError(data.error.message, params);
 	}
 
 	return data.choices[0].message.content;
@@ -121,51 +122,45 @@ async function sendGeminiPrompt(params: SendPromptParams): Promise<string> {
 			temperature: temperature,
 		},
 	});
-  
-	try {
-		const result = await geminiModel.generateContent(`${prompts.system}\n\n${prompts.user}`);
-		return result.response.text();
+
+	return geminiModel
+		.generateContent(`${prompts.system}\n\n${prompts.user}`)
+		.then((response) => response.response.text())
+		.catch((error) => {
+			throw new SendPromptError(error.message, params);
+		});
+}
+
+export class SendPromptError extends Error {
+	public params: SendPromptParams;
+	public provider: ModelProvider;
+
+	constructor(message: string, params: SendPromptParams) {
+		super(message);
+		this.name = this.constructor.name;
+		this.params = {
+			...params,
+			apiKey: '***',
+		};
+		this.provider = getModelProvider(params.model);
 	}
-	catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Error in Google AI API: ${error.message}`);
-    } else {
-      throw new Error('An unknown error occurred in the Google AI API');
-    }
-  }
 }
 
 export async function sendPrompt(params: SendPromptParams): Promise<string> {
-  const { model } = params;
+	const modelProvider = getModelProvider(params.model);
+	switch (modelProvider) {
+		case ModelProvider.Anthropic:
+			return sendAnthropicPrompt(params);
 
-  try {
-    if (model.startsWith('claude')) {
-      return await sendAnthropicPrompt(params);
-    }
+		case ModelProvider.OpenAI:
+			return sendOpenAIPrompt(params);
 
-    if (model.startsWith('gpt')) {
-      return await sendOpenAIPrompt(params);
-    }
+		case ModelProvider.GoogleAI:
+			return sendGeminiPrompt(params);
 
-    if (model.startsWith('gemini')) {
-      return await sendGeminiPrompt(params);
-    }
-
-    throw new Error('Unsupported model specified.');
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Error in ${getModelProvider(model)} API: ${error.message}`);
-    } else {
-      throw new Error(`An unknown error occurred in the ${getModelProvider(model)} API`);
-    }
-  }
-}
-
-function getModelProvider(model: string): string {
-  if (model.startsWith('claude')) return 'Anthropic';
-  if (model.startsWith('gpt')) return 'OpenAI';
-  if (model.startsWith('gemini')) return 'Google AI';
-  return 'Unknown';
+		default:
+			throw new Error('Unsupported model specified.');
+	}
 }
 
 export function extractXMLContent(text: string): { [key: string]: string } {

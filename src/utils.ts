@@ -7,7 +7,15 @@ export function formatDebugInfo(debugInfo: DebugInfo): string {
     <details>
       <summary>Debug info</summary>
       <ul>${Object.keys(debugInfo)
-				.map((key) => `<li><strong>${key}</strong>: <code>${debugInfo[key]}</code></li>`)
+				.map((key) => {
+					let value = debugInfo[key];
+
+					if (typeof value === 'string') {
+						value = value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+					}
+
+					return `<li><strong>${key}</strong>: <code>${value}</code></li>`
+				})
 				.join('<br>')}</ul>
     </details>`.trim();
 }
@@ -45,6 +53,46 @@ export function parseCommandArgs(args: string[]) {
 	}
 
 	return result;
+}
+
+export enum ModelProvider {
+	Anthropic = 'Anthropic',
+	OpenAI = 'OpenAI',
+	GoogleAI = 'Google AI',
+	Unknown = 'Unknown',
+}
+
+export function getModelProvider(model: string): ModelProvider {
+	if (model.startsWith('claude')) {
+		return ModelProvider.Anthropic;
+	}
+
+	if (model.startsWith('gpt')) {
+		return ModelProvider.OpenAI;
+	}
+
+	if (model.startsWith('gemini')) {
+		return ModelProvider.GoogleAI;
+	}
+
+	return ModelProvider.Unknown;
+}
+
+export function getApiKeyForModel(env: Env, model: string): string {
+	const modelProvider = getModelProvider(model);
+	switch (modelProvider) {
+		case ModelProvider.Anthropic:
+			return env.ANTHROPIC_API_KEY;
+
+		case ModelProvider.OpenAI:
+			return env.OPENAI_API_KEY;
+
+		case ModelProvider.GoogleAI:
+			return env.GEMINI_API_KEY;
+
+		default:
+			throw new Error('Unsupported model provider specified.');
+	}
 }
 
 export function ensurePath(basePath: string, subPath: string): string {
