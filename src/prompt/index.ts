@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
 
@@ -9,7 +8,7 @@ export const ALLOWED_MODELS = [
 	'claude-3-5-sonnet-20240620',
 	'gpt-4o',
 	'gemini-1.5-pro',
-	'gemini-1.5-pro-exp-0801'
+	'gemini-1.5-pro-exp-0801',
 ];
 
 type PromptMessages = {
@@ -34,10 +33,9 @@ export function buildPromptForWorkers(testFile: string, relevantDocs?: string): 
 
 export function buildPromptForAnalyzeTestFile(testFile: string): PromptMessages {
 	return {
-    system: `${analyzeTestFile}\n\n<best_practices>\n\n${testFileBestPractices}</best_practices>`,
-    user: `<test_file>\n\n${testFile}\n\n</test_file>
-`,
-	};	
+		system: `${analyzeTestFile}\n\n<best_practices>\n\n${testFileBestPractices}</best_practices>`,
+		user: `<test_file>\n\n${testFile}\n\n</test_file>`,
+	};
 }
 
 type SendPromptParams = {
@@ -50,39 +48,40 @@ type SendPromptParams = {
 async function sendAnthropicPrompt(params: SendPromptParams) {
 	const { apiKey, model, prompts, temperature } = params;
 
-	const anthropic = new Anthropic({
-		apiKey: apiKey,
-	});
-
-	const { content } = await anthropic.messages
-		.create({
+	const response = await fetch('https://api.anthropic.com/v1/messages', {
+		method: 'POST',
+		headers: {
+			'x-api-key': apiKey,
+			'content-type': 'application/json',
+			'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15',
+			'anthropic-version': '2023-06-01'
+		},
+		body: JSON.stringify({
 			model,
 			max_tokens: 8_192,
 			system: prompts.system,
 			messages: [{ role: 'user', content: prompts.user }],
 			stream: false,
 			temperature,
-		}, {
-			headers: {
-				'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15'
-			}
-		})
-		.catch((err) => {
-			if (err instanceof Anthropic.APIError) {
-				throw new Error(`Anthropic API error: ${err.name} (Status ${err.status}) - ${err.message}`);
-			} else {
-				throw err;
-			}
-		});
+		}),
+	});
 
-	if (content.length > 0 && 'type' in content[0] && content[0].type === 'text') {
-		return content[0].text;
-	} else {
-		throw new Error('Unexpected response format');
+	if (!response.ok) {
+		const data: any = await response.json();
+		throw new Error(`${data.error.type} (Status ${response.status}) - ${data.error.message}`);
 	}
+
+	const data: any = await response.json();
+	const content = data.content;
+
+	if (content.length > 0 && content[0].type === 'text') {
+		return content[0].text;
+	}
+
+	throw new Error('Unexpected response format');
 }
 
-async function sendOpenAIPrompt(params: SendPromptParams) {
+async function sendOpenAIPrompt(params: SendPromptParams): Promise<string> {
 	const { apiKey, model, prompts, temperature } = params;
 
 	const response = await fetch('https://api.openai.com/v1/chat/completions', {
