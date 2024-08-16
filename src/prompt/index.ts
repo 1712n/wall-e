@@ -54,14 +54,13 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 		apiKey: apiKey,
 	});
 
-	const { content } = await anthropic.messages
-		.create(
+	const stream = anthropic.messages
+		.stream(
 			{
 				model,
 				max_tokens: 8_192,
 				system: prompts.system,
 				messages: [{ role: 'user', content: prompts.user }],
-				stream: false,
 				temperature,
 			},
 			{
@@ -70,10 +69,11 @@ async function sendAnthropicPrompt(params: SendPromptParams) {
 				},
 			},
 		)
-		.catch((error) => {
+		.on('error', (error) => {
 			throw new SendPromptError(error.message, params);
 		});
 
+	const { content } = await stream.finalMessage();
 	if (content.length > 0 && 'type' in content[0] && content[0].type === 'text') {
 		return content[0].text;
 	}
