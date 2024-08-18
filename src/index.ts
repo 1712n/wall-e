@@ -7,6 +7,7 @@ import {
 	ALLOWED_MODELS,
 	buildPromptForAnalyzeTestFile,
 	SendPromptError,
+	extractCodeBlockContent,
 } from './prompt';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, getApiKeyForModel } from './utils';
 
@@ -183,7 +184,7 @@ export default {
 
 							// Write the generated file (src/index.ts) to the pull request's branch
 							const srcFilePath = ensurePath(basePath, 'src/index.ts');
-							const file = { path: srcFilePath, content: generatedCode };
+							const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
 
 							try {
 								await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');

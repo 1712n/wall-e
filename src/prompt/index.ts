@@ -172,3 +172,7 @@ export function extractXMLContent(text: string): { [key: string]: string } {
 	}
 	return result;
 }
+
+export function extractCodeBlockContent(text: string): string {
+	return text.replace(/^```[\w]*\n([\s\S]*?)\n```$/gm, '$1');
+}
