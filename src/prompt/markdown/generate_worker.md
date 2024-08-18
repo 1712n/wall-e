@@ -11,4 +11,4 @@ Once you have thoroughly analyzed all the contents of Test File and Documentatio
 - Use TypeScript's type inference by default.
 - Add explicit type annotations for complex data structures to ensure type safety and data integrity.
 
-**Critical:** put the completed code inside <completed_code> tags. Don't add any code backticks to your output.
+**Critical:** Place the generated code in `<generated_code>` tags.  Only plain TypeScript code should be inside these tags. Do not add markdown backticks or any other formatting.

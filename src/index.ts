@@ -7,6 +7,7 @@ import {
 	ALLOWED_MODELS,
 	buildPromptForAnalyzeTestFile,
 	SendPromptError,
+	extractCodeBlockContent,
 } from './prompt';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, getApiKeyForModel } from './utils';
 
@@ -170,8 +171,8 @@ export default {
 								apiKey: getApiKeyForModel(env, model),
 							});
 
-							const { completed_code: completedCode } = extractXMLContent(generatedWorker);
-							if (!completedCode) {
+							const { generated_code: generatedCode } = extractXMLContent(generatedWorker);
+							if (!generatedCode) {
 								const debugInfo = formatDebugInfo({
 									model,
 									temperature,
@@ -183,7 +184,7 @@ export default {
 
 							// Write the generated file (src/index.ts) to the pull request's branch
 							const srcFilePath = ensurePath(basePath, 'src/index.ts');
-							const file = { path: srcFilePath, content: completedCode };
+							const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
 
 							try {
 								await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');
