@@ -539,7 +539,7 @@ await db
   .where(inArray(scores.messageId, ids));
 ```
 
-In another example below, the score is explicitly cast to float to ensure correct behavior in the between clause, avoiding issues with the database incorrectly inferring the data type.
+In another example below, the score is explicitly cast to decimal to ensure correct behavior in the between clause, avoiding issues with the database incorrectly inferring the data type.
 
 ```ts
 db
