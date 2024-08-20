@@ -517,6 +517,28 @@ const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
 await db.update(users).set({ city: finalSql }).where(inArray(users.id, ids));
 ```
 
+##### Importance of Casting with the `sql` Operator
+
+In complex cases like CASE statements with numerical values, databases might infer types differently, causing mismatches. Using explicit casting (e.g., `cast(... as decimal)`) ensures the expression's result aligns with the expected column type:
+
+```ts
+import { SQL, inArray, sql } from 'drizzle-orm';
+import { scores } from 'schema';
+
+const ids = messagesToClassify.map((msg) => msg.id);
+const sqlChunks: SQL[] = [
+  sql`cast(case `,
+  ...messagesToClassify.map((msg, i) => sql`when message_id = ${msg.id} then ${scores[i].score} `),
+  sql`end as decimal)`
+];
+const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
+
+await db
+  .update(scores)
+  .set({ classification: finalSql })
+  .where(inArray(scores.messageId, ids));
+```
+
 ### Drizzle - Vectors
 #### Vector Storage
 Store your vectors with the rest of your data with column type `vector`:
