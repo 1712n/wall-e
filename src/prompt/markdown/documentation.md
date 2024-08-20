@@ -517,9 +517,9 @@ const finalSql: SQL = sql.join(sqlChunks, sql.raw(' '));
 await db.update(users).set({ city: finalSql }).where(inArray(users.id, ids));
 ```
 
-##### Importance of Casting with the `sql` Operator
+#### Type-casting with the `sql` Operator
 
-In complex cases like CASE statements with numerical values, databases might infer types differently, causing mismatches. Using explicit casting (e.g., `cast(... as decimal)`) ensures the expression's result aligns with the expected column type:
+In some cases databases might infer types differently, causing mismatches. Using explicit casting (e.g., `cast(... as decimal)`) ensures the expression's result aligns with the expected column type:
 
 ```ts
 import { SQL, inArray, sql } from 'drizzle-orm';
@@ -538,6 +538,15 @@ await db
   .set({ classification: finalSql })
   .where(inArray(scores.messageId, ids));
 ```
+
+In another example below, the score is explicitly cast to float to ensure correct behavior in the between clause, avoiding issues with the database incorrectly inferring the data type.
+
+```ts
+db
+  .select()
+  .from(messages)
+  .where(between(sql<number>`cast(${messages.score} as decimal)`, 0.2, 0.8));
+``` 
 
 ### Drizzle - Vectors
 #### Vector Storage
