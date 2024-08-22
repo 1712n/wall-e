@@ -2,14 +2,19 @@ import { CommandName, GitHub, CommandContext, UserCommand } from './github';
 import {
 	buildPromptForDocs,
 	buildPromptForWorkers,
-	extractXMLContent,
 	sendPrompt,
-	ALLOWED_MODELS,
+	MODEL_PROVIDERS,
 	buildPromptForAnalyzeTestFile,
 	SendPromptError,
-	extractCodeBlockContent,
 } from './prompt';
-import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, getApiKeyForModel } from './utils';
+import {
+	formatDebugInfo,
+	getElapsedSeconds,
+	ensurePath,
+	parseCommandArgs,
+	extractCodeBlockContent,
+	extractXMLContent,
+} from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -87,8 +92,10 @@ export default {
 			let workingCommentId: number | undefined = undefined;
 
 			try {
-				if (!ALLOWED_MODELS.includes(model)) {
-					const allowedModels = ALLOWED_MODELS.map((m) => `- \`${m}\``).join('\n');
+				if (!MODEL_PROVIDERS[model]) {
+					const allowedModels = Object.keys(MODEL_PROVIDERS)
+						.map((m) => `- \`${m}\``)
+						.join('\n');
 					const body = `The model '${model}' is not valid. Please use one of the following options:\n\n${allowedModels}`;
 					await github.postComment(context, body);
 					return;
@@ -114,18 +121,16 @@ export default {
 
 							// Analyze the test file to check for conflicts with Best Practices
 							const analyzeTestFilePrompts = buildPromptForAnalyzeTestFile(testFileContent);
-							const analyzedTestFile = await sendPrompt({
-								model: 'claude-3-5-sonnet-20240620',
+							const analyzedTestFile = await sendPrompt(env, {
+								model,
 								prompts: analyzeTestFilePrompts,
 								temperature: 0,
-								apiKey: env.ANTHROPIC_API_KEY,
 							});
 
 							if (!analyzedTestFile) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
 									elapsedTime,
-									model: 'claude-3-5-sonnet-20240620',
 									analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
 									analyzeTestFileResponse: JSON.stringify(analyzedTestFile, null, 2),
 								});
@@ -140,18 +145,16 @@ export default {
 
 							// Use the test file and Cloudflare documentation to get only the relevant documentation
 							const documentationPrompts = buildPromptForDocs(testFileContent);
-							const relevantDocumentation = await sendPrompt({
-								model: 'claude-3-5-sonnet-20240620',
+							const relevantDocumentation = await sendPrompt(env, {
+								model,
 								prompts: documentationPrompts,
 								temperature: 0,
-								apiKey: env.ANTHROPIC_API_KEY,
 							});
 
 							if (!relevantDocumentation) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
 								const debugInfo = formatDebugInfo({
 									elapsedTime,
-									model: 'claude-3-5-sonnet-20240620',
 									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
 									documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
 								});
@@ -164,11 +167,10 @@ export default {
 
 							// Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
-							const generatedWorker = await sendPrompt({
+							const generatedWorker = await sendPrompt(env, {
 								model,
 								prompts: generateWorkerPrompts,
 								temperature,
-								apiKey: getApiKeyForModel(env, model),
 							});
 
 							const { generated_code: generatedCode } = extractXMLContent(generatedWorker);
@@ -227,7 +229,7 @@ export default {
 
 				const comment =
 					error instanceof SendPromptError
-						? `A request to \`${error.provider}\` could not be completed. Please check the Debug Info below for more information.\n\n${debugInfo}`
+						? `A request could not be sent. Please check the Debug Info below for more information.\n\n${debugInfo}`
 						: `Unable to process your command. Please check the Debug Info below for more information.\n\n${debugInfo}`;
 
 				await github.postComment(context, comment, workingCommentId);

@@ -14,7 +14,7 @@ export function formatDebugInfo(debugInfo: DebugInfo): string {
 						value = value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 					}
 
-					return `<li><strong>${key}</strong>: <code>${value}</code></li>`
+					return `<li><strong>${key}</strong>: <code>${value}</code></li>`;
 				})
 				.join('<br>')}</ul>
     </details>`.trim();
@@ -56,30 +56,13 @@ export function parseCommandArgs(args: string[]) {
 }
 
 export enum ModelProvider {
-	Anthropic = 'Anthropic',
-	OpenAI = 'OpenAI',
-	GoogleAI = 'Google AI',
-	Unknown = 'Unknown',
+	Anthropic = 'anthropic',
+	OpenAI = 'openai',
+	GoogleAiStudio = 'google-ai-studio',
+	Unknown = 'unknown',
 }
 
-export function getModelProvider(model: string): ModelProvider {
-	if (model.startsWith('claude')) {
-		return ModelProvider.Anthropic;
-	}
-
-	if (model.startsWith('gpt')) {
-		return ModelProvider.OpenAI;
-	}
-
-	if (model.startsWith('gemini')) {
-		return ModelProvider.GoogleAI;
-	}
-
-	return ModelProvider.Unknown;
-}
-
-export function getApiKeyForModel(env: Env, model: string): string {
-	const modelProvider = getModelProvider(model);
+export function getApiKeyForModelProvider(env: Env, modelProvider: ModelProvider): string {
 	switch (modelProvider) {
 		case ModelProvider.Anthropic:
 			return env.ANTHROPIC_API_KEY;
@@ -87,7 +70,7 @@ export function getApiKeyForModel(env: Env, model: string): string {
 		case ModelProvider.OpenAI:
 			return env.OPENAI_API_KEY;
 
-		case ModelProvider.GoogleAI:
+		case ModelProvider.GoogleAiStudio:
 			return env.GEMINI_API_KEY;
 
 		default:
@@ -97,4 +80,18 @@ export function getApiKeyForModel(env: Env, model: string): string {
 
 export function ensurePath(basePath: string, subPath: string): string {
 	return basePath ? `${basePath}/${subPath}` : subPath;
+}
+
+export function extractXMLContent(text: string): { [key: string]: string } {
+	const regex = /<(\w+)>([\s\S]*?)<\/\1>/g;
+	const result: { [key: string]: string } = {};
+	let match: RegExpExecArray | null;
+	while ((match = regex.exec(text)) !== null) {
+		result[match[1]] = match[2].trim();
+	}
+	return result;
+}
+
+export function extractCodeBlockContent(text: string): string {
+	return text.replace(/^```[\w]*\n([\s\S]*?)\n```$/gm, '$1');
 }
