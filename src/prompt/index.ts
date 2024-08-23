@@ -60,8 +60,8 @@ export class SendPromptError extends Error {
 }
 
 export async function sendPrompt(env: Env, params: SendPromptParams): Promise<string> {
-	const accountId = '807ab22ba7bc815b06252b90956e5d57';
-	const gatewayId = 'wall-e';
+	const accountId = env.CF_ACCOUNT_ID;
+	const gatewayId = env.CF_GATEWAY_AI_ID;
 
 	const mainModelProvider = MODEL_PROVIDERS[params.model];
 

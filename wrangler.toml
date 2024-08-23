@@ -11,6 +11,8 @@ rules = [
 
 [vars]
 GH_APP_ID = "902658"
+CF_ACCOUNT_ID = "807ab22ba7bc815b06252b90956e5d57"
+CF_GATEWAY_AI_ID = "wall-e"
 
 [[queues.producers]]
   queue = "job-queue"
