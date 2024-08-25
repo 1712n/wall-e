@@ -4,6 +4,7 @@ interface AnthropicQuery {
 	model: string;
 	max_tokens: number;
 	stream: boolean;
+	system: string;
 	messages: {
 		role: Role;
 		content: string;
@@ -39,11 +40,8 @@ export function anthropicRequest({ model, prompts, apiKey }: ProviderRequestPara
 			model: model,
 			max_tokens: 8_192,
 			stream: true,
+			system: system,
 			messages: [
-				{
-					role: 'system',
-					content: system,
-				},
 				{
 					role: 'user',
 					content: user,

@@ -7,9 +7,9 @@ interface OpenAIQuery {
 		role: Role;
 		content: string;
 	}[];
-	max_tokens: number;
-	temperature: number;
-	seed: number;
+	max_tokens?: number;
+	temperature?: number;
+	seed?: number;
 }
 
 interface OpenAIHeaders {
