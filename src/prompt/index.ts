@@ -49,6 +49,10 @@ export type SendPromptParams = {
 	temperature: number;
 };
 
+type SendPromptOptions = {
+	fallback: boolean;
+};
+
 export class SendPromptError extends Error {
 	constructor(
 		message: string,
@@ -59,7 +63,11 @@ export class SendPromptError extends Error {
 	}
 }
 
-export async function sendPrompt(env: Env, params: SendPromptParams): Promise<string> {
+export async function sendPrompt(
+	env: Env,
+	params: SendPromptParams,
+	{ fallback }: SendPromptOptions = { fallback: false },
+): Promise<string> {
 	const accountId = env.CF_ACCOUNT_ID;
 	const gatewayId = env.CF_GATEWAY_AI_ID;
 
@@ -73,17 +81,15 @@ export async function sendPrompt(env: Env, params: SendPromptParams): Promise<st
 
 	const modelProviderRequests = [
 		{
-			provider: mainModelProvider,
-			request: buildRequestForModelProvider(mainModelProvider, env, params),
+			...buildRequestForModelProvider(mainModelProvider, env, params),
 		},
 	];
 
-	modelProviderOrder
+	fallback &&	modelProviderOrder
 		.filter((provider) => provider !== mainModelProvider)
-		.map((provider) => {
+		.forEach((provider) => {
 			modelProviderRequests.push({
-				provider,
-				request: buildRequestForModelProvider(provider, env, params),
+				...buildRequestForModelProvider(provider, env, params),
 			});
 		});
 
