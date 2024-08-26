@@ -25,7 +25,7 @@ export interface AnthropicRequest {
 	query: AnthropicQuery;
 }
 
-export function anthropicRequest({ model, prompts, apiKey }: ProviderRequestParams): AnthropicRequest {
+export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderRequestParams): AnthropicRequest {
 	const { user, system } = prompts;
 	return {
 		provider: 'anthropic',
@@ -39,8 +39,8 @@ export function anthropicRequest({ model, prompts, apiKey }: ProviderRequestPara
 		query: {
 			model: model,
 			max_tokens: 8_192,
-			stream: true,
-			system: system,
+			stream,
+			system,
 			messages: [
 				{
 					role: 'user',
@@ -49,4 +49,30 @@ export function anthropicRequest({ model, prompts, apiKey }: ProviderRequestPara
 			],
 		},
 	};
+}
+
+type AnthropicSSE = {
+	type: 'content_block_delta';
+	index: number;
+	delta: {
+		type: 'text_delta';
+		text: string;
+	};
+};
+
+export function anthropicResponseTextFromSSE(sse: AnthropicSSE[]): string {
+	let result = '';
+
+	for (const event of sse) {
+		try {
+			// Check if the event type is 'content_block_delta' and it has a delta with type 'text_delta'
+			if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+				result += event.delta.text; // Accumulate the text from each delta
+			}
+		} catch (error) {
+			console.error('Error parsing Anthropic SSE:', error);
+		}
+	}
+
+	return result;
 }

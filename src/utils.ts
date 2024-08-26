@@ -62,8 +62,8 @@ export enum ModelProvider {
 	Unknown = 'unknown',
 }
 
-export function getApiKeyForModelProvider(env: Env, modelProvider: ModelProvider): string {
-	switch (modelProvider) {
+export function getApiKeyForModelProvider(provider: ModelProvider, env: Env): string {
+	switch (provider) {
 		case ModelProvider.Anthropic:
 			return env.ANTHROPIC_API_KEY;
 

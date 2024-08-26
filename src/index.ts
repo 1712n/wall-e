@@ -7,14 +7,7 @@ import {
 	buildPromptForAnalyzeTestFile,
 	SendPromptError,
 } from './prompt';
-import {
-	formatDebugInfo,
-	getElapsedSeconds,
-	ensurePath,
-	parseCommandArgs,
-	extractCodeBlockContent,
-	extractXMLContent,
-} from './utils';
+import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
 
 type GitHubJob = {
 	command: UserCommand;

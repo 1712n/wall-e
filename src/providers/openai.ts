@@ -24,7 +24,7 @@ export interface OpenAIRequest {
 	query: OpenAIQuery;
 }
 
-export function openAiRequest({ model, apiKey, prompts, temperature }: ProviderRequestParams): OpenAIRequest {
+export function openAiRequest({ model, apiKey, prompts, temperature, stream }: ProviderRequestParams): OpenAIRequest {
 	const { user, system } = prompts;
 
 	return {
@@ -35,8 +35,8 @@ export function openAiRequest({ model, apiKey, prompts, temperature }: ProviderR
 			'Content-Type': 'application/json',
 		},
 		query: {
-			model: model,
-			stream: true,
+			model,
+			stream,
 			messages: [
 				{
 					role: 'system',
@@ -48,8 +48,38 @@ export function openAiRequest({ model, apiKey, prompts, temperature }: ProviderR
 				},
 			],
 			max_tokens: 4_096,
-			temperature: temperature,
+			temperature,
 			seed: 0,
 		},
 	};
+}
+
+type OpenAISSE = {
+	id: string;
+	object: string;
+	created: number;
+	model: string;
+	choices: {
+		delta: {
+			content: string;
+		};
+	}[];
+};
+
+export function openAiResponseTextFromSSE(sse: OpenAISSE[]): string {
+	let result = '';
+
+	for (const event of sse) {
+		try {
+			// Check if the event type is 'delta' to accumulate the text
+			if (event.choices) {
+				const { delta } = event.choices[0];
+				result += delta.content; // Accumulate the content from each delta
+			}
+		} catch (error) {
+			console.warn('Skipping events from OpenAI due to an error:', error);
+		}
+	}
+
+	return result;
 }

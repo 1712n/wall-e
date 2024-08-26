@@ -1,5 +1,5 @@
-import { buildRequestForModelProvider } from '../providers';
-import { ModelProvider } from '../utils';
+import { buildRequestForModelProvider, handleStreamResponse } from '../providers';
+import { getApiKeyForModelProvider, ModelProvider } from '../utils';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
 
 type ModelProviderMap = Record<string, ModelProvider>;
@@ -13,6 +13,12 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 	'gemini-1.5-pro': ModelProvider.GoogleAiStudio,
 	'gemini-1.5-pro-exp-0801': ModelProvider.GoogleAiStudio,
 };
+
+const MODEL_PROVIDER_ORDER = [
+	ModelProvider.Anthropic,
+	ModelProvider.GoogleAiStudio,
+	ModelProvider.OpenAI
+];
 
 export type PromptMessages = {
 	user: string;
@@ -63,42 +69,40 @@ export class SendPromptError extends Error {
 	}
 }
 
-export async function sendPrompt(
-	env: Env,
-	params: SendPromptParams,
-	{ fallback }: SendPromptOptions = { fallback: false },
-): Promise<string> {
+export async function sendPrompt(env: Env, params: SendPromptParams, options: SendPromptOptions = { fallback: false }): Promise<string> {
 	const accountId = env.CF_ACCOUNT_ID;
 	const gatewayId = env.CF_GATEWAY_AI_ID;
 
-	const mainModelProvider = MODEL_PROVIDERS[params.model];
+	const stream = true;
 
-	const modelProviderOrder = [
-		ModelProvider.Anthropic,
-		ModelProvider.GoogleAiStudio,
-		ModelProvider.OpenAI
+	const mainProvider = MODEL_PROVIDERS[params.model];
+	const providerRequests = [
+		buildRequestForModelProvider(mainProvider, {
+			...params,
+			apiKey: getApiKeyForModelProvider(mainProvider, env),
+			stream,
+		}),
 	];
 
-	const modelProviderRequests = [
-		{
-			...buildRequestForModelProvider(mainModelProvider, env, params),
-		},
-	];
-
-	fallback &&	modelProviderOrder
-		.filter((provider) => provider !== mainModelProvider)
-		.forEach((provider) => {
-			modelProviderRequests.push({
-				...buildRequestForModelProvider(provider, env, params),
-			});
+	if (options.fallback) {
+		MODEL_PROVIDER_ORDER.forEach((provider) => {
+			if (provider !== mainProvider) {
+				const fallbackProvider = buildRequestForModelProvider(provider, {
+					...params,
+					apiKey: getApiKeyForModelProvider(provider, env),
+					stream,
+				});
+				providerRequests.push(fallbackProvider);
+			}
 		});
+	}
 
 	const response = await fetch(`https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}/`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify(modelProviderRequests),
+		body: JSON.stringify(providerRequests),
 	});
 
 	if (!response.ok) {
@@ -110,15 +114,5 @@ export async function sendPrompt(
 	}
 
 	const reader = response.body.getReader();
-	const decoder = new TextDecoder();
-	let modelResponse = '';
-
-	while (true) {
-		const { done, value } = await reader.read();
-		if (done) break;
-
-		modelResponse += decoder.decode(value, { stream: true });
-	}
-
-	return modelResponse;
+	return handleStreamResponse(reader);
 }
