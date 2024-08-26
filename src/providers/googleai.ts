@@ -36,14 +36,41 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 		query: {
 			contents: [
 				{
-					role: 'system',
-					parts: [{ text: system }],
-				},
-				{
 					role: 'user',
-					parts: [{ text: user }],
+					parts: [{ text: `${system}\n\n${user}` }],
 				},
 			],
 		},
 	};
+}
+
+type GoogleGeminiResponse = {
+  candidates: {
+    content: {
+      parts: { text: string }[];
+      role: string;
+    };
+    finishReason: string;
+    index: number;
+    safetyRatings?: { category: string; probability: string }[];
+  }[];
+  usageMetadata: {
+    promptTokenCount: number;
+    candidatesTokenCount: number;
+    totalTokenCount: number;
+  };
+};
+
+export function googleGeminiResponseText(response: GoogleGeminiResponse[]): string {
+  let result = '';
+
+  for (const res of response) {
+    for (const candidate of res.candidates) {
+      for (const part of candidate.content.parts) {
+        result += part.text; // Accumulate the text from each part
+      }
+    }
+  }
+
+  return result;
 }

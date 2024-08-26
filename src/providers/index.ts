@@ -2,7 +2,7 @@ import { PromptMessages } from '../prompt';
 import { ModelProvider } from '../utils';
 
 import { anthropicResponseTextFromSSE, anthropicRequest } from './anthropic';
-import { googleAIStudioRequest } from './googleai';
+import { googleAIStudioRequest, googleGeminiResponseText } from './googleai';
 import { openAiRequest, openAiResponseTextFromSSE } from './openai';
 
 export type Role = 'user' | 'assistant' | 'system';
@@ -33,14 +33,16 @@ export function buildRequestForModelProvider(provider: ModelProvider, params: Pr
 	}
 }
 
-async function parseServerSentEvents(reader: ReadableStreamDefaultReader<any>): Promise<any[]> {
+async function parseStreamedEvents(reader: ReadableStreamDefaultReader<any>): Promise<any[]> {
 	const decoder = new TextDecoder();
-	let accumulatedResponses: any[] = [];
+	let events: any[] = [];
 	let buffer = '';
 
 	while (true) {
 		const { done, value } = await reader.read();
-		if (done) break;
+		if (done) {
+			break;
+		}
 
 		buffer += decoder.decode(value, { stream: true });
 
@@ -56,44 +58,73 @@ async function parseServerSentEvents(reader: ReadableStreamDefaultReader<any>): 
 
 			// Extract and handle the data from the event
 			for (const line of lines) {
-				if (line.startsWith('data: ')) {
-					// Remove 'data: ' and parse the JSON
-					const jsonData = line.slice(6).trim();
+				if (!line.startsWith('data: ')) {
+					continue;
+				}
 
-					try {
-						const parsedData = JSON.parse(jsonData);
-						accumulatedResponses.push(parsedData);
-					} catch (error) {
-						console.error('Error parsing JSON:', error);
-					}
+				// Remove 'data: ' and parse the JSON
+				const jsonData = line.slice(6).trim();
+
+				try {
+					const parsedData = JSON.parse(jsonData);
+					events.push(parsedData);
+				} catch (error) {
+					console.error('Error parsing JSON:', error);
 				}
 			}
 		}
 	}
 
-	return accumulatedResponses;
-}
-
-function getModelProviderFromEvents(events: any[]): ModelProvider {
-	try {
-		const event = events.find((event) => event.type === 'message_start');
-		return event.message.model.startsWith('claude') && ModelProvider.Anthropic;
-	} catch (e) {
-		console.warn(`Events are not from ${ModelProvider.Anthropic}`);
+	if (events.length > 0) {
+		return events;
 	}
 
 	try {
-		const event = events[0];
-		return event.nonce && event.id && ModelProvider.OpenAI;
-	} catch (e) {
-		console.warn(`Events are not from ${ModelProvider.OpenAI}`);
+		return JSON.parse(buffer);
+	} catch (error) {
+		console.error('Error parsing buffer to JSON:', error);
+		return [];
+	}
+}
+
+function getModelProviderFromEvents(events: any[]): ModelProvider {
+	if (!events || events.length === 0) {
+		console.warn('No events provided');
+		return ModelProvider.Unknown;
+	}
+
+	try {
+		const messageStartEvent = events.find((event) => event.type === 'message_start');
+		if (messageStartEvent?.message?.model?.startsWith('claude')) {
+			return ModelProvider.Anthropic;
+		}
+	} catch (error) {
+		console.warn(`Events are not from ${ModelProvider.Anthropic}: ${error}`);
+	}
+
+	try {
+		const firstEvent = events[0];
+		if (firstEvent.nonce && firstEvent.id) {
+			return ModelProvider.OpenAI;
+		}
+	} catch (error) {
+		console.warn(`Events are not from ${ModelProvider.OpenAI}: ${error}`);
+	}
+
+	try {
+		const firstEvent = events[0];
+		if (firstEvent.candidates && firstEvent.usageMetadata) {
+			return ModelProvider.GoogleAiStudio;
+		}
+	} catch (error) {
+		console.warn(`Events are not from ${ModelProvider.GoogleAiStudio}: ${error}`);
 	}
 
 	return ModelProvider.Unknown;
 }
 
 export async function handleStreamResponse(reader: ReadableStreamDefaultReader<any>): Promise<string> {
-	const events = await parseServerSentEvents(reader);
+	const events = await parseStreamedEvents(reader);
 	if (events.length === 0) {
 		throw new Error('No events received from the model provider.');
 	}
@@ -105,6 +136,9 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 
 		case ModelProvider.OpenAI:
 			return openAiResponseTextFromSSE(events);
+
+		case ModelProvider.GoogleAiStudio:
+			return googleGeminiResponseText(events);
 
 		default:
 			throw new Error(`Provider '${provider}' not implemented`);

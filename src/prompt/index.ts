@@ -106,7 +106,8 @@ export async function sendPrompt(env: Env, params: SendPromptParams, options: Se
 	});
 
 	if (!response.ok) {
-		throw new SendPromptError(`Request failed with status ${response.status}`, params);
+		const text = await response.text();
+		throw new SendPromptError(`Request failed with status ${response.status}: ${JSON.stringify(text)}`, params);
 	}
 
 	if (!response.body) {
