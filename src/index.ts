@@ -3,11 +3,10 @@ import {
 	buildPromptForDocs,
 	buildPromptForWorkers,
 	sendPrompt,
-	MODEL_PROVIDERS,
 	buildPromptForAnalyzeTestFile,
 	SendPromptError,
-	isValidModel,
 } from './prompt';
+import { ModelName, isValidModel } from './providers';
 import {
 	formatDebugInfo,
 	getElapsedSeconds,
@@ -15,7 +14,6 @@ import {
 	parseCommandArgs,
 	extractCodeBlockContent,
 	extractXMLContent,
-	ModelName,
 } from './utils';
 
 type GitHubJob = {

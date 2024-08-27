@@ -1,9 +1,89 @@
 import { PromptMessages, SendPromptResponse } from '../prompt';
-import { ModelName, ModelProvider } from '../utils';
 
 import { anthropicResponseTextFromSSE, anthropicRequest } from './anthropic';
 import { googleAIStudioRequest, googleGeminiResponseText } from './googleai';
 import { openAiRequest, openAiResponseTextFromSSE } from './openai';
+
+export enum ModelProvider {
+	Anthropic = 'anthropic',
+	OpenAI = 'openai',
+	GoogleAiStudio = 'google-ai-studio',
+	Unknown = 'unknown',
+}
+
+export enum ModelName {
+	Claude_3_Opus_20240229 = 'claude-3-opus-20240229',
+	Claude_3_Haiku_20240307 = 'claude-3-haiku-20240307',
+	Claude_3_Sonnet_20240229 = 'claude-3-sonnet-20240229',
+	Claude_3_5_Sonnet_20240620 = 'claude-3-5-sonnet-20240620',
+	GPT_4o = 'gpt-4o',
+	Gemini_1_5_Pro = 'gemini-1.5-pro',
+	Gemini_1_5_Pro_Exp_0801 = 'gemini-1.5-pro-exp-0801',
+}
+
+type ModelProviderMap = Record<ModelProvider, { default?: ModelName, models?: ModelName[] }>;
+
+export const MODEL_PROVIDERS: ModelProviderMap = {
+	[ModelProvider.Anthropic]: {
+		default: ModelName.Claude_3_5_Sonnet_20240620,
+		models: [
+			ModelName.Claude_3_Opus_20240229,
+			ModelName.Claude_3_Sonnet_20240229,
+			ModelName.Claude_3_Haiku_20240307,
+			ModelName.Claude_3_5_Sonnet_20240620
+		]
+	},
+	[ModelProvider.OpenAI]: {
+		default: ModelName.GPT_4o,
+		models: [
+			ModelName.GPT_4o
+		]
+	},
+	[ModelProvider.GoogleAiStudio]: {
+		default: ModelName.Gemini_1_5_Pro_Exp_0801,
+		models: [
+			ModelName.Gemini_1_5_Pro,
+			ModelName.Gemini_1_5_Pro_Exp_0801
+		]
+	},
+	[ModelProvider.Unknown]: {}
+};
+
+export function getApiKeyForModelProvider(provider: ModelProvider, env: Env): string {
+	switch (provider) {
+		case ModelProvider.Anthropic:
+			return env.ANTHROPIC_API_KEY;
+
+		case ModelProvider.OpenAI:
+			return env.OPENAI_API_KEY;
+
+		case ModelProvider.GoogleAiStudio:
+			return env.GEMINI_API_KEY;
+
+		default:
+			throw new Error('Unsupported model provider specified.');
+	}
+}
+
+export function getProviderForModel(model: ModelName): ModelProvider {
+	const providers = Object.keys(MODEL_PROVIDERS) as ModelProvider[];
+	for (const provider of providers) {
+		const models = MODEL_PROVIDERS[provider].models;
+		if (models?.includes(model)) {
+			return provider;
+		}
+	}
+
+	return ModelProvider.Unknown;
+}
+
+export function isValidModel(model: ModelName): boolean {
+	return getProviderForModel(model) !== ModelProvider.Unknown;
+}
+
+export function getDefaultModelForProvider(provider: ModelProvider): ModelName | undefined {
+	return MODEL_PROVIDERS[provider].default;
+}
 
 export type Role = 'user' | 'assistant' | 'system';
 

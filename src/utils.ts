@@ -1,3 +1,5 @@
+import { ModelName } from "./providers";
+
 type DebugInfo = {
 	[key: string]: any;
 };
@@ -56,39 +58,6 @@ export function parseCommandArgs(args: string[]) {
 	}
 
 	return result;
-}
-
-export enum ModelProvider {
-	Anthropic = 'anthropic',
-	OpenAI = 'openai',
-	GoogleAiStudio = 'google-ai-studio',
-	Unknown = 'unknown',
-}
-
-export enum ModelName {
-	Claude_3_Opus_20240229 = 'claude-3-opus-20240229',
-	Claude_3_Haiku_20240307 = 'claude-3-haiku-20240307',
-	Claude_3_Sonnet_20240229 = 'claude-3-sonnet-20240229',
-	Claude_3_5_Sonnet_20240620 = 'claude-3-5-sonnet-20240620',
-	GPT_4o = 'gpt-4o',
-	Gemini_1_5_Pro = 'gemini-1.5-pro',
-	Gemini_1_5_Pro_Exp_0801 = 'gemini-1.5-pro-exp-0801',
-}
-
-export function getApiKeyForModelProvider(provider: ModelProvider, env: Env): string {
-	switch (provider) {
-		case ModelProvider.Anthropic:
-			return env.ANTHROPIC_API_KEY;
-
-		case ModelProvider.OpenAI:
-			return env.OPENAI_API_KEY;
-
-		case ModelProvider.GoogleAiStudio:
-			return env.GEMINI_API_KEY;
-
-		default:
-			throw new Error('Unsupported model provider specified.');
-	}
 }
 
 export function ensurePath(basePath: string, subPath: string): string {

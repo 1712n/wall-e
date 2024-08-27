@@ -1,54 +1,13 @@
-import { buildRequestForModelProvider, handleStreamResponse } from '../providers';
-import { getApiKeyForModelProvider, ModelName, ModelProvider } from '../utils';
+import {
+	buildRequestForModelProvider,
+	handleStreamResponse,
+	getApiKeyForModelProvider,
+	ModelName,
+	ModelProvider,
+	getProviderForModel,
+	getDefaultModelForProvider,
+} from '../providers';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
-
-type ModelProviderMap = Record<ModelProvider, { default?: ModelName, models?: ModelName[] }>;
-
-export const MODEL_PROVIDERS: ModelProviderMap = {
-	[ModelProvider.Anthropic]: {
-		default: ModelName.Claude_3_5_Sonnet_20240620,
-		models: [
-			ModelName.Claude_3_Opus_20240229,
-			ModelName.Claude_3_Sonnet_20240229,
-			ModelName.Claude_3_Haiku_20240307,
-			ModelName.Claude_3_5_Sonnet_20240620
-		]
-	},
-	[ModelProvider.OpenAI]: {
-		default: ModelName.GPT_4o,
-		models: [
-			ModelName.GPT_4o
-		]
-	},
-	[ModelProvider.GoogleAiStudio]: {
-		default: ModelName.Gemini_1_5_Pro_Exp_0801,
-		models: [
-			ModelName.Gemini_1_5_Pro,
-			ModelName.Gemini_1_5_Pro_Exp_0801
-		]
-	},
-	[ModelProvider.Unknown]: {}
-};
-
-function getProviderForModel(model: ModelName): ModelProvider {
-	const providers = Object.keys(MODEL_PROVIDERS) as ModelProvider[];
-	for (const provider of providers) {
-		const models = MODEL_PROVIDERS[provider].models;
-		if (models?.includes(model)) {
-			return provider;
-		}
-	}
-
-	return ModelProvider.Unknown;
-}
-
-export function isValidModel(model: ModelName): boolean {
-	return getProviderForModel(model) !== ModelProvider.Unknown;
-}
-
-function getDefaultModelForProvider(provider: ModelProvider): ModelName | undefined {
-	return MODEL_PROVIDERS[provider].default;
-}
 
 const MODEL_PROVIDER_ORDER = [
 	ModelProvider.Anthropic,
