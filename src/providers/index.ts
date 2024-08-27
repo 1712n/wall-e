@@ -175,7 +175,7 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 
 	try {
 		const messageStartEvents = events.filter((event) => event.type === 'message_start');
-		if (messageStartEvents.length === 1) {
+		if (messageStartEvents.length > 0) {
 			return ModelProvider.Anthropic;
 		}
 	} catch (error) {
