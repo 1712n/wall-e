@@ -6,8 +6,9 @@ import {
 	MODEL_PROVIDERS,
 	buildPromptForAnalyzeTestFile,
 	SendPromptError,
+	isValidModel,
 } from './prompt';
-import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
+import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent, ModelProvider } from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -85,7 +86,7 @@ export default {
 			let workingCommentId: number | undefined = undefined;
 
 			try {
-				if (!MODEL_PROVIDERS[model]) {
+				if (!isValidModel(model)) {
 					const allowedModels = Object.keys(MODEL_PROVIDERS)
 						.map((m) => `- \`${m}\``)
 						.join('\n');

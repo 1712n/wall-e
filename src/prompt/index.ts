@@ -2,17 +2,53 @@ import { buildRequestForModelProvider, handleStreamResponse } from '../providers
 import { getApiKeyForModelProvider, ModelProvider } from '../utils';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
 
-type ModelProviderMap = Record<string, ModelProvider>;
+type ModelProviderMap = Record<ModelProvider, { default?: string, models?: string[] }>;
 
 export const MODEL_PROVIDERS: ModelProviderMap = {
-	'claude-3-opus-20240229': ModelProvider.Anthropic,
-	'claude-3-sonnet-20240229': ModelProvider.Anthropic,
-	'claude-3-haiku-20240307': ModelProvider.Anthropic,
-	'claude-3-5-sonnet-20240620': ModelProvider.Anthropic,
-	'gpt-4o': ModelProvider.OpenAI,
-	'gemini-1.5-pro': ModelProvider.GoogleAiStudio,
-	'gemini-1.5-pro-exp-0801': ModelProvider.GoogleAiStudio,
+	[ModelProvider.Anthropic]: {
+		default: 'claude-3-5-sonnet-20240620',
+		models: [
+			'claude-3-opus-20240229',
+			'claude-3-sonnet-20240229',
+			'claude-3-haiku-20240307',
+			'claude-3-5-sonnet-20240620'
+		]
+	},
+	[ModelProvider.OpenAI]: {
+		default: 'gpt-4o',
+		models: [
+			'gpt-4o'
+		]
+	},
+	[ModelProvider.GoogleAiStudio]: {
+		default: 'gemini-1.5-pro-exp-0801',
+		models: [
+			'gemini-1.5-pro',
+			'gemini-1.5-pro-exp-0801'
+		]
+	},
+	[ModelProvider.Unknown]: {}
 };
+
+function getProviderForModel(model: string): ModelProvider {
+	const providers = Object.keys(MODEL_PROVIDERS) as ModelProvider[];
+	for (const provider of providers) {
+		const models = MODEL_PROVIDERS[provider].models;
+		if (models?.includes(model)) {
+			return provider;
+		}
+	}
+
+	return ModelProvider.Unknown;
+}
+
+export function isValidModel(model: string): boolean {
+	return getProviderForModel(model) !== ModelProvider.Unknown;
+}
+
+function getDefaultModelForProvider(provider: ModelProvider): string | undefined {
+	return MODEL_PROVIDERS[provider].default;
+}
 
 const MODEL_PROVIDER_ORDER = [
 	ModelProvider.Anthropic,
@@ -69,13 +105,13 @@ export class SendPromptError extends Error {
 	}
 }
 
-export async function sendPrompt(env: Env, params: SendPromptParams, options: SendPromptOptions = { fallback: false }): Promise<string> {
+export async function sendPrompt(env: Env, params: SendPromptParams, options: SendPromptOptions = { fallback: true }): Promise<string> {
 	const accountId = env.CF_ACCOUNT_ID;
 	const gatewayId = env.CF_GATEWAY_AI_ID;
 
 	const stream = true;
 
-	const mainProvider = MODEL_PROVIDERS[params.model];
+	const mainProvider = getProviderForModel(params.model);
 	const providerRequests = [
 		buildRequestForModelProvider(mainProvider, {
 			...params,
@@ -87,9 +123,15 @@ export async function sendPrompt(env: Env, params: SendPromptParams, options: Se
 	if (options.fallback) {
 		MODEL_PROVIDER_ORDER.forEach((provider) => {
 			if (provider !== mainProvider) {
+				const defaultModel = getDefaultModelForProvider(provider);
+				if (!defaultModel) {
+					return;
+				}
+
 				const fallbackProvider = buildRequestForModelProvider(provider, {
 					...params,
 					apiKey: getApiKeyForModelProvider(provider, env),
+					model: defaultModel,
 					stream,
 				});
 				providerRequests.push(fallbackProvider);
