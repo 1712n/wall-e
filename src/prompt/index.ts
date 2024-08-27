@@ -101,7 +101,13 @@ export class SendPromptError extends Error {
 	}
 }
 
-export async function sendPrompt(env: Env, params: SendPromptParams, fallback: boolean): Promise<string> {
+export type SendPromptResponse = {
+	text: string;
+	provider: ModelProvider;
+	model?: ModelName;
+};
+
+export async function sendPrompt(env: Env, params: SendPromptParams, fallback: boolean): Promise<SendPromptResponse> {
 	const accountId = env.CF_ACCOUNT_ID;
 	const gatewayId = env.CF_GATEWAY_AI_ID;
 

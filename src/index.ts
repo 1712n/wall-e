@@ -8,7 +8,15 @@ import {
 	SendPromptError,
 	isValidModel,
 } from './prompt';
-import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent, ModelName } from './utils';
+import {
+	formatDebugInfo,
+	getElapsedSeconds,
+	ensurePath,
+	parseCommandArgs,
+	extractCodeBlockContent,
+	extractXMLContent,
+	ModelName,
+} from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -25,6 +33,62 @@ function initializeGitHub(env: Env, installationId: number) {
 			secret: env.GH_WEBHOOK_SECRET,
 		},
 	});
+}
+
+type CommitGeneratedCodeParams = {
+	basePath: string;
+	generatedCode: string;
+	github: GitHub;
+	message: Message<GitHubJob>;
+	context: CommandContext;
+	workingCommentId?: number;
+	model: ModelName;
+	temperature: number;
+	fallbackModel?: ModelName;
+	prompts: {
+		documentationExtration: string;
+		generateWorker: string;
+	};
+	relevantDocumentation: string;
+};
+
+async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
+	const {
+		basePath,
+		generatedCode,
+		github,
+		message,
+		context,
+		workingCommentId,
+		model,
+		fallbackModel,
+		temperature,
+		prompts,
+		relevantDocumentation,
+	} = params;
+
+	const srcFilePath = ensurePath(basePath, 'src/index.ts');
+	const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
+
+	try {
+		await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');
+		const elapsedTime = getElapsedSeconds(message.timestamp);
+		const debugInfo = formatDebugInfo({
+			elapsedTime,
+			model: fallbackModel ?? model,
+			temperature,
+			documentationExtractionPrompt: JSON.stringify(prompts.documentationExtration, null, 2),
+			relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
+			generateWorkerPrompt: JSON.stringify(prompts.generateWorker, null, 2),
+		});
+		const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
+		await github.postComment(context, comment, workingCommentId);
+	} catch (error) {
+		const elapsedTime = getElapsedSeconds(message.timestamp);
+		const debugInfo = formatDebugInfo({ elapsedTime, model, fallbackModel, temperature, error });
+		const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
+		await github.postComment(context, comment, workingCommentId);
+	}
 }
 
 export default {
@@ -115,7 +179,7 @@ export default {
 
 							// Analyze the test file to check for conflicts with Best Practices
 							const analyzeTestFilePrompts = buildPromptForAnalyzeTestFile(testFileContent);
-							const analyzedTestFile = await sendPrompt(
+							await sendPrompt(
 								env,
 								{
 									model: ModelName.Claude_3_5_Sonnet_20240620,
@@ -123,23 +187,26 @@ export default {
 									temperature: 0,
 								},
 								fallback,
-							);
+							).then(async ({ model, text }) => {
+								if (!text) {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										model, // The actual model used to analyze the test file
+										analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
+										analyzeTestFileResponse: JSON.stringify(text, null, 2),
+									});
 
-							if (!analyzedTestFile) {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({
-									elapsedTime,
-									analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
-									analyzeTestFileResponse: JSON.stringify(analyzedTestFile, null, 2),
-								});
-								await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
-							} else {
-								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
+									await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
+									return;
+								}
+
+								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(text);
 								if (testFileAnalysisResult) {
 									const body = `The following best practices conflicts were detected in the test file: ${testFileAnalysisResult}`;
 									await github.postComment(context, body);
 								}
-							}
+							});
 
 							// Use the test file and Cloudflare documentation to get only the relevant documentation
 							const documentationPrompts = buildPromptForDocs(testFileContent);
@@ -151,25 +218,27 @@ export default {
 									temperature: 0,
 								},
 								fallback,
-							);
-
-							if (!relevantDocumentation) {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({
-									elapsedTime,
-									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-									documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
-								});
-								await github.postComment(
-									context,
-									`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
-									workingCommentId,
-								);
-							}
+							).then(async ({ model, text }) => {
+								if (!text) {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										model, // The actual model used to extract the relevant documentation
+										documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+										documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
+									});
+									await github.postComment(
+										context,
+										`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
+										workingCommentId,
+									);
+								}
+								return text;
+							});
 
 							// Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
-							const generatedWorker = await sendPrompt(
+							await sendPrompt(
 								env,
 								{
 									model,
@@ -177,42 +246,38 @@ export default {
 									temperature,
 								},
 								fallback,
-							);
+							).then(async ({ model: fallbackModel, text }) => {
+								const { generated_code: generatedCode } = extractXMLContent(text);
+								if (!generatedCode) {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										model: fallbackModel ?? model, // The actual model used to generate the code
+										temperature,
+										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
+									});
+									await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
+									return;
+								}
 
-							const { generated_code: generatedCode } = extractXMLContent(generatedWorker);
-							if (!generatedCode) {
-								const debugInfo = formatDebugInfo({
+								// Write the generated file (src/index.ts) to the pull request's branch
+								await commitGeneratedCode({
+									basePath,
+									generatedCode,
+									github,
+									message,
+									context,
+									workingCommentId,
 									model,
+									fallbackModel,
 									temperature,
-									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
+									prompts: {
+										documentationExtration: documentationPrompts.system,
+										generateWorker: generateWorkerPrompts.system,
+									},
+									relevantDocumentation,
 								});
-								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
-								return;
-							}
-
-							// Write the generated file (src/index.ts) to the pull request's branch
-							const srcFilePath = ensurePath(basePath, 'src/index.ts');
-							const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
-
-							try {
-								await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({
-									elapsedTime,
-									model,
-									temperature,
-									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-									relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
-									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
-								});
-								const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
-								await github.postComment(context, comment, workingCommentId);
-							} catch (error) {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({ elapsedTime, model, temperature, error });
-								const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
-								await github.postComment(context, comment, workingCommentId);
-							}
+							});
 						}
 						break;
 

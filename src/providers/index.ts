@@ -1,4 +1,4 @@
-import { PromptMessages } from '../prompt';
+import { PromptMessages, SendPromptResponse } from '../prompt';
 import { ModelName, ModelProvider } from '../utils';
 
 import { anthropicResponseTextFromSSE, anthropicRequest } from './anthropic';
@@ -94,8 +94,8 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 	}
 
 	try {
-		const messageStartEvent = events.find((event) => event.type === 'message_start');
-		if (messageStartEvent?.message?.model) {
+		const messageStartEvents = events.filter((event) => event.type === 'message_start');
+		if (messageStartEvents.length === 1) {
 			return ModelProvider.Anthropic;
 		}
 	} catch (error) {
@@ -123,7 +123,7 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 	return ModelProvider.Unknown;
 }
 
-export async function handleStreamResponse(reader: ReadableStreamDefaultReader<any>): Promise<string> {
+export async function handleStreamResponse(reader: ReadableStreamDefaultReader<any>): Promise<SendPromptResponse> {
 	const events = await parseStreamedEvents(reader);
 	if (events.length === 0) {
 		throw new Error('No events received from the model provider.');
@@ -132,13 +132,24 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 	const provider = getModelProviderFromEvents(events);
 	switch (provider) {
 		case ModelProvider.Anthropic:
-			return anthropicResponseTextFromSSE(events);
+			return {
+				text: anthropicResponseTextFromSSE(events),
+				provider,
+				model: events[0].message.model,
+			};
 
 		case ModelProvider.OpenAI:
-			return openAiResponseTextFromSSE(events);
+			return {
+				text: openAiResponseTextFromSSE(events),
+				provider,
+				model: events[0].model,
+			};
 
 		case ModelProvider.GoogleAiStudio:
-			return googleGeminiResponseText(events);
+			return {
+				text: googleGeminiResponseText(events),
+				provider,
+			};
 
 		default:
 			throw new Error(`Provider '${provider}' not implemented`);
