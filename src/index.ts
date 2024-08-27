@@ -151,7 +151,7 @@ export default {
 
 			try {
 				if (!isValidModel(model)) {
-					const allowedModels = Object.keys(MODEL_PROVIDERS)
+					const allowedModels = Object.values(ModelName)
 						.map((m) => `- \`${m}\``)
 						.join('\n');
 					const body = `The model '${model}' is not valid. Please use one of the following options:\n\n${allowedModels}`;
