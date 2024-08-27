@@ -26,7 +26,7 @@ export function getElapsedSeconds(start: Date) {
 }
 
 export function parseCommandArgs(args: string[]) {
-	const result = { basePath: '', model: 'claude-3-5-sonnet-20240620', temperature: 0.5 };
+	const result = { basePath: '', model: ModelName.Claude_3_5_Sonnet_20240620, temperature: 0.5, fallback: true };
 
 	for (const arg of args) {
 		const [key, value] = arg.split(':');
@@ -40,7 +40,7 @@ export function parseCommandArgs(args: string[]) {
 				result.basePath = value;
 				break;
 			case 'model':
-				result.model = value;
+				result.model = value as ModelName;
 				break;
 			case 'temp':
 			case 'temperature':
@@ -48,6 +48,9 @@ export function parseCommandArgs(args: string[]) {
 				if (!Number.isNaN(temp)) {
 					result.temperature = temp;
 				}
+				break;
+			case 'fallback':
+				result.fallback = value !== 'false';
 				break;
 		}
 	}
@@ -60,6 +63,16 @@ export enum ModelProvider {
 	OpenAI = 'openai',
 	GoogleAiStudio = 'google-ai-studio',
 	Unknown = 'unknown',
+}
+
+export enum ModelName {
+	Claude_3_Opus_20240229 = 'claude-3-opus-20240229',
+	Claude_3_Haiku_20240307 = 'claude-3-haiku-20240307',
+	Claude_3_Sonnet_20240229 = 'claude-3-sonnet-20240229',
+	Claude_3_5_Sonnet_20240620 = 'claude-3-5-sonnet-20240620',
+	GPT_4o = 'gpt-4o',
+	Gemini_1_5_Pro = 'gemini-1.5-pro',
+	Gemini_1_5_Pro_Exp_0801 = 'gemini-1.5-pro-exp-0801',
 }
 
 export function getApiKeyForModelProvider(provider: ModelProvider, env: Env): string {

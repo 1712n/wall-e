@@ -8,7 +8,7 @@ import {
 	SendPromptError,
 	isValidModel,
 } from './prompt';
-import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent, ModelProvider } from './utils';
+import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent, ModelName } from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -80,7 +80,7 @@ export default {
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
 			const { command, context, installationId } = message.body;
-			const { basePath, model, temperature } = parseCommandArgs(command.args || []);
+			const { basePath, model, temperature, fallback } = parseCommandArgs(command.args || []);
 			const github = initializeGitHub(env, installationId);
 
 			let workingCommentId: number | undefined = undefined;
@@ -115,11 +115,15 @@ export default {
 
 							// Analyze the test file to check for conflicts with Best Practices
 							const analyzeTestFilePrompts = buildPromptForAnalyzeTestFile(testFileContent);
-							const analyzedTestFile = await sendPrompt(env, {
-								model,
-								prompts: analyzeTestFilePrompts,
-								temperature: 0,
-							});
+							const analyzedTestFile = await sendPrompt(
+								env,
+								{
+									model: ModelName.Claude_3_5_Sonnet_20240620,
+									prompts: analyzeTestFilePrompts,
+									temperature: 0,
+								},
+								fallback,
+							);
 
 							if (!analyzedTestFile) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
@@ -139,11 +143,15 @@ export default {
 
 							// Use the test file and Cloudflare documentation to get only the relevant documentation
 							const documentationPrompts = buildPromptForDocs(testFileContent);
-							const relevantDocumentation = await sendPrompt(env, {
-								model,
-								prompts: documentationPrompts,
-								temperature: 0,
-							});
+							const relevantDocumentation = await sendPrompt(
+								env,
+								{
+									model: ModelName.Claude_3_5_Sonnet_20240620,
+									prompts: documentationPrompts,
+									temperature: 0,
+								},
+								fallback,
+							);
 
 							if (!relevantDocumentation) {
 								const elapsedTime = getElapsedSeconds(message.timestamp);
@@ -161,11 +169,15 @@ export default {
 
 							// Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
-							const generatedWorker = await sendPrompt(env, {
-								model,
-								prompts: generateWorkerPrompts,
-								temperature,
-							});
+							const generatedWorker = await sendPrompt(
+								env,
+								{
+									model,
+									prompts: generateWorkerPrompts,
+									temperature,
+								},
+								fallback,
+							);
 
 							const { generated_code: generatedCode } = extractXMLContent(generatedWorker);
 							if (!generatedCode) {

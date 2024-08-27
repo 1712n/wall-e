@@ -1,5 +1,5 @@
 import { PromptMessages } from '../prompt';
-import { ModelProvider } from '../utils';
+import { ModelName, ModelProvider } from '../utils';
 
 import { anthropicResponseTextFromSSE, anthropicRequest } from './anthropic';
 import { googleAIStudioRequest, googleGeminiResponseText } from './googleai';
@@ -8,7 +8,7 @@ import { openAiRequest, openAiResponseTextFromSSE } from './openai';
 export type Role = 'user' | 'assistant' | 'system';
 
 export type ProviderRequestParams = {
-	model: string;
+	model: ModelName;
 	apiKey: string;
 	prompts: PromptMessages;
 	temperature: number;
@@ -95,7 +95,7 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 
 	try {
 		const messageStartEvent = events.find((event) => event.type === 'message_start');
-		if (messageStartEvent?.message?.model?.startsWith('claude')) {
+		if (messageStartEvent?.message?.model) {
 			return ModelProvider.Anthropic;
 		}
 	} catch (error) {

@@ -1,36 +1,36 @@
 import { buildRequestForModelProvider, handleStreamResponse } from '../providers';
-import { getApiKeyForModelProvider, ModelProvider } from '../utils';
+import { getApiKeyForModelProvider, ModelName, ModelProvider } from '../utils';
 import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
 
-type ModelProviderMap = Record<ModelProvider, { default?: string, models?: string[] }>;
+type ModelProviderMap = Record<ModelProvider, { default?: ModelName, models?: ModelName[] }>;
 
 export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.Anthropic]: {
-		default: 'claude-3-5-sonnet-20240620',
+		default: ModelName.Claude_3_5_Sonnet_20240620,
 		models: [
-			'claude-3-opus-20240229',
-			'claude-3-sonnet-20240229',
-			'claude-3-haiku-20240307',
-			'claude-3-5-sonnet-20240620'
+			ModelName.Claude_3_Opus_20240229,
+			ModelName.Claude_3_Sonnet_20240229,
+			ModelName.Claude_3_Haiku_20240307,
+			ModelName.Claude_3_5_Sonnet_20240620
 		]
 	},
 	[ModelProvider.OpenAI]: {
-		default: 'gpt-4o',
+		default: ModelName.GPT_4o,
 		models: [
-			'gpt-4o'
+			ModelName.GPT_4o
 		]
 	},
 	[ModelProvider.GoogleAiStudio]: {
-		default: 'gemini-1.5-pro-exp-0801',
+		default: ModelName.Gemini_1_5_Pro_Exp_0801,
 		models: [
-			'gemini-1.5-pro',
-			'gemini-1.5-pro-exp-0801'
+			ModelName.Gemini_1_5_Pro,
+			ModelName.Gemini_1_5_Pro_Exp_0801
 		]
 	},
 	[ModelProvider.Unknown]: {}
 };
 
-function getProviderForModel(model: string): ModelProvider {
+function getProviderForModel(model: ModelName): ModelProvider {
 	const providers = Object.keys(MODEL_PROVIDERS) as ModelProvider[];
 	for (const provider of providers) {
 		const models = MODEL_PROVIDERS[provider].models;
@@ -42,11 +42,11 @@ function getProviderForModel(model: string): ModelProvider {
 	return ModelProvider.Unknown;
 }
 
-export function isValidModel(model: string): boolean {
+export function isValidModel(model: ModelName): boolean {
 	return getProviderForModel(model) !== ModelProvider.Unknown;
 }
 
-function getDefaultModelForProvider(provider: ModelProvider): string | undefined {
+function getDefaultModelForProvider(provider: ModelProvider): ModelName | undefined {
 	return MODEL_PROVIDERS[provider].default;
 }
 
@@ -86,13 +86,9 @@ export function buildPromptForAnalyzeTestFile(testFile: string): PromptMessages 
 }
 
 export type SendPromptParams = {
-	model: string;
+	model: ModelName;
 	prompts: PromptMessages;
 	temperature: number;
-};
-
-type SendPromptOptions = {
-	fallback: boolean;
 };
 
 export class SendPromptError extends Error {
@@ -105,7 +101,7 @@ export class SendPromptError extends Error {
 	}
 }
 
-export async function sendPrompt(env: Env, params: SendPromptParams, options: SendPromptOptions = { fallback: true }): Promise<string> {
+export async function sendPrompt(env: Env, params: SendPromptParams, fallback: boolean): Promise<string> {
 	const accountId = env.CF_ACCOUNT_ID;
 	const gatewayId = env.CF_GATEWAY_AI_ID;
 
@@ -120,7 +116,7 @@ export async function sendPrompt(env: Env, params: SendPromptParams, options: Se
 		}),
 	];
 
-	if (options.fallback) {
+	if (fallback) {
 		MODEL_PROVIDER_ORDER.forEach((provider) => {
 			if (provider !== mainProvider) {
 				const defaultModel = getDefaultModelForProvider(provider);
