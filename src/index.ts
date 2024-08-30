@@ -27,6 +27,7 @@ type CommitGeneratedCodeParams = {
 	message: Message<GitHubJob>;
 	context: CommandContext;
 	workingCommentId?: number;
+	provider: ModelProvider;
 	model: ModelName;
 	temperature: number;
 	fallbackModel?: ModelName;
@@ -45,6 +46,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		message,
 		context,
 		workingCommentId,
+		provider,
 		model,
 		fallbackModel,
 		temperature,
@@ -60,6 +62,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		const elapsedTime = getElapsedSeconds(message.timestamp);
 		const debugInfo = formatDebugInfo({
 			elapsedTime,
+			provider,
 			model: fallbackModel ?? model,
 			temperature,
 			documentationExtractionPrompt: JSON.stringify(prompts.documentationExtration, null, 2),
@@ -233,12 +236,13 @@ export default {
 									temperature,
 								},
 								fallback,
-							).then(async ({ model: fallbackModel, text }) => {
+							).then(async ({ provider, model: fallbackModel, text }) => {
 								const { generated_code: generatedCode } = extractXMLContent(text);
 								if (!generatedCode) {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
 									const debugInfo = formatDebugInfo({
 										elapsedTime,
+										provider,
 										model: fallbackModel ?? model, // The actual model used to generate the code
 										temperature,
 										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
@@ -255,6 +259,7 @@ export default {
 									message,
 									context,
 									workingCommentId,
+									provider,
 									model,
 									fallbackModel,
 									temperature,
