@@ -45,32 +45,32 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 }
 
 type GoogleGeminiResponse = {
-  candidates: {
-    content: {
-      parts: { text: string }[];
-      role: string;
-    };
-    finishReason: string;
-    index: number;
-    safetyRatings?: { category: string; probability: string }[];
-  }[];
-  usageMetadata: {
-    promptTokenCount: number;
-    candidatesTokenCount: number;
-    totalTokenCount: number;
-  };
+	candidates: {
+		content: {
+			parts: { text: string }[];
+			role: string;
+		};
+		finishReason: string;
+		index: number;
+		safetyRatings?: { category: string; probability: string }[];
+	}[];
+	usageMetadata: {
+		promptTokenCount: number;
+		candidatesTokenCount: number;
+		totalTokenCount: number;
+	};
 };
 
 export function googleGeminiResponseText(response: GoogleGeminiResponse[]): string {
-  let result = '';
+	let result = '';
 
-  for (const res of response) {
-    for (const candidate of res.candidates) {
-      for (const part of candidate.content.parts) {
-        result += part.text; // Accumulate the text from each part
-      }
-    }
-  }
+	for (const res of response) {
+		for (const candidate of res.candidates) {
+			for (const part of candidate.content.parts) {
+				result += part.text; // Accumulate the text from each part
+			}
+		}
+	}
 
-  return result;
+	return result;
 }

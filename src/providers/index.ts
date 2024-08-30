@@ -18,29 +18,29 @@ export enum ModelName {
 	Gemini_1_5_Pro_Exp_0801 = 'gemini-1.5-pro-exp-0801',
 }
 
-type ModelProviderMap = Record<ModelProvider, { default?: ModelName, models?: ModelName[] }>;
+type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: ModelName[] }>;
 
 export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.Anthropic]: {
 		default: ModelName.Claude_3_5_Sonnet_20240620,
 		models: [
 			ModelName.Claude_3_5_Sonnet_20240620
-		]
+		],
 	},
 	[ModelProvider.OpenAI]: {
 		default: ModelName.GPT_4o,
 		models: [
 			ModelName.GPT_4o
-		]
+		],
 	},
 	[ModelProvider.GoogleAiStudio]: {
 		default: ModelName.Gemini_1_5_Pro_Exp_0801,
 		models: [
 			ModelName.Gemini_1_5_Pro,
 			ModelName.Gemini_1_5_Pro_Exp_0801
-		]
+		],
 	},
-	[ModelProvider.Unknown]: {}
+	[ModelProvider.Unknown]: {},
 };
 
 export function getApiKeyForModelProvider(provider: ModelProvider, env: Env): string {
