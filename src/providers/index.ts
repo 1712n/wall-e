@@ -12,9 +12,6 @@ export enum ModelProvider {
 }
 
 export enum ModelName {
-	Claude_3_Opus_20240229 = 'claude-3-opus-20240229',
-	Claude_3_Haiku_20240307 = 'claude-3-haiku-20240307',
-	Claude_3_Sonnet_20240229 = 'claude-3-sonnet-20240229',
 	Claude_3_5_Sonnet_20240620 = 'claude-3-5-sonnet-20240620',
 	GPT_4o = 'gpt-4o',
 	Gemini_1_5_Pro = 'gemini-1.5-pro',
@@ -27,9 +24,6 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.Anthropic]: {
 		default: ModelName.Claude_3_5_Sonnet_20240620,
 		models: [
-			ModelName.Claude_3_Opus_20240229,
-			ModelName.Claude_3_Sonnet_20240229,
-			ModelName.Claude_3_Haiku_20240307,
 			ModelName.Claude_3_5_Sonnet_20240620
 		]
 	},
