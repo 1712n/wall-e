@@ -71,12 +71,16 @@ export function getProviderForModel(model: ModelName): ModelProvider {
 	return ModelProvider.Unknown;
 }
 
+export function isValidProvider(provider: ModelProvider): boolean {
+	return Object.values(ModelProvider).includes(provider);
+}
+
 export function isValidModel(model: ModelName): boolean {
 	return getProviderForModel(model) !== ModelProvider.Unknown;
 }
 
-export function getDefaultModelForProvider(provider: ModelProvider): ModelName | undefined {
-	return MODEL_PROVIDERS[provider].default;
+export function getDefaultModelForProvider(provider: ModelProvider): ModelName {
+	return MODEL_PROVIDERS[provider].default!;
 }
 
 export type Role = 'user' | 'assistant' | 'system';

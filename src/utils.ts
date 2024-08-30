@@ -1,4 +1,4 @@
-import { ModelName } from "./providers";
+import { ModelProvider } from './providers';
 
 type DebugInfo = {
 	[key: string]: any;
@@ -27,8 +27,20 @@ export function getElapsedSeconds(start: Date) {
 	return `${(now - start.getTime()) / 1_000}s`;
 }
 
+type CommandArgs = {
+	basePath: string;
+	provider: ModelProvider;
+	temperature: number;
+	fallback: boolean;
+};
+
 export function parseCommandArgs(args: string[]) {
-	const result = { basePath: '', model: ModelName.Claude_3_5_Sonnet_20240620, temperature: 0.5, fallback: true };
+	const result: CommandArgs = {
+		basePath: '',
+		provider: ModelProvider.Anthropic,
+		temperature: 0.5,
+		fallback: true,
+	};
 
 	for (const arg of args) {
 		const [key, value] = arg.split(':');
@@ -41,8 +53,8 @@ export function parseCommandArgs(args: string[]) {
 			case 'path':
 				result.basePath = value;
 				break;
-			case 'model':
-				result.model = value as ModelName;
+			case 'provider':
+				result.provider = value as ModelProvider;
 				break;
 			case 'temp':
 			case 'temperature':

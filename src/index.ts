@@ -1,20 +1,7 @@
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import {
-	buildPromptForDocs,
-	buildPromptForWorkers,
-	sendPrompt,
-	buildPromptForAnalyzeTestFile,
-	SendPromptError,
-} from './prompt';
-import { ModelName, isValidModel } from './providers';
-import {
-	formatDebugInfo,
-	getElapsedSeconds,
-	ensurePath,
-	parseCommandArgs,
-	extractCodeBlockContent,
-	extractXMLContent,
-} from './utils';
+import { buildPromptForDocs, buildPromptForWorkers, sendPrompt, buildPromptForAnalyzeTestFile, SendPromptError } from './prompt';
+import { ModelName, ModelProvider, getDefaultModelForProvider, isValidProvider } from './providers';
+import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -142,20 +129,22 @@ export default {
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
 			const { command, context, installationId } = message.body;
-			const { basePath, model, temperature, fallback } = parseCommandArgs(command.args || []);
+			const { basePath, provider, temperature, fallback } = parseCommandArgs(command.args || []);
 			const github = initializeGitHub(env, installationId);
 
 			let workingCommentId: number | undefined = undefined;
 
 			try {
-				if (!isValidModel(model)) {
-					const allowedModels = Object.values(ModelName)
+				if (!isValidProvider(provider)) {
+					const allowedProviders = Object.values(ModelProvider)
 						.map((m) => `- \`${m}\``)
 						.join('\n');
-					const body = `The model '${model}' is not valid. Please use one of the following options:\n\n${allowedModels}`;
+					const body = `The provider '${provider}' is not valid. Please use one of the following options:\n\n${allowedProviders}`;
 					await github.postComment(context, body);
 					return;
 				}
+
+				const model = getDefaultModelForProvider(provider);
 
 				switch (command.name) {
 					case CommandName.Generate:
