@@ -11,7 +11,7 @@ import { documentation, documentationExtraction, generateWorker, analyzeTestFile
 
 const MODEL_PROVIDER_ORDER = [
 	ModelProvider.Anthropic,
-	ModelProvider.GoogleAiStudio,
+	ModelProvider.GoogleAi,
 	ModelProvider.OpenAI
 ];
 

@@ -7,7 +7,7 @@ import { openAiRequest, openAiResponseTextFromSSE } from './openai';
 export enum ModelProvider {
 	Anthropic = 'anthropic',
 	OpenAI = 'openai',
-	GoogleAiStudio = 'google-ai-studio',
+	GoogleAi = 'googleai',
 	Unknown = 'unknown',
 }
 
@@ -33,7 +33,7 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 			ModelName.GPT_4o
 		],
 	},
-	[ModelProvider.GoogleAiStudio]: {
+	[ModelProvider.GoogleAi]: {
 		default: ModelName.Gemini_1_5_Pro_Exp_0801,
 		models: [
 			ModelName.Gemini_1_5_Pro,
@@ -51,7 +51,7 @@ export function getApiKeyForModelProvider(provider: ModelProvider, env: Env): st
 		case ModelProvider.OpenAI:
 			return env.OPENAI_API_KEY;
 
-		case ModelProvider.GoogleAiStudio:
+		case ModelProvider.GoogleAi:
 			return env.GEMINI_API_KEY;
 
 		default:
@@ -100,7 +100,7 @@ export function buildRequestForModelProvider(provider: ModelProvider, params: Pr
 		case ModelProvider.Anthropic:
 			return anthropicRequest(params);
 
-		case ModelProvider.GoogleAiStudio:
+		case ModelProvider.GoogleAi:
 			return googleAIStudioRequest(params);
 
 		case ModelProvider.OpenAI:
@@ -192,10 +192,10 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 	try {
 		const firstEvent = events[0];
 		if (firstEvent.candidates && firstEvent.usageMetadata) {
-			return ModelProvider.GoogleAiStudio;
+			return ModelProvider.GoogleAi;
 		}
 	} catch (error) {
-		console.warn(`Events are not from ${ModelProvider.GoogleAiStudio}: ${error}`);
+		console.warn(`Events are not from ${ModelProvider.GoogleAi}: ${error}`);
 	}
 
 	return ModelProvider.Unknown;
@@ -223,7 +223,7 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 				model: events[0].model,
 			};
 
-		case ModelProvider.GoogleAiStudio:
+		case ModelProvider.GoogleAi:
 			return {
 				text: googleGeminiResponseText(events),
 				provider,
