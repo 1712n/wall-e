@@ -1,3 +1,5 @@
+import { ModelProvider } from './providers';
+
 type DebugInfo = {
 	[key: string]: any;
 };
@@ -14,7 +16,7 @@ export function formatDebugInfo(debugInfo: DebugInfo): string {
 						value = value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 					}
 
-					return `<li><strong>${key}</strong>: <code>${value}</code></li>`
+					return `<li><strong>${key}</strong>: <code>${value}</code></li>`;
 				})
 				.join('<br>')}</ul>
     </details>`.trim();
@@ -25,8 +27,20 @@ export function getElapsedSeconds(start: Date) {
 	return `${(now - start.getTime()) / 1_000}s`;
 }
 
+type CommandArgs = {
+	basePath: string;
+	provider: ModelProvider;
+	temperature: number;
+	fallback: boolean;
+};
+
 export function parseCommandArgs(args: string[]) {
-	const result = { basePath: '', model: 'claude-3-5-sonnet-20240620', temperature: 0.5 };
+	const result: CommandArgs = {
+		basePath: '',
+		provider: ModelProvider.Anthropic,
+		temperature: 0.5,
+		fallback: true,
+	};
 
 	for (const arg of args) {
 		const [key, value] = arg.split(':');
@@ -39,8 +53,8 @@ export function parseCommandArgs(args: string[]) {
 			case 'path':
 				result.basePath = value;
 				break;
-			case 'model':
-				result.model = value;
+			case 'provider':
+				result.provider = value as ModelProvider;
 				break;
 			case 'temp':
 			case 'temperature':
@@ -49,52 +63,29 @@ export function parseCommandArgs(args: string[]) {
 					result.temperature = temp;
 				}
 				break;
+			case 'fallback':
+				result.fallback = value !== 'false';
+				break;
 		}
 	}
 
 	return result;
 }
 
-export enum ModelProvider {
-	Anthropic = 'Anthropic',
-	OpenAI = 'OpenAI',
-	GoogleAI = 'Google AI',
-	Unknown = 'Unknown',
-}
-
-export function getModelProvider(model: string): ModelProvider {
-	if (model.startsWith('claude')) {
-		return ModelProvider.Anthropic;
-	}
-
-	if (model.startsWith('gpt')) {
-		return ModelProvider.OpenAI;
-	}
-
-	if (model.startsWith('gemini')) {
-		return ModelProvider.GoogleAI;
-	}
-
-	return ModelProvider.Unknown;
-}
-
-export function getApiKeyForModel(env: Env, model: string): string {
-	const modelProvider = getModelProvider(model);
-	switch (modelProvider) {
-		case ModelProvider.Anthropic:
-			return env.ANTHROPIC_API_KEY;
-
-		case ModelProvider.OpenAI:
-			return env.OPENAI_API_KEY;
-
-		case ModelProvider.GoogleAI:
-			return env.GEMINI_API_KEY;
-
-		default:
-			throw new Error('Unsupported model provider specified.');
-	}
-}
-
 export function ensurePath(basePath: string, subPath: string): string {
 	return basePath ? `${basePath}/${subPath}` : subPath;
+}
+
+export function extractXMLContent(text: string): { [key: string]: string } {
+	const regex = /<(\w+)>([\s\S]*?)<\/\1>/g;
+	const result: { [key: string]: string } = {};
+	let match: RegExpExecArray | null;
+	while ((match = regex.exec(text)) !== null) {
+		result[match[1]] = match[2].trim();
+	}
+	return result;
+}
+
+export function extractCodeBlockContent(text: string): string {
+	return text.replace(/^```[\w]*\n([\s\S]*?)\n```$/gm, '$1');
 }

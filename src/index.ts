@@ -1,15 +1,7 @@
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import {
-	buildPromptForDocs,
-	buildPromptForWorkers,
-	extractXMLContent,
-	sendPrompt,
-	ALLOWED_MODELS,
-	buildPromptForAnalyzeTestFile,
-	SendPromptError,
-	extractCodeBlockContent,
-} from './prompt';
-import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, getApiKeyForModel } from './utils';
+import { buildPromptForDocs, buildPromptForWorkers, sendPrompt, buildPromptForAnalyzeTestFile, SendPromptError } from './prompt';
+import { ModelName, ModelProvider, getDefaultModelForProvider, isValidProvider } from './providers';
+import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -26,6 +18,65 @@ function initializeGitHub(env: Env, installationId: number) {
 			secret: env.GH_WEBHOOK_SECRET,
 		},
 	});
+}
+
+type CommitGeneratedCodeParams = {
+	basePath: string;
+	generatedCode: string;
+	github: GitHub;
+	message: Message<GitHubJob>;
+	context: CommandContext;
+	workingCommentId?: number;
+	provider: ModelProvider;
+	model: ModelName;
+	temperature: number;
+	fallbackModel?: ModelName;
+	prompts: {
+		documentationExtration: string;
+		generateWorker: string;
+	};
+	relevantDocumentation: string;
+};
+
+async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
+	const {
+		basePath,
+		generatedCode,
+		github,
+		message,
+		context,
+		workingCommentId,
+		provider,
+		model,
+		fallbackModel,
+		temperature,
+		prompts,
+		relevantDocumentation,
+	} = params;
+
+	const srcFilePath = ensurePath(basePath, 'src/index.ts');
+	const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
+
+	try {
+		await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');
+		const elapsedTime = getElapsedSeconds(message.timestamp);
+		const debugInfo = formatDebugInfo({
+			elapsedTime,
+			provider,
+			model: fallbackModel ?? model,
+			temperature,
+			documentationExtractionPrompt: JSON.stringify(prompts.documentationExtration, null, 2),
+			relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
+			generateWorkerPrompt: JSON.stringify(prompts.generateWorker, null, 2),
+		});
+		const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
+		await github.postComment(context, comment, workingCommentId);
+	} catch (error) {
+		const elapsedTime = getElapsedSeconds(message.timestamp);
+		const debugInfo = formatDebugInfo({ elapsedTime, model, fallbackModel, temperature, error });
+		const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
+		await github.postComment(context, comment, workingCommentId);
+	}
 }
 
 export default {
@@ -81,18 +132,22 @@ export default {
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
 			const { command, context, installationId } = message.body;
-			const { basePath, model, temperature } = parseCommandArgs(command.args || []);
+			const { basePath, provider, temperature, fallback } = parseCommandArgs(command.args || []);
 			const github = initializeGitHub(env, installationId);
 
 			let workingCommentId: number | undefined = undefined;
 
 			try {
-				if (!ALLOWED_MODELS.includes(model)) {
-					const allowedModels = ALLOWED_MODELS.map((m) => `- \`${m}\``).join('\n');
-					const body = `The model '${model}' is not valid. Please use one of the following options:\n\n${allowedModels}`;
+				if (!isValidProvider(provider)) {
+					const allowedProviders = Object.values(ModelProvider)
+						.map((m) => `- \`${m}\``)
+						.join('\n');
+					const body = `The provider '${provider}' is not valid. Please use one of the following options:\n\n${allowedProviders}`;
 					await github.postComment(context, body);
 					return;
 				}
+
+				const model = getDefaultModelForProvider(provider);
 
 				switch (command.name) {
 					case CommandName.Generate:
@@ -114,97 +169,107 @@ export default {
 
 							// Analyze the test file to check for conflicts with Best Practices
 							const analyzeTestFilePrompts = buildPromptForAnalyzeTestFile(testFileContent);
-							const analyzedTestFile = await sendPrompt({
-								model: 'claude-3-5-sonnet-20240620',
-								prompts: analyzeTestFilePrompts,
-								temperature: 0,
-								apiKey: env.ANTHROPIC_API_KEY,
-							});
+							await sendPrompt(
+								env,
+								{
+									model: ModelName.Claude_3_5_Sonnet_20240620,
+									prompts: analyzeTestFilePrompts,
+									temperature: 0,
+								},
+								fallback,
+							).then(async ({ model, text }) => {
+								if (!text) {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										model, // The actual model used to analyze the test file
+										analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
+										analyzeTestFileResponse: JSON.stringify(text, null, 2),
+									});
 
-							if (!analyzedTestFile) {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({
-									elapsedTime,
-									model: 'claude-3-5-sonnet-20240620',
-									analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
-									analyzeTestFileResponse: JSON.stringify(analyzedTestFile, null, 2),
-								});
-								await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
-							} else {
-								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(analyzedTestFile);
+									await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
+									return;
+								}
+
+								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(text);
 								if (testFileAnalysisResult) {
 									const body = `The following best practices conflicts were detected in the test file: ${testFileAnalysisResult}`;
 									await github.postComment(context, body);
 								}
-							}
+							});
 
 							// Use the test file and Cloudflare documentation to get only the relevant documentation
 							const documentationPrompts = buildPromptForDocs(testFileContent);
-							const relevantDocumentation = await sendPrompt({
-								model: 'claude-3-5-sonnet-20240620',
-								prompts: documentationPrompts,
-								temperature: 0,
-								apiKey: env.ANTHROPIC_API_KEY,
+							const relevantDocumentation = await sendPrompt(
+								env,
+								{
+									model: ModelName.Claude_3_5_Sonnet_20240620,
+									prompts: documentationPrompts,
+									temperature: 0,
+								},
+								fallback,
+							).then(async ({ model, text }) => {
+								if (!text) {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										model, // The actual model used to extract the relevant documentation
+										documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+										documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
+									});
+									await github.postComment(
+										context,
+										`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
+										workingCommentId,
+									);
+								}
+								return text;
 							});
-
-							if (!relevantDocumentation) {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({
-									elapsedTime,
-									model: 'claude-3-5-sonnet-20240620',
-									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-									documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
-								});
-								await github.postComment(
-									context,
-									`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
-									workingCommentId,
-								);
-							}
 
 							// Generate the code based on the test file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
-							const generatedWorker = await sendPrompt({
-								model,
-								prompts: generateWorkerPrompts,
-								temperature,
-								apiKey: getApiKeyForModel(env, model),
+							await sendPrompt(
+								env,
+								{
+									model,
+									prompts: generateWorkerPrompts,
+									temperature,
+								},
+								fallback,
+							).then(async ({ provider, model: fallbackModel, text }) => {
+								const { generated_code: generatedCode } = extractXMLContent(text);
+								if (!generatedCode) {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										provider,
+										model: fallbackModel ?? model, // The actual model used to generate the code
+										temperature,
+										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
+									});
+									await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
+									return;
+								}
+
+								// Write the generated file (src/index.ts) to the pull request's branch
+								await commitGeneratedCode({
+									basePath,
+									generatedCode,
+									github,
+									message,
+									context,
+									workingCommentId,
+									provider,
+									model,
+									fallbackModel,
+									temperature,
+									prompts: {
+										documentationExtration: documentationPrompts.system,
+										generateWorker: generateWorkerPrompts.system,
+									},
+									relevantDocumentation,
+								});
 							});
-
-							const { generated_code: generatedCode } = extractXMLContent(generatedWorker);
-							if (!generatedCode) {
-								const debugInfo = formatDebugInfo({
-									model,
-									temperature,
-									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
-								});
-								await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
-								return;
-							}
-
-							// Write the generated file (src/index.ts) to the pull request's branch
-							const srcFilePath = ensurePath(basePath, 'src/index.ts');
-							const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
-
-							try {
-								await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({
-									elapsedTime,
-									model,
-									temperature,
-									documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-									relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
-									generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
-								});
-								const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
-								await github.postComment(context, comment, workingCommentId);
-							} catch (error) {
-								const elapsedTime = getElapsedSeconds(message.timestamp);
-								const debugInfo = formatDebugInfo({ elapsedTime, model, temperature, error });
-								const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
-								await github.postComment(context, comment, workingCommentId);
-							}
 						}
 						break;
 
@@ -227,7 +292,7 @@ export default {
 
 				const comment =
 					error instanceof SendPromptError
-						? `A request to \`${error.provider}\` could not be completed. Please check the Debug Info below for more information.\n\n${debugInfo}`
+						? `A request could not be sent. Please check the Debug Info below for more information.\n\n${debugInfo}`
 						: `Unable to process your command. Please check the Debug Info below for more information.\n\n${debugInfo}`;
 
 				await github.postComment(context, comment, workingCommentId);
