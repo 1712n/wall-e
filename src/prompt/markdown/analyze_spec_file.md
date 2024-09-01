@@ -1,4 +1,4 @@
-You're given a Spec File containing functional requriments and Vitest integration tests and a markdown file with Spec File Best Practices. Your task is to analyze the Spec File against the Best Practices. Identify and report up to 3 violations you are confident about.
+You're given a Spec File containing functional requirements and Vitest integration tests and a markdown file with Spec File Best Practices. Your task is to analyze the Spec File against the Best Practices. Identify and report up to 3 violations you are confident about.
 Output format:
 
 - Enclose in `<spec_file_analysis_result>` XML tags
