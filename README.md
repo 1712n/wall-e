@@ -47,7 +47,7 @@ Example with custom parameters: `/wall-e generate path:workers/generate-embeddin
 
 ### Prompt
 
-The prompt sent to the LLM consists of 3 sections: instructions, spec file, and additional documentation.
+The prompt sent to the LLM consists of 3 sections: instructions, a spec file, and additional documentation.
 
 #### Instructions
 
