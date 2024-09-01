@@ -10,14 +10,14 @@
 
 ## What's WALL-E?
 
-_WALL-E_ is a GitHub bot that supercharges Test-Driven Development (TDD) through automated generation of Cloudflare Workers. Based on the worker functional requirements and integration tests, WALL-E creates corresponding worker code, streamlining the development process.
+_WALL-E_ is a GitHub bot that supercharges Test-Driven Development (TDD) through automated generation of Cloudflare Workers. Based on the worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
 
 ## Usage
 ### Prerequisites:
 1. An open pull request with `test/index.spec.ts`
-2. `test/index.spec.ts` file containing:
+2. `test/index.spec.ts` Spec File containing:
+   - Comments Section with functional requirements
    - Integration tests
-   - Comments describing the functional requirements
 ### Activation Command
 WALL-E is activated within a pull request by leaving a comment containing `/wall-e generate`
 <details>
@@ -26,7 +26,7 @@ WALL-E is activated within a pull request by leaving a comment containing `/wall
 | Parameter | Description | Default |
 |--------|-------------|---------|
 | `path` | custom path to a worker dir | repository root |
-| `model` | model for code generation | claude-3-5-sonnet-20240620 |
+| `provider` | provider for code generation | anthropic |
 | `temp`/`temperature` | model temperature setting (0-1) | 0.5 |
 
 <details>
@@ -40,14 +40,14 @@ WALL-E is activated within a pull request by leaving a comment containing `/wall
 </ul>
 </details>
 
-Example with custom parameters: `/wall-e generate path:workers/generate-embeddings model:gpt-4o temperature:0.8`
+Example with custom parameters: `/wall-e generate path:workers/generate-embeddings provider:openai temperature:0.8`
 </details>
 
 ## How does it work?
 
 ### Prompt
 
-The prompt sent to the LLM consists of 3 sections: instructions, test file, and additional documentation.
+The prompt sent to the LLM consists of 3 sections: instructions, spec file, and additional documentation.
 
 #### Instructions
 
@@ -55,13 +55,13 @@ The [instructions section](markdown/instructions.md) of the prompt is there to e
 
 #### `test/index.spec.ts`
 
-The test file is copied from the head branch and should contain 2 important sections: comments covering all functional requirements and Vitest integration tests covering all input/output interfaces, as well as any business logic-related edge cases.
+The Spec File is copied from the head branch and should contain 2 important sections: comments covering all functional requirements and Vitest integration tests covering all input/output interfaces, as well as any business logic-related edge cases.
 
-Please adhere to [our best practices](wiki/test_file_best_practices.md) when writing your test files!
+Please adhere to [our best practices](wiki/spec_file_best_practices.md) when writing your spec files!
 
 #### Additional Documentation
 
-LLMs can't keep up with Cloudflare documentation updates, so we maintain a separate [markdown file](markdown/documentation.md) with information about important features that were recently added to Cloudflare Workers.
+Sometimes LLMs can't keep up with software updates, so we maintain a separate [markdown file](markdown/documentation.md) with information about recently added features.
 
 ## Code quality
 
