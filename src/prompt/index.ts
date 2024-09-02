@@ -7,7 +7,7 @@ import {
 	getProviderForModel,
 	getDefaultModelForProvider,
 } from '../providers';
-import { documentation, documentationExtraction, generateWorker, analyzeTestFile, testFileBestPractices } from './markdown';
+import { documentation, documentationExtraction, generateWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
 
 const MODEL_PROVIDER_ORDER = [
 	ModelProvider.Anthropic,
@@ -20,27 +20,27 @@ export type PromptMessages = {
 	system: string;
 };
 
-const buildUserMessage = (testFile: string, doc: string): string =>
-	`<test_file>\n\n${testFile}\n\n</test_file>\n\n<documentation_file>\n\n${doc}\n\n</documentation_file>`;
+const buildUserMessage = (specFile: string, doc: string): string =>
+	`<spec_file>\n\n${specFile}\n\n</spec_file>\n\n<documentation_file>\n\n${doc}\n\n</documentation_file>`;
 
-export function buildPromptForDocs(testFile: string): PromptMessages {
+export function buildPromptForDocs(specFile: string): PromptMessages {
 	return {
 		system: documentationExtraction,
-		user: buildUserMessage(testFile, documentation),
+		user: buildUserMessage(specFile, documentation),
 	};
 }
 
-export function buildPromptForWorkers(testFile: string, relevantDocs: string = documentation): PromptMessages {
+export function buildPromptForWorkers(specFile: string, relevantDocs: string = documentation): PromptMessages {
 	return {
 		system: generateWorker,
-		user: buildUserMessage(testFile, relevantDocs),
+		user: buildUserMessage(specFile, relevantDocs),
 	};
 }
 
-export function buildPromptForAnalyzeTestFile(testFile: string): PromptMessages {
+export function buildPromptForAnalyzeSpecFile(specFile: string): PromptMessages {
 	return {
-		system: `${analyzeTestFile}\n\n<best_practices>\n\n${testFileBestPractices}\n\n</best_practices>`,
-		user: `<test_file>\n\n${testFile}\n\n</test_file>`,
+		system: `${analyzeSpecFile}\n\n<best_practices>\n\n${specFileBestPractices}\n\n</best_practices>`,
+		user: `<spec_file>\n\n${specFile}\n\n</spec_file>`,
 	};
 }
 

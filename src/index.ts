@@ -1,5 +1,5 @@
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import { buildPromptForDocs, buildPromptForWorkers, sendPrompt, buildPromptForAnalyzeTestFile, SendPromptError } from './prompt';
+import { buildPromptForDocs, buildPromptForWorkers, sendPrompt, buildPromptForAnalyzeSpecFile, SendPromptError } from './prompt';
 import { ModelName, ModelProvider, getDefaultModelForProvider, isValidProvider } from './providers';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
 
@@ -154,26 +154,26 @@ export default {
 						{
 							workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
 
-							// Get the test file from the repository
+							// Get the spec file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
-							const testFilePath = ensurePath(basePath, 'test/index.spec.ts');
-							const testFile = changedFiles.find((file) => file.filename === testFilePath);
+							const specFilePath = ensurePath(basePath, 'test/index.spec.ts');
+							const specFile = changedFiles.find((file) => file.filename === specFilePath);
 
-							if (!testFile) {
-								const body = `Please change the test file (${testFilePath}) in this pull request. It should contain new requirements for the code you will need me to write.`;
+							if (!specFile) {
+								const body = `Please change the spec file (${specFilePath}) in this pull request. It should contain new requirements for the code you will need me to write.`;
 								await github.postComment(context, body, workingCommentId);
 								return;
 							}
 
-							const testFileContent = await github.fetchFileContents(context, testFile.sha);
+							const specFileContent = await github.fetchFileContents(context, specFile.sha);
 
-							// Analyze the test file to check for conflicts with Best Practices
-							const analyzeTestFilePrompts = buildPromptForAnalyzeTestFile(testFileContent);
+							// Analyze the spec file to check for conflicts with Best Practices
+							const analyzeSpecFilePrompts = buildPromptForAnalyzeSpecFile(specFileContent);
 							await sendPrompt(
 								env,
 								{
 									model: ModelName.Claude_3_5_Sonnet_20240620,
-									prompts: analyzeTestFilePrompts,
+									prompts: analyzeSpecFilePrompts,
 									temperature: 0,
 								},
 								fallback,
@@ -182,24 +182,24 @@ export default {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
 									const debugInfo = formatDebugInfo({
 										elapsedTime,
-										model, // The actual model used to analyze the test file
-										analyzeTestFilePrompt: JSON.stringify(analyzeTestFilePrompts.system, null, 2),
-										analyzeTestFileResponse: JSON.stringify(text, null, 2),
+										model, // The actual model used to analyze the spec file
+										analyzeSpecFilePrompt: JSON.stringify(analyzeSpecFilePrompts.system, null, 2),
+										analyzeSpecFileResponse: JSON.stringify(text, null, 2),
 									});
 
-									await github.postComment(context, `Unable to analyze test file. Please try again.\n\n${debugInfo}`, workingCommentId);
+									await github.postComment(context, `Unable to analyze spec file. Please try again.\n\n${debugInfo}`, workingCommentId);
 									return;
 								}
 
-								const { test_file_analysis_result: testFileAnalysisResult } = extractXMLContent(text);
-								if (testFileAnalysisResult) {
-									const body = `The following best practices conflicts were detected in the test file: ${testFileAnalysisResult}`;
+								const { spec_file_analysis_result: specFileAnalysisResult } = extractXMLContent(text);
+								if (specFileAnalysisResult) {
+									const body = `The following best practices conflicts were detected in the spec file: ${specFileAnalysisResult}`;
 									await github.postComment(context, body);
 								}
 							});
 
-							// Use the test file and Cloudflare documentation to get only the relevant documentation
-							const documentationPrompts = buildPromptForDocs(testFileContent);
+							// Use the spec file and documentation file to get only the relevant documentation
+							const documentationPrompts = buildPromptForDocs(specFileContent);
 							const relevantDocumentation = await sendPrompt(
 								env,
 								{
@@ -226,8 +226,8 @@ export default {
 								return text;
 							});
 
-							// Generate the code based on the test file and relevant documentation
-							const generateWorkerPrompts = buildPromptForWorkers(testFileContent, relevantDocumentation);
+							// Generate the code based on the spec file and relevant documentation
+							const generateWorkerPrompts = buildPromptForWorkers(specFileContent, relevantDocumentation);
 							await sendPrompt(
 								env,
 								{
@@ -275,7 +275,7 @@ export default {
 
 					case CommandName.Help:
 						{
-							const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the test file';
+							const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the spec file';
 							await github.postComment(context, body);
 						}
 						break;
