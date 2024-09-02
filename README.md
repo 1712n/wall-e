@@ -28,7 +28,13 @@ WALL-E is activated within a pull request by leaving a comment containing `/wall
 | `path` | custom path to a worker dir | repository root |
 | `provider` | provider for code generation | anthropic |
 | `temp`/`temperature` | model temperature setting (0-1) | 0.5 |
+Example with custom parameters: `/wall-e generate path:workers/generate-embeddings provider:openai temperature:0.8`
 
+## Available Providers
+
+- `anthropic` (default)
+- `openai`
+- `googleai`
 <details>
 <summary>Available models:</summary>
 <ul>
