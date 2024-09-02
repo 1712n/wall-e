@@ -46,7 +46,6 @@ Example with custom parameters: `/wall-e generate path:workers/generate-embeddin
 </ul>
 </details>
 
-Example with custom parameters: `/wall-e generate path:workers/generate-embeddings provider:openai temperature:0.8`
 </details>
 
 ## How does it work?
