@@ -4,12 +4,14 @@ import { Octokit } from '@octokit/core';
 
 export enum CommandName {
 	Generate = 'generate',
+	Feedback = 'feedback',
 	Help = 'help',
 }
 
 export type UserCommand = {
 	name: CommandName;
 	args?: string[];
+	extra?: string;
 };
 
 export type CommandContext = {
@@ -82,17 +84,31 @@ export class GitHub {
 				issueNumber: event.payload.issue.number,
 			};
 
-			const parsed = comment.body.split(' ');
-			if (parsed.length < 2) {
-				await this.postComment(context, 'Invalid command');
+			const match = comment.body.match(/^\/wall-e\s+(\w+)([\s\S]*?)(?:\n---([\s\S]*))?$/);
+			if (!match) {
+				await this.postComment(context, 'Invalid command format');
+				return;
 			}
 
-			const [_, name, ...args] = parsed;
+			const [_, name, args, extraReqs] = match;
 
-			const command = {
-				name: name.replace('/', '') as CommandName,
-				args,
+			const command: UserCommand = {
+				name: name.trim() as CommandName,
+				args: args
+					.trim()
+					.split(/\s+/)
+					.filter((arg) => arg.length > 0),
 			};
+
+			if (command.name === CommandName.Feedback) {
+				if (!extraReqs || extraReqs.trim() === '') {
+					await this.postComment(context, 'Please provide extra requirements');
+					return;
+				}
+
+				command.extra = extraReqs;
+			}
+
 			await handler(command, context);
 		});
 

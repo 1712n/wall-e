@@ -94,6 +94,7 @@ export default {
 			github.setup(async (command, context) => {
 				switch (command.name) {
 					case CommandName.Generate:
+					case CommandName.Feedback:
 					case CommandName.Help:
 						{
 							await env.JOB_QUEUE.send({
@@ -270,6 +271,13 @@ export default {
 									relevantDocumentation,
 								});
 							});
+						}
+						break;
+
+					case CommandName.Feedback:
+						{
+							const body = `Using the current index.ts and index.spec.ts files with these extra requirements:\n\n\`\`\`${command.extra}\`\`\``;
+							await github.postComment(context, body);
 						}
 						break;
 
