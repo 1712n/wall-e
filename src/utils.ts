@@ -43,7 +43,8 @@ export function parseCommandArgs(args: string[]) {
 	};
 
 	for (const arg of args) {
-		const [key, value] = arg.split(':');
+		const [key, ...valueParts] = arg.split(':');
+                const value = valueParts.join(':').trim();
 
 		if (!value) {
 			continue;
