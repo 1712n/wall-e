@@ -230,6 +230,7 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 			};
 
 		default:
-			throw new Error(`Provider '${provider}' not implemented`);
+			const message = JSON.stringify(events, null, 2);
+			throw new Error(`Could not determine provider from events: ${message}`);
 	}
 }
