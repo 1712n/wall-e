@@ -110,6 +110,6 @@ const mockMessages = Array.from({ length: 10 }, randomMockMessage);
 
 ### 🤔 Philosophical Points for Consideration
 
-- **Limit Imports**: Keep things simple. Imports from the `cloudflare:test` and `vitest` packages do not require justification. For all other packages, include a comment directly above the import statement that explains the importance of the import to the test.
+- **Limit Imports**: Keep things simple and standardized. Indispensable imports from Cloudflare, Vitest, Postgres, or Drizzle can be used without hesitation, but avoid importing packages for convenience reasons - other developers and LLMs might not be familiar with them.
 
 - **Concise Specs**: Pay attention to the size of the Spec File. Consider modularizing, simplifying, or simply removing any non-essential content. When your file goes beyond a few hundred lines, and you are starting to touch LLM context windows, it might be time to split your worker into independent services. The goal is to keep Spec Files concise, manageable, readable, and maintainable.
