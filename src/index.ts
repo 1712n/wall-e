@@ -155,13 +155,13 @@ export default {
 					return;
 				}
 
+				workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
+
 				const model = getDefaultModelForProvider(provider);
 
 				switch (command.name) {
 					case CommandName.Generate:
 						{
-							workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
-
 							// Get the spec file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
 							const specFilePath = ensurePath(basePath, 'test/index.spec.ts');
