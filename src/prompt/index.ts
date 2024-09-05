@@ -7,7 +7,7 @@ import {
 	getProviderForModel,
 	getDefaultModelForProvider,
 } from '../providers';
-import { documentation, documentationExtraction, generateWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
+import { documentation, documentationExtraction, generateWorker, improveWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
 
 const MODEL_PROVIDER_ORDER = [
 	ModelProvider.Anthropic,
@@ -20,27 +20,74 @@ export type PromptMessages = {
 	system: string;
 };
 
-const buildUserMessage = (specFile: string, doc: string): string =>
-	`<spec_file>\n\n${specFile}\n\n</spec_file>\n\n<documentation_file>\n\n${doc}\n\n</documentation_file>`;
+const buildUserMessage = ({
+	specFile,
+	documentationFile,
+	indexFile,
+	userFeedback,
+}: {
+	specFile: string;
+	documentationFile: string;
+	indexFile?: string;
+	userFeedback?: string;
+}): string => {
+	let message = '';
+
+	if (indexFile) {
+		message += `<index_file>\n${indexFile}\n</index_file>\n\n`;
+	}
+
+	if (userFeedback) {
+		message += `<user_feedback>\n${userFeedback}\n</user_feedback>\n\n`;
+	}
+
+	message += `<spec_file>\n${specFile}\n</spec_file>\n\n`;
+	message += `<documentation_file>\n${documentationFile}\n</documentation_file>`;
+
+	return message;
+};
 
 export function buildPromptForDocs(specFile: string): PromptMessages {
 	return {
 		system: documentationExtraction,
-		user: buildUserMessage(specFile, documentation),
+		user: buildUserMessage({
+			specFile,
+			documentationFile: documentation,
+		}),
 	};
 }
 
-export function buildPromptForWorkers(specFile: string, relevantDocs: string = documentation): PromptMessages {
+export function buildPromptForWorkerGeneration(specFile: string, relevantDocs: string = documentation): PromptMessages {
 	return {
 		system: generateWorker,
-		user: buildUserMessage(specFile, relevantDocs),
+		user: buildUserMessage({
+			specFile,
+			documentationFile: relevantDocs,
+		}),
+	};
+}
+
+export function buildPromptForWorkerImprovement(
+	indexFile: string,
+	specFile: string,
+	userFeedback: string,
+	relevantDocs: string = documentation,
+): PromptMessages {
+	return {
+		system: improveWorker,
+		user: buildUserMessage({
+			specFile,
+			documentationFile: relevantDocs,
+			indexFile,
+			userFeedback,
+		}),
 	};
 }
 
 export function buildPromptForAnalyzeSpecFile(specFile: string): PromptMessages {
 	return {
-		system: `${analyzeSpecFile}\n\n<best_practices>\n\n${specFileBestPractices}\n\n</best_practices>`,
-		user: `<spec_file>\n\n${specFile}\n\n</spec_file>`,
+		system: `${analyzeSpecFile}\n\n<best_practices>\n${specFileBestPractices}\n</best_practices>`,
+		user: `<spec_file>\n${specFile}\n</spec_file>`,
 	};
 }
 

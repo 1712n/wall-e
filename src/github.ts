@@ -4,7 +4,7 @@ import { Octokit } from '@octokit/core';
 
 export enum CommandName {
 	Generate = 'generate',
-	Feedback = 'feedback',
+	Improve = 'improve',
 	Help = 'help',
 }
 
@@ -100,7 +100,7 @@ export class GitHub {
 					.filter((arg) => arg.length > 0),
 			};
 
-			if (command.name === CommandName.Feedback) {
+			if (command.name === CommandName.Improve) {
 				if (!extraReqs || extraReqs.trim() === '') {
 					await this.postComment(context, 'Please provide extra requirements');
 					return;
@@ -192,6 +192,22 @@ export class GitHub {
 		}
 
 		return result.data;
+	}
+
+	public async listMainBranchFiles({ owner, repo }: CommandContext) {
+		const octokit = await this.octokit;
+		const result = await octokit.request('GET /repos/{owner}/{repo}/contents', {
+			owner: owner,
+			repo: repo,
+			ref: 'main',
+		});
+
+		if (result.status !== 200) {
+			this.app.log.error('Failed to get main branch files', result);
+			return [];
+		}
+
+		return result.data as { filename: string; status: string; sha: string }[];
 	}
 
 	public async listPullRequestFiles({ owner, repo, issueNumber }: CommandContext) {

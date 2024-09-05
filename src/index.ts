@@ -1,5 +1,12 @@
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
-import { buildPromptForDocs, buildPromptForWorkers, sendPrompt, buildPromptForAnalyzeSpecFile, SendPromptError } from './prompt';
+import {
+	buildPromptForDocs,
+	buildPromptForWorkerGeneration,
+	sendPrompt,
+	buildPromptForAnalyzeSpecFile,
+	SendPromptError,
+	buildPromptForWorkerImprovement,
+} from './prompt';
 import { ModelName, ModelProvider, getDefaultModelForProvider, isValidProvider } from './providers';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
 
@@ -94,7 +101,7 @@ export default {
 			github.setup(async (command, context) => {
 				switch (command.name) {
 					case CommandName.Generate:
-					case CommandName.Feedback:
+					case CommandName.Improve:
 					case CommandName.Help:
 						{
 							await env.JOB_QUEUE.send({
@@ -228,7 +235,7 @@ export default {
 							});
 
 							// Generate the code based on the spec file and relevant documentation
-							const generateWorkerPrompts = buildPromptForWorkers(specFileContent, relevantDocumentation);
+							const generateWorkerPrompts = buildPromptForWorkerGeneration(specFileContent, relevantDocumentation);
 							await sendPrompt(
 								env,
 								{
@@ -274,10 +281,118 @@ export default {
 						}
 						break;
 
-					case CommandName.Feedback:
+					case CommandName.Improve:
 						{
-							const body = `Using the current index.ts and index.spec.ts files with these extra requirements:\n\n\`\`\`${command.extra}\`\`\``;
-							await github.postComment(context, body);
+							// Retrieve the list of files changed in the pull request
+							const pullRequestFiles = await github.listPullRequestFiles(context);
+							const specFilePath = ensurePath(basePath, 'test/index.spec.ts');
+							const specFile = pullRequestFiles.find((file) => file.filename === specFilePath);
+
+							if (!specFile) {
+								const message = `The specification file (${specFilePath}) is missing from this pull request. Please include it to define the new requirements for the code to be written.`;
+								await github.postComment(context, message, workingCommentId);
+								return;
+							}
+
+							const indexFilePath = ensurePath(basePath, 'src/index.ts');
+							let indexFile = pullRequestFiles.find((file) => file.filename === indexFilePath);
+
+							if (!indexFile) {
+								const repositoryFiles = await github.listMainBranchFiles(context);
+								const existingIndexFile = repositoryFiles.find((file) => file.filename === indexFilePath);
+
+								if (!existingIndexFile) {
+									const message = `The index file (${indexFilePath}) was not found in the repository. Please create it and try again.`;
+									await github.postComment(context, message, workingCommentId);
+									return;
+								}
+
+								indexFile = existingIndexFile;
+							}
+
+							// Fetch the contents of the spec file and index file
+							const specFileContent = await github.fetchFileContents(context, specFile.sha);
+							const indexFileContent = await github.fetchFileContents(context, indexFile!.sha);
+
+							// Generate relevant documentation based on the spec file
+							const documentationPrompts = buildPromptForDocs(specFileContent);
+							const relevantDocumentation = await sendPrompt(
+								env,
+								{
+									model: ModelName.Claude_3_5_Sonnet_20240620,
+									prompts: documentationPrompts,
+									temperature: 0,
+								},
+								fallback,
+							).then(async ({ model, text }) => {
+								if (!text) {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										model, // Model used for extracting relevant documentation
+										documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+										documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
+									});
+									await github.postComment(
+										context,
+										`No relevant documentation was extracted. Falling back to using the entire documentation file ⚠️.\n\n${debugInfo}`,
+										workingCommentId,
+									);
+								}
+								return text;
+							});
+
+							const userFeedback = command.extra;
+							if (!userFeedback) {
+								const message = `Please provide feedback or suggestions for improvement.`;
+								await github.postComment(context, message, workingCommentId);
+								return;
+							}
+
+							// Use the provided feedback, index file, spec file, and relevant documentation to generate improved code
+							const improvementPrompts = buildPromptForWorkerImprovement(indexFileContent, specFileContent, userFeedback, relevantDocumentation);
+							await sendPrompt(
+								env,
+								{
+									model,
+									prompts: improvementPrompts,
+									temperature,
+								},
+								fallback,
+							).then(async ({ provider, model: fallbackModel, text }) => {
+								const { generated_code: generatedCode } = extractXMLContent(text);
+								if (!generatedCode) {
+									const elapsedTime = getElapsedSeconds(message.timestamp);
+									const debugInfo = formatDebugInfo({
+										elapsedTime,
+										provider,
+										model: fallbackModel ?? model, // Model used to generate the code
+										temperature,
+										improvementPrompts: JSON.stringify(improvementPrompts.system, null, 2),
+									});
+									await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
+									return;
+								}
+
+								// Commit the generated code to the pull request branch
+								await commitGeneratedCode({
+									basePath,
+									generatedCode,
+									github,
+									message,
+									context,
+									workingCommentId,
+									provider,
+									model,
+									fallbackModel,
+									temperature,
+									prompts: {
+										documentationExtration: documentationPrompts.system,
+										generateWorker: improvementPrompts.system,
+									},
+									relevantDocumentation,
+								});
+							});
 						}
 						break;
 
