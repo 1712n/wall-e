@@ -2,7 +2,7 @@
 
 ## Functional requirements section
 
-⚠️ This section should start with a non-technical overview and then progress to more detailed technical specifications. It is placed at the beginning of the Spec File within a comment block.
+⚠️ This section might contain technical terms, but still makes it easy for someone with limited technical knowledge to grasp the main ideas. It is placed at the beginning of the Spec File within a comment block.
 
 ### ✅️ Do
 
@@ -10,12 +10,12 @@
 
 - **Describe Key Functionality**: After the overview, provide a more detailed explanation of the worker's functionality. Use a mix of high-level language and specific technical terms as needed. For example: _"The worker processes recent messages without existing embeddings, generates vector embeddings using an AI model, calculates similarity scores, and updates the database with new scores."_
 
-- **Include Specific Project Priorities**: List important aspects of the worker's implementation, such as performance requirements, error handling, or specific technologies to be used. For instance: _"The worker should implement batch processing to optimize database operations, include comprehensive error handling and logging, and utilize the latest-gen LLM with a large context window."_
+- **Highlight Specific Project Priorities**: Focus on what the worker should achieve, not how it should be built. For instance, say _"The worker should include extensive error handling,"_ rather than listing specific error cases like _"The worker should handle errors X, Y, Z."_
 
 - **Provide Technical Details**: After the high-level description, include more detailed technical information such as:
   - Input and output formats (e.g., JSON structures for REST APIs)
   - Database schemas (e.g., Drizzle schema definitions)
-  - Specific algorithms or processes (e.g., similarity score calculation methods)
+  - Algorithms that contain custom business logic (e.g., similarity score calculation)
   - Integration with other systems or services
 
 - **Describe System Context**: If relevant, provide a brief explanation of how the worker fits into a larger system or interacts with other components. Keep this high-level and focused on the worker's immediate interactions.
@@ -24,11 +24,9 @@
 
 ### ❌ Avoid
 
-- **Starting with Technical Details**: Don't begin the spec with in-depth technical information. Always start with a non-technical overview to ensure accessibility for all readers.
+- **Starting with Technical Details**: Don't begin the spec with in-depth technical information. Always start with a non-technical overview to ensure accessibility for all readers. Keep the initial description simple and accessible. Technical details should be reserved for later sections of the spec.
 
-- **Excessive Implementation Details**: While more technical details are now included, avoid providing step-by-step implementation instructions. Focus on what needs to be achieved rather than how to code it, letting the LLM break down complex problems into individual steps.
-
-- **Overcomplicating the Overview**: Keep the initial description simple and accessible. Technical details should be reserved for later sections of the spec.
+- **Excessive Implementation Details**: Avoid providing step-by-step implementation instructions. Focus on what needs to be achieved rather than how to code it, letting the LLM break down complex problems into individual steps.
 
 - **Excessive System of Systems Context**: Refrain from providing detailed descriptions of the broader system or external components that the worker isn't touching directly. Concentrate on the worker’s specific role, decoupling it from the larger system as much as possible.
 
