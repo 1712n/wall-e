@@ -194,20 +194,21 @@ export class GitHub {
 		return result.data;
 	}
 
-	public async listMainBranchFiles({ owner, repo }: CommandContext) {
+	public async getMainBranchFile({ owner, repo }: CommandContext, filePath: string) {
 		const octokit = await this.octokit;
-		const result = await octokit.request('GET /repos/{owner}/{repo}/contents', {
+		const result = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
 			owner: owner,
 			repo: repo,
 			ref: 'main',
+			path: filePath,
 		});
 
 		if (result.status !== 200) {
 			this.app.log.error('Failed to get main branch files', result);
-			return [];
+			return undefined;
 		}
 
-		return result.data as { filename: string; status: string; sha: string }[];
+		return result.data as { sha: string; name: string; path: string; };
 	}
 
 	public async listPullRequestFiles({ owner, repo, issueNumber }: CommandContext) {
@@ -223,7 +224,7 @@ export class GitHub {
 			return [];
 		}
 
-		return result.data as { filename: string; status: string; sha: string }[];
+		return result.data as { filename: string; sha: string }[];
 	}
 
 	public async fetchFileContents({ owner, repo }: CommandContext, sha: string) {

@@ -298,16 +298,17 @@ export default {
 							let indexFile = pullRequestFiles.find((file) => file.filename === indexFilePath);
 
 							if (!indexFile) {
-								const repositoryFiles = await github.listMainBranchFiles(context);
-								const existingIndexFile = repositoryFiles.find((file) => file.filename === indexFilePath);
-
+								const existingIndexFile = await github.getMainBranchFile(context, indexFilePath);
 								if (!existingIndexFile) {
 									const message = `The index file (${indexFilePath}) was not found in the repository. Please create it and try again.`;
 									await github.postComment(context, message, workingCommentId);
 									return;
 								}
 
-								indexFile = existingIndexFile;
+								indexFile = {
+									...existingIndexFile,
+									filename: existingIndexFile.name,
+								};
 							}
 
 							// Fetch the contents of the spec file and index file
@@ -350,7 +351,12 @@ export default {
 							}
 
 							// Use the provided feedback, index file, spec file, and relevant documentation to generate improved code
-							const improvementPrompts = buildPromptForWorkerImprovement(indexFileContent, specFileContent, userFeedback, relevantDocumentation);
+							const improvementPrompts = buildPromptForWorkerImprovement(
+								indexFileContent,
+								specFileContent,
+								userFeedback,
+								relevantDocumentation,
+							);
 							await sendPrompt(
 								env,
 								{
