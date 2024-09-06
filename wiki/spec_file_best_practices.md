@@ -6,17 +6,27 @@
 
 ### ✅️ Do
 
-- **Provide a General Overview**: Start with a brief sentence of why this worker is needed. Think of this as an elevator pitch: clearly describe what the worker does and how it can be used. This helps everyone, regardless of their technical background, understand the worker's purpose and value. Example: _"This worker generates vector embeddings for input text using Workers AI Text Embedding Model and is used in applications requiring vector search. The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding."_
+- **Start with a General Overview**: Begin with a brief, non-technical description of why this worker is needed. Think of this as an elevator pitch: clearly describe what the worker does and how it can be used. This helps everyone, regardless of their technical background, understand the worker's purpose and value. Example: _"This worker generates vector embeddings for input text using Workers AI Text Embedding Model and is used in applications requiring vector search. The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding."_
 
-- **Describe Key Functionality in General Terms**: Use high-level language to explain what the worker does. For example, say _"The worker provides an HTTP API endpoint that accepts a single text input and returns a vector embedding"_ instead of _"The worker returns JSON with an embedding field"_. This makes the functionality easy to grasp.
+- **Describe Key Functionality**: After the overview, provide a more detailed explanation of the worker's functionality. Use a mix of high-level language and specific technical terms as needed. For example: _"The worker processes recent messages without existing embeddings, generates vector embeddings using an AI model, calculates similarity scores, and updates the database with new scores."_
 
 - **Highlight Specific Project Priorities**: Focus on what the worker should achieve, not how it should be built. For instance, say _"The worker should include extensive error handling,"_ rather than listing specific error cases like _"The worker should handle errors X, Y, Z."_
 
-- **Generalize Technology Requirements**: If relevant, describe desired technology capabilities or an ecosystem you want to use, instead of specifying exact names. For example, rather than naming a particular model, you might say _"The worker requires a latest-gen LLM with a large context window and advanced reasoning capabilities in the OpenAI ecosystem."_ This leaves room for flexibility while ensuring key needs are met.
+- **Provide Technical Details**: After the high-level description, include more detailed technical information such as:
+  - Input and output formats (e.g., JSON structures for REST APIs)
+  - Database schemas (e.g., Drizzle schema definitions)
+  - Algorithms that contain custom business logic (e.g., similarity score calculation)
+  - Integration with other systems or services
+
+- **Describe System Context**: If relevant, provide a brief explanation of how the worker fits into a larger system or interacts with other components. Keep this high-level and focused on the worker's immediate interactions.
+
+- **Include Examples**: Where helpful, provide examples of input/output, SQL queries, or other relevant code snippets to illustrate the worker's functionality or usage.
 
 ### ❌ Avoid
 
-- **Excessive Implementation Details**: Avoid including detailed instructions on how to implement the worker. Do not describe a detailed algorithm or provide step-by-step instructions to achieve desired capabilities. Instead, focus on the worker capabilities and leveraged technologies, letting the LLM break down complex problems into individual steps.
+- **Starting with Technical Details**: Don't begin the spec with in-depth technical information. Always start with a non-technical overview to ensure accessibility for all readers. Keep the initial description simple and accessible. Technical details should be reserved for later sections of the spec.
+
+- **Excessive Implementation Details**: Avoid providing step-by-step implementation instructions. Focus on what needs to be achieved rather than how to code it, letting the LLM break down complex problems into individual steps.
 
 - **Excessive System of Systems Context**: Refrain from providing detailed descriptions of the broader system or external components that the worker isn't touching directly. Concentrate on the worker’s specific role, decoupling it from the larger system as much as possible.
 
