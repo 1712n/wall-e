@@ -6,13 +6,11 @@
 
 ### ✅️ Do
 
-- **Start with a General Overview**: Begin with a brief, non-technical description of why this worker is needed. Think of this as an elevator pitch: clearly describe what the worker does and how it can be used. This helps everyone, regardless of their technical background, understand the worker's purpose and value. Example: _"This worker generates vector embeddings for input text using Workers AI Text Embedding Model and is used in applications requiring vector search. The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding."_
-
-- **Describe Key Functionality**: After the overview, provide a more detailed explanation of the worker's functionality. Use a mix of high-level language and specific technical terms as needed. For example: _"The worker processes recent messages without existing embeddings, generates vector embeddings using an AI model, calculates similarity scores, and updates the database with new scores."_
+- **Elevator Pitch**: Clearly describe what the worker does and how it can be used. Anyone on the team should be able to understand the worker's purpose and value, regardless of their role and specialization. For example: _"This worker generates vector embeddings for input text using Workers AI Text Embedding Model and is used in applications requiring vector search. The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding."_
 
 - **Highlight Specific Project Priorities**: Focus on what the worker should achieve, not how it should be built. For instance, say _"The worker should include extensive error handling,"_ rather than listing specific error cases like _"The worker should handle errors X, Y, Z."_
 
-- **Provide Technical Details**: After the high-level description, include more detailed technical information such as:
+- **Provide Technical Details**: After the high-level description, include more detailed technical information, such as:
   - Input and output formats (e.g., JSON structures for REST APIs)
   - Database schemas (e.g., Drizzle schema definitions)
   - Algorithms that contain custom business logic (e.g., similarity score calculation)
@@ -23,8 +21,6 @@
 - **Include Examples**: Where helpful, provide examples of input/output, SQL queries, or other relevant code snippets to illustrate the worker's functionality or usage.
 
 ### ❌ Avoid
-
-- **Starting with Technical Details**: Don't begin the spec with in-depth technical information. Always start with a non-technical overview to ensure accessibility for all readers. Keep the initial description simple and accessible. Technical details should be reserved for later sections of the spec.
 
 - **Excessive Implementation Details**: Avoid providing step-by-step implementation instructions. Focus on what needs to be achieved rather than how to code it, letting the LLM break down complex problems into individual steps.
 
