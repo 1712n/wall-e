@@ -38,7 +38,7 @@ const buildUserMessage = ({
 	}
 
 	if (userFeedback) {
-		message += `<user_feedback>\n${userFeedback}\n</user_feedback>\n\n`;
+		message += `<reviewer_feedback>\n${userFeedback}\n</reviewer_feedback>\n\n`;
 	}
 
 	message += `<spec_file>\n${specFile}\n</spec_file>\n\n`;
