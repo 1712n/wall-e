@@ -20,3 +20,5 @@ CF_GATEWAY_AI_ID = "wall-e"
 
 [[queues.consumers]]
   queue = "job-queue"
+  max_batch_size = 1
+  max_retries = 1
