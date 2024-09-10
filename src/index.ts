@@ -404,7 +404,7 @@ export default {
 
 					case CommandName.Help:
 						{
-							const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the spec file';
+							const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the spec file\n\n- `/wall-e improve` - Improve previously generated `index.ts` file';
 							await github.postComment(context, body);
 						}
 						break;
