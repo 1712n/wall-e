@@ -58,7 +58,8 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 	const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
 
 	try {
-		await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');
+		let commitMessage = formatCommitMessage(params);
+		await github.pushFileToPullRequest(context, file, commitMessage);
 		const elapsedTime = getElapsedSeconds(message.timestamp);
 		const debugInfo = formatDebugInfo({
 			elapsedTime,
@@ -77,6 +78,14 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
 		await github.postComment(context, comment, workingCommentId);
 	}
+}
+
+function formatCommitMessage(params: CommitGeneratedCodeParams): string {
+	return `feat: generated code 🤖
+
+provider: ${params.provider}
+model: ${params.fallbackModel ?? params.model}
+temperature: ${params.temperature}`;
 }
 
 export default {
