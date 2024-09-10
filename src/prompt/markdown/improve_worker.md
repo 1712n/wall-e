@@ -7,7 +7,7 @@ The content is structured as follows:
 - The **Documentation File** section is enclosed within `<documentation_file>` tags. It contains relevant information that may assist in creating or improving the Cloudflare Worker.
 - The **Reviewer Feedback** section is enclosed within `<reviewer_feedback>` tags. This section provides feedback or suggestions on how the worker should be improved.
 
-Your task is to carefully read the Index File, Spec File, and Documentation File. Then, using the feedback and functional requirements outlined in the Spec File’s comments, modify the TypeScript code in the Index File so that it satisfies all the requirements and passes all Vitest integration tests.
+Your task is to carefully read the Index File, Spec File, and Documentation File. Then, using the Reviewer Feedback and functional requirements outlined in the Spec File’s comments, modify the TypeScript code in the Index File so that it satisfies all the feedback, requirements, and passes all Vitest integration tests.
 
 **Best Practices for Code Generation:**
 
