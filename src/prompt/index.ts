@@ -24,12 +24,12 @@ const buildUserMessage = ({
 	specFile,
 	documentationFile,
 	indexFile,
-	userFeedback,
+	reviewerFeedback,
 }: {
 	specFile: string;
 	documentationFile: string;
 	indexFile?: string;
-	userFeedback?: string;
+	reviewerFeedback?: string;
 }): string => {
 	let message = '';
 
@@ -37,8 +37,8 @@ const buildUserMessage = ({
 		message += `<index_file>\n${indexFile}\n</index_file>\n\n`;
 	}
 
-	if (userFeedback) {
-		message += `<reviewer_feedback>\n${userFeedback}\n</reviewer_feedback>\n\n`;
+	if (reviewerFeedback) {
+		message += `<reviewer_feedback>\n${reviewerFeedback}\n</reviewer_feedback>\n\n`;
 	}
 
 	message += `<spec_file>\n${specFile}\n</spec_file>\n\n`;
@@ -70,7 +70,7 @@ export function buildPromptForWorkerGeneration(specFile: string, relevantDocs: s
 export function buildPromptForWorkerImprovement(
 	indexFile: string,
 	specFile: string,
-	userFeedback: string,
+	reviewerFeedback: string,
 	relevantDocs: string = documentation,
 ): PromptMessages {
 	return {
@@ -79,7 +79,7 @@ export function buildPromptForWorkerImprovement(
 			specFile,
 			documentationFile: relevantDocs,
 			indexFile,
-			userFeedback,
+			reviewerFeedback,
 		}),
 	};
 }

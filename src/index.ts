@@ -343,8 +343,8 @@ export default {
 								return text;
 							});
 
-							const userFeedback = command.extra;
-							if (!userFeedback) {
+							const reviewerFeedback = command.extra;
+							if (!reviewerFeedback) {
 								const message = `Please provide feedback or suggestions for improvement.`;
 								await github.postComment(context, message, workingCommentId);
 								return;
@@ -354,7 +354,7 @@ export default {
 							const improvementPrompts = buildPromptForWorkerImprovement(
 								indexFileContent,
 								specFileContent,
-								userFeedback,
+								reviewerFeedback,
 								relevantDocumentation,
 							);
 							await sendPrompt(
