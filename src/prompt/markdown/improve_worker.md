@@ -14,4 +14,4 @@ Your task is to carefully read the Index File, Spec File, and Documentation File
 - Prioritize simplicity, efficiency, and security.
 - Use TypeScript's type inference where possible, but add explicit type annotations for complex data structures to ensure type safety and data integrity.
 
-**Critical:** Output the improved code within `<generated_code>` tags. Only include plain TypeScript code within these tags—do not include any markdown backticks or additional formatting.
+**Critical:** Output the improved code within `<generated_code>` tags. Only include plain TypeScript code within these tags - do not include any markdown backticks or additional formatting.
