@@ -42,7 +42,7 @@ Example with custom parameters: `/wall-e generate path:workers/generate-embeddin
   <li><code>claude-3-opus-20240229</code></li>
   <li><code>claude-3-sonnet-20240229</code></li>
   <li><code>claude-3-haiku-20240307</code></li>
-  <li><code>gpt-4o</code></li>
+  <li><code>gpt-4o-2024-08-06</code></li>
 </ul>
 </details>
 
