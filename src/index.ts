@@ -58,7 +58,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 	const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
 
 	try {
-		let commitMessage = formatCommitMessage(params);
+		const commitMessage = formatCommitMessage(params);
 		await github.pushFileToPullRequest(context, file, commitMessage);
 		const elapsedTime = getElapsedSeconds(message.timestamp);
 		const debugInfo = formatDebugInfo({
@@ -81,11 +81,10 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 }
 
 function formatCommitMessage(params: CommitGeneratedCodeParams): string {
-	return `feat: generated code 🤖
-
-provider: ${params.provider}
-model: ${params.fallbackModel ?? params.model}
-temperature: ${params.temperature}`;
+	return 'feat: generated code 🤖\n\n' +
+		`provider: ${params.provider}\n` +
+		`model: ${params.fallbackModel ?? params.model}\n` +
+		`temperature: ${params.temperature}`;
 }
 
 export default {
