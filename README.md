@@ -1,4 +1,44 @@
-0240620</code> (default)</li>
+<div align="center">
+  <img src="./misc/readme/wall-e.png" height="128px" width="128px" />
+</div>
+
+<div align="center">
+  <h3>Worker Assembly Large Language Engine</h3>
+</div>
+
+<br/>
+
+## What's WALL-E?
+
+_WALL-E_ is a GitHub bot that supercharges Test-Driven Development (TDD) through automated generation of Cloudflare Workers. Based on the worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
+
+## Usage
+### Prerequisites:
+1. An open pull request with `test/index.spec.ts`
+2. `test/index.spec.ts` Spec File containing:
+   - Comments Section with functional requirements
+   - Integration tests
+### Activation Command
+WALL-E is activated within a pull request by leaving a comment containing `/wall-e generate`
+<details>
+<summary><h3>Advanced Usage</h3></summary>
+
+| Parameter | Description | Default |
+|--------|-------------|---------|
+| `path` | custom path to a worker dir | repository root |
+| `provider` | provider for code generation | anthropic |
+| `temp`/`temperature` | model temperature setting (0-1) | 0.5 |
+Example with custom parameters: `/wall-e generate path:workers/generate-embeddings provider:openai temperature:0.8`
+
+## Available Providers
+
+- `anthropic` (default)
+- `openai`
+- `googleai`
+<details>
+<summary>Available models:</summary>
+<ul>
+  <li><code>claude-3-5-sonnet-20240620</code> (default)</li>
   <li><code>claude-3-opus-20240229</code></li>
   <li><code>claude-3-sonnet-20240229</code></li>
   <li><code>claude-3-haiku-20240307</code></li>
