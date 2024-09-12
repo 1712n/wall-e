@@ -4,12 +4,14 @@ import { Octokit } from '@octokit/core';
 
 export enum CommandName {
 	Generate = 'generate',
+	Improve = 'improve',
 	Help = 'help',
 }
 
 export type UserCommand = {
 	name: CommandName;
 	args?: string[];
+	extra?: string;
 };
 
 export type CommandContext = {
@@ -82,17 +84,31 @@ export class GitHub {
 				issueNumber: event.payload.issue.number,
 			};
 
-			const parsed = comment.body.split(' ');
-			if (parsed.length < 2) {
-				await this.postComment(context, 'Invalid command');
+			const match = comment.body.match(/^\/wall-e\s+(\w+)([\s\S]*?)(?:\n---([\s\S]*))?$/);
+			if (!match) {
+				await this.postComment(context, 'Invalid command format');
+				return;
 			}
 
-			const [_, name, ...args] = parsed;
+			const [_, name, args, extraReqs] = match;
 
-			const command = {
-				name: name.replace('/', '') as CommandName,
-				args,
+			const command: UserCommand = {
+				name: name.trim() as CommandName,
+				args: args
+					.trim()
+					.split(/\s+/)
+					.filter((arg) => arg.length > 0),
 			};
+
+			if (command.name === CommandName.Improve) {
+				if (!extraReqs || extraReqs.trim() === '') {
+					await this.postComment(context, 'Please provide extra requirements');
+					return;
+				}
+
+				command.extra = extraReqs;
+			}
+
 			await handler(command, context);
 		});
 
@@ -178,6 +194,23 @@ export class GitHub {
 		return result.data;
 	}
 
+	public async getMainBranchFile({ owner, repo }: CommandContext, filePath: string) {
+		const octokit = await this.octokit;
+		const result = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+			owner: owner,
+			repo: repo,
+			ref: 'main',
+			path: filePath,
+		});
+
+		if (result.status !== 200) {
+			this.app.log.error('Failed to get main branch files', result);
+			return undefined;
+		}
+
+		return result.data as { sha: string; name: string; path: string; };
+	}
+
 	public async listPullRequestFiles({ owner, repo, issueNumber }: CommandContext) {
 		const octokit = await this.octokit;
 		const result = await octokit.request('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
@@ -191,7 +224,7 @@ export class GitHub {
 			return [];
 		}
 
-		return result.data as { filename: string; status: string; sha: string }[];
+		return result.data as { filename: string; sha: string }[];
 	}
 
 	public async fetchFileContents({ owner, repo }: CommandContext, sha: string) {
