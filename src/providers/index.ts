@@ -14,6 +14,7 @@ export enum ModelProvider {
 export enum ModelName {
 	Claude_3_5_Sonnet_20240620 = 'claude-3-5-sonnet-20240620',
 	GPT_4o = 'gpt-4o-2024-08-06',
+	GPT_o1 = 'o1-preview-2024-09-12',
 	Gemini_1_5_Pro = 'gemini-1.5-pro',
 	Gemini_1_5_Pro_Exp_0801 = 'gemini-1.5-pro-exp-0801',
 }
@@ -28,8 +29,9 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		],
 	},
 	[ModelProvider.OpenAI]: {
-		default: ModelName.GPT_4o,
+		default: ModelName.GPT_o1,
 		models: [
+			ModelName.GPT_o1,
 			ModelName.GPT_4o
 		],
 	},
