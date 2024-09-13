@@ -6,11 +6,19 @@
   <h3>Worker Assembly Large Language Engine</h3>
 </div>
 
-<br/>
+## Table of Contents
+- [What's WALL-E?](#whats-wall-e)
+- [Usage](#usage)
+  - [Prerequisites](#prerequisites)
+  - [Basic Usage](#basic-usage)
+  - [Advanced Usage](#advanced-usage)
+  - [Feedback Feature](#feedback-feature)
+- [How It Works](#how-it-works)
+- [Code Quality](#code-quality)
 
 ## What's WALL-E?
 
-_WALL-E_ is a GitHub bot that supercharges Test-Driven Development (TDD) through automated generation of Cloudflare Workers. Based on the worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
+WALL-E is a GitHub bot that supercharges Test-Driven Development (TDD) through automated generation of Cloudflare Workers. Based on worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
 
 ## Usage
 ### Prerequisites:
@@ -18,37 +26,53 @@ _WALL-E_ is a GitHub bot that supercharges Test-Driven Development (TDD) through
 2. `test/index.spec.ts` Spec File containing:
    - Comments Section with functional requirements
    - Integration tests
-### Activation Command
-WALL-E is activated within a pull request by leaving a comment containing `/wall-e generate`
-<details>
-<summary><h3>Advanced Usage</h3></summary>
+### Basic Usage
+Activate WALL-E in a pull request by commenting:
+```
+/wall-e generate
+```
+### Advanced Usage
+
+For more control, use optional parameters:
+
+```
+/wall-e generate path:workers/generate-embeddings provider:openai temperature:0.8
+```
 
 | Parameter | Description | Default |
 |--------|-------------|---------|
 | `path` | custom path to a worker dir | repository root |
 | `provider` | provider for code generation | anthropic |
 | `temp`/`temperature` | model temperature setting (0-1) | 0.5 |
-Example with custom parameters: `/wall-e generate path:workers/generate-embeddings provider:openai temperature:0.8`
 
-## Available Providers
+#### Available Providers
 
 - `anthropic` (default)
 - `openai`
 - `googleai`
-<details>
-<summary>Available models:</summary>
-<ul>
-  <li><code>claude-3-5-sonnet-20240620</code> (default)</li>
-  <li><code>claude-3-opus-20240229</code></li>
-  <li><code>claude-3-sonnet-20240229</code></li>
-  <li><code>claude-3-haiku-20240307</code></li>
-  <li><code>gpt-4o-2024-08-06</code></li>
-</ul>
-</details>
 
-</details>
+#### Available Models
 
-## How does it work?
+- `claude-3-5-sonnet-20240620` (default)
+- `claude-3-opus-20240229`
+- `claude-3-sonnet-20240229`
+- `claude-3-haiku-20240307`
+- `gpt-4o-2024-08-06`
+
+### Feedback Feature
+The Feedback Feature allows you to improve existing code or add extra requirements. 
+
+Activate the feedback feature in a pull request by commenting:
+
+```
+/wall-e improve path:workers/deduplicated-insert provider:googleai
+
+---
+- Add user authentication via API Key (stored in Env)
+- No need to import "AI" from cloudflare:ai package
+```
+
+## How It Works
 
 ### Prompt
 
@@ -56,7 +80,7 @@ The prompt sent to the LLM consists of 3 sections: instructions, a spec file, an
 
 #### Instructions
 
-The [instructions section](markdown/instructions.md) of the prompt is there to explain the task and the general environment. It's relatively static and shouldn't change too often.
+The [instructions section](markdown/instructions.md) of the prompt explains the task and the general environment. It's relatively static and shouldn't change too often.
 
 #### `test/index.spec.ts`
 
