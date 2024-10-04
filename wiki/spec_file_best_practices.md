@@ -45,7 +45,7 @@ it('should correctly insert data into the database', async () => {
 
   // High-level mock of database insert operation
   const insertMock = vi.fn().mockResolvedValue(expectedOutput);
-  (dbMock.insert as any).mockReturnValue({ values: insertMock });
+  vi.mocked(dbMock.insert).mockReturnValue({ values: insertMock });
 
   const response = await SELF.fetch('https://example.com/insert', {
     method: 'POST',
