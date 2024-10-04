@@ -33,8 +33,7 @@
 - **Descriptive Test Names**: Write clear and descriptive test names that align with the functional requirements of the worker. If needed, include technical details in the test description to clarify the test's purpose.
 - **Use Real-World Data Mocks**: Utilize mock data that closely resembles real-world scenarios. This ensures the tests are relevant and reflect actual use cases.
 - **Mock Database Interactions**:  When testing database operations, use mock methods to simulate interactions with the database. This allows you to test various scenarios without relying on a real database.
-- **Focus on Input/Output**: Concentrate on mocking the input and output of database operations. This approach ensures that your tests remain focused on the worker's external behavior and not on specific implementation details of database interactions.
-- **Use High-Level Mocks**: Create high-level mocks for database operations that reflect the expected behavior without tying tests to specific implementation details. For example, mock the `insert` method of your ORM to return a predefined result.
+- **Use High-Level Mocks Focused on Input/Output**: Concentrate on mocking the input and output of database operations by creating high-level mocks that reflect the expected behavior without tying tests to specific implementation details. For example, instead of mocking specific SQL queries or ORM methods like drizzle.select().from().where(), mock the insert method of your ORM to return a predefined result.
 
 **Example:**
 
