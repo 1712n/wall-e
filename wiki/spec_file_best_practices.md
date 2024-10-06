@@ -32,8 +32,7 @@
 - **Limit Imports**: Keep things simple and standardized. Indispensable imports from Cloudflare, Vitest, Postgres, or Drizzle can be used without hesitation, but avoid importing packages for convenience reasons - other developers and LLMs might not be familiar with them.
 - **Write Descriptive Test Names**: Write clear and descriptive test names that align with the functional requirements of the worker. If needed, include technical details in the test description to clarify the test's purpose.
 - **Use Realistic Data Mocks**: Utilize mock data that closely resembles real-world scenarios. This ensures the tests are relevant and reflect actual use cases.
-- **Mock Database Interactions**:  When testing database operations, use mock methods to simulate interactions with the database. This allows you to test various scenarios without relying on a real database.
-- **Use High-Level Mocks Focused on Interface Interactions**: Concentrate on mocking the interfaces of your worker's dependencies, such as database operations or external service calls. Create high-level mocks that reflect the expected behavior of these interfaces without tying tests to specific implementation details. This approach aligns with our understanding of interfaces as points of interaction between the worker and its environment. For example, instead of mocking specific SQL queries or ORM methods like drizzle.select().from().where(), mock the insert method of your ORM to return a predefined result.
+- **Mock High-Level Interfaces**: When testing interactions with dependencies like databases or external services, mock the high-level methods or interfaces your worker uses (e.g., `createUser`, `fetchData`, `sendEmail`). This keeps tests focused on the worker's behavior without tying them to specific implementation details.
 
 **Example:**
 
