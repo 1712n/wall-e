@@ -56,7 +56,7 @@ For more control, use optional parameters:
 - `claude-3-5-sonnet-20240620` (default)
 - `gpt-4o-2024-08-06`
 - `gemini-1.5-pro`
-- `gemini-1.5-pro-exp-0801`
+- `gemini-1.5-pro-exp-0827`
 
 ### Feedback Feature
 The Feedback Feature allows you to improve existing code or add extra requirements. 
