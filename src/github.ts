@@ -63,7 +63,7 @@ export class GitHub {
 				return;
 			}
 
-			if (action === 'deleted') {
+			if (action !== 'created') {
 				return;
 			}
 
