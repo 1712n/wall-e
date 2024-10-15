@@ -479,6 +479,31 @@ export default {
 }
 ```
 ### Drizzle Operations
+#### Drizzle filters
+Drizzle provides various filter and conditional operators to handle database queries. Here's an overview of the key operators and how they're used. 
+
+Key operators:
+
+- **eq (equals)**
+- **ne (not equals)**
+- **gt / gte (greater than / greater than or equal to)**
+- **lt / lte (less than / less than or equal to)**
+- **isNull / isNotNull**
+- **inArray / notInArray**: Used to check if a value is (or isn't) in a list of values or in the result of a subquery.
+- **between / notBetween**: Tests if a value is between two other values, or outside of that range.
+- **like / ilike / notIlike**: These are used to match a value to a pattern, either case-sensitive (`like`) or case-insensitive (`ilike`).
+- **and / or**: Combine multiple conditions with logical AND or OR operators.
+- **arrayContains / arrayContained / arrayOverlaps**: These operators handle arrays, checking if an array contains certain elements, is contained by another array, or overlaps with another array.
+
+Example:
+
+```js
+import { eq, gt, lt, and } from "drizzle-orm";
+
+db.select().from(table).where(eq(table.column, 5));
+db.select().from(table).where(and(gt(table.column, 5), lt(table.column, 7)));
+```
+
 #### Drizzle - Update many with different values for each row
 
 To implement update many with different values for each row within 1 request you can use sql operator with case statement and .update().set() methods like this:
