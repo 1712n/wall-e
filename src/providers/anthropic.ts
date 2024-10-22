@@ -33,7 +33,6 @@ export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderReq
 		headers: {
 			'x-api-key': apiKey,
 			'anthropic-version': '2023-06-01',
-			'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15',
 			'content-type': 'application/json',
 		},
 		query: {
