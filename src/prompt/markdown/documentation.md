@@ -453,9 +453,8 @@ export default {
 ```
 
 ### Cloudflare Browser Rendering
-Cloudflare's Browser Rendering API allows developers to perform browser-like tasks in a cloud. It uses a fork of the popular Puppeteer library.
+Cloudflare's Browser Rendering API allows to perform browser-like tasks in a Worker. It uses a fork of the popular Puppeteer library.
 
-Example usage:
 ```typescript
 import puppeteer from "@cloudflare/puppeteer";
 
