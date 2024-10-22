@@ -452,6 +452,29 @@ export default {
 } satisfies ExportedHandler<Env>;
 ```
 
+### Cloudflare Browser Rendering
+Cloudflare's Browser Rendering API allows developers to perform browser-like tasks in a cloud. It uses a fork of the popular Puppeteer library.
+
+Example usage:
+```typescript
+import puppeteer from "@cloudflare/puppeteer";
+
+interface Env {
+  MYBROWSER: Fetcher;
+}
+
+export default {
+  async fetch(request, env): Promise<Response> {
+    const browser = await puppeteer.launch(env.MYBROWSER);
+    const page = await browser.newPage();
+    await page.goto("https://example.com");
+    const metrics = await page.metrics();
+    await browser.close();
+    return Response.json(metrics);
+  },
+} satisfies ExportedHandler<Env>;
+```
+
 ## Drizzle ORM
 
 Drizzle ORM is a lightweight, type-safe SQL query builder and ORM (Object-Relational Mapping) for TypeScript and JavaScript.
