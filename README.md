@@ -53,7 +53,7 @@ For more control, use optional parameters:
 
 #### Available Models
 
-- `claude-3-5-sonnet-20240620` (default)
+- `claude-3-5-sonnet-20241022` (default)
 - `gpt-4o-2024-08-06`
 - `gemini-1.5-pro`
 - `gemini-1.5-pro-exp-0827`
