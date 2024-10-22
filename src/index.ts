@@ -180,7 +180,7 @@ export default {
 							await sendPrompt(
 								env,
 								{
-									model: ModelName.Claude_3_5_Sonnet_20240620,
+									model: ModelName.Claude_3_5_Sonnet_20241022,
 									prompts: analyzeSpecFilePrompts,
 									temperature: 0,
 								},
@@ -211,7 +211,7 @@ export default {
 							const relevantDocumentation = await sendPrompt(
 								env,
 								{
-									model: ModelName.Claude_3_5_Sonnet_20240620,
+									model: ModelName.Claude_3_5_Sonnet_20241022,
 									prompts: documentationPrompts,
 									temperature: 0,
 								},
@@ -321,7 +321,7 @@ export default {
 							const relevantDocumentation = await sendPrompt(
 								env,
 								{
-									model: ModelName.Claude_3_5_Sonnet_20240620,
+									model: ModelName.Claude_3_5_Sonnet_20241022,
 									prompts: documentationPrompts,
 									temperature: 0,
 								},
