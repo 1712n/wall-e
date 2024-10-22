@@ -12,7 +12,7 @@ export enum ModelProvider {
 }
 
 export enum ModelName {
-	Claude_3_5_Sonnet_20240620 = 'claude-3-5-sonnet-20240620',
+	Claude_3_5_Sonnet_20241022 = 'claude-3-5-sonnet-20241022',
 	GPT_4o = 'gpt-4o-2024-08-06',
 	Gemini_1_5_Pro = 'gemini-1.5-pro-002',
 	Gemini_1_5_Pro_Exp_0827 = 'gemini-1.5-pro-exp-0827',
@@ -22,9 +22,9 @@ type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: Mo
 
 export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.Anthropic]: {
-		default: ModelName.Claude_3_5_Sonnet_20240620,
+		default: ModelName.Claude_3_5_Sonnet_20241022,
 		models: [
-			ModelName.Claude_3_5_Sonnet_20240620
+			ModelName.Claude_3_5_Sonnet_20241022
 		],
 	},
 	[ModelProvider.OpenAI]: {
