@@ -254,6 +254,7 @@ export default {
 										model: fallbackModel ?? model, // The actual model used to generate the code
 										temperature,
 										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
+										relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
 										modelResponse: JSON.stringify(text, null, 2),
 									});
 									await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
