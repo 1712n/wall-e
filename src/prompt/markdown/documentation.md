@@ -492,7 +492,7 @@ export default {
   ): Promise<Response> {
     const client = new Client({ connectionString: env.HYPERDRIVE.connectionString });
     await client.connect();
-    const db = drizzle(client, { schema: { users }, logger: true } );
+    const db = drizzle(client, { schema: { users }, logger: false } );
     const result = await db.select().from(...);
     // Clean up the client, ensuring we don't kill the worker before that is completed.
     ctx.waitUntil(client.end());
