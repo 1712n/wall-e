@@ -150,6 +150,7 @@ async function parseStreamedEvents(reader: ReadableStreamDefaultReader<any>): Pr
 				try {
 					const parsedData = JSON.parse(jsonData);
 					events.push(parsedData);
+					console.log('Parsed event:', parsedData);
 				} catch (error) {
 					console.error('Error parsing JSON:', error, 'Data:', jsonData);
 				}
@@ -207,6 +208,8 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 
 export async function handleStreamResponse(reader: ReadableStreamDefaultReader<any>): Promise<SendPromptResponse> {
 	const events = await parseStreamedEvents(reader);
+	console.log('All events:', JSON.stringify(events, null, 2));
+	
 	if (events.length === 0) {
 		throw new Error('No events received from the model provider.');
 	}
