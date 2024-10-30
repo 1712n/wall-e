@@ -20,3 +20,6 @@ CF_GATEWAY_AI_ID = "wall-e"
 
 [[queues.consumers]]
   queue = "job-queue"
+
+[observability]
+enabled = true
