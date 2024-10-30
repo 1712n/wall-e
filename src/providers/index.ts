@@ -143,11 +143,15 @@ async function parseStreamedEvents(reader: ReadableStreamDefaultReader<any>): Pr
 				// Remove 'data: ' and parse the JSON
 				const jsonData = line.slice(6).trim();
 
+				if (jsonData === '[DONE]') {
+					continue;
+				}
+
 				try {
 					const parsedData = JSON.parse(jsonData);
 					events.push(parsedData);
 				} catch (error) {
-					console.error('Error parsing JSON:', error);
+					console.error('Error parsing JSON:', error, 'Data:', jsonData);
 				}
 			}
 		}
