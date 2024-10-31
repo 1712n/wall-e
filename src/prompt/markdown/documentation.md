@@ -506,8 +506,11 @@ Drizzle provides various filter and conditional operators to handle database que
 
 ```js
 import { eq, gt, gte, lt, lte, exists, isNull, inArray, between, notBetween, like, ilike, notIlike, not, and, or } from 'drizzle-orm';
+import { users } from './schema';
 
-db.select()
+const db = drizzle(...);
+
+await db.select()
 	.from(users)
 	.where(
 		and(
