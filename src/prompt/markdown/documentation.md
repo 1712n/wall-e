@@ -6,6 +6,7 @@
 - [Drizzle ORM](#drizzle-orm) for all data store interactions
   - [Usage with Cloudflare Workers](#drizzle-usage-with-cloudflare-workers)
   - [Drizzle Operations](#drizzle-operations) cover various data manipulation tasks.
+  - [Request batching](#drizzle---request-batching-examples) is important for optimizing DB resource usage.
   - Supports [vector storage](#drizzle---vector-storage) and [vector similarity search](#vector-similarity-search)
 - [Cloudflare Hyperdrive](#cloudflare-hyperdrive) for any data stores outside the Cloudflare Ecosystem to improve performance
   - Intelligent caching layer between Workers and external databases
@@ -525,7 +526,8 @@ import { eq, gt, lt, and } from "drizzle-orm";
 db.select().from(table).where(eq(table.column, 5));
 db.select().from(table).where(and(gt(table.column, 5), lt(table.column, 7)));
 ```
-#### Batch Select
+#### Drizzle - Request Batching Examples
+##### Batch Select
 ```typescript
 import { and, or, inArray } from 'drizzle-orm';
 
@@ -542,7 +544,7 @@ const result = await db
     )
   );
 ```
-#### Batch Insert
+##### Batch Insert
 ```typescript
 const usersData = [
   { name: 'John', email: 'john@example.com' },
@@ -555,7 +557,7 @@ const result = await db
   .insert(users)
   .values(usersData);
 ```
-#### Batch Insert with Return Values
+##### Batch Insert with Return Values
 ```typescript
 const insertedUsers = await db
   .insert(users)
