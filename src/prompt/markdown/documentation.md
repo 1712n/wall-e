@@ -525,6 +525,46 @@ import { eq, gt, lt, and } from "drizzle-orm";
 db.select().from(table).where(eq(table.column, 5));
 db.select().from(table).where(and(gt(table.column, 5), lt(table.column, 7)));
 ```
+#### Batch Select
+```typescript
+import { and, or, inArray } from 'drizzle-orm';
+
+const result = await db
+  .select()
+  .from(users)
+  .where(
+    and(
+      inArray(users.status, ['active', 'pending']),
+      or(
+        inArray(users.role, ['admin', 'moderator']),
+        inArray(users.id, specificUserIds)
+      )
+    )
+  );
+```
+#### Batch Insert
+```typescript
+const usersData = [
+  { name: 'John', email: 'john@example.com' },
+  { name: 'Jane', email: 'jane@example.com' },
+  { name: 'Bob', email: 'bob@example.com' }
+];
+
+// Insert all users in a single query
+const result = await db
+  .insert(users)
+  .values(usersData);
+```
+#### Batch Insert with Return Values
+```typescript
+const insertedUsers = await db
+  .insert(users)
+  .values(usersData)
+  .returning({
+    id: users.id,
+    name: users.name
+  });
+```
 
 #### Drizzle - Update many with different values for each row
 
