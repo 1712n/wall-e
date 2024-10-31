@@ -504,26 +504,30 @@ export default {
 #### Drizzle filters
 Drizzle provides various filter and conditional operators to handle database queries. Here's an overview of the key operators and how they're used. 
 
-Key operators:
-
-- **eq (equals)**
-- **ne (not equals)**
-- **gt / gte (greater than / greater than or equal to)**
-- **lt / lte (less than / less than or equal to)**
-- **isNull / isNotNull**
-- **inArray / notInArray**: Used to check if a value is (or isn't) in a list of values or in the result of a subquery.
-- **between / notBetween**: Tests if a value is between two other values, or outside of that range.
-- **like / ilike / notIlike**: These are used to match a value to a pattern, either case-sensitive (`like`) or case-insensitive (`ilike`).
-- **and / or**: Combine multiple conditions with logical AND or OR operators.
-- **arrayContains / arrayContained / arrayOverlaps**: These operators handle arrays, checking if an array contains certain elements, is contained by another array, or overlaps with another array.
-
-Example:
-
 ```js
-import { eq, gt, lt, and } from "drizzle-orm";
+import { eq, gt, gte, lt, lte, exists, isNull, inArray, between, notBetween, like, ilike, notIlike, not, and, or } from 'drizzle-orm';
 
-db.select().from(table).where(eq(table.column, 5));
-db.select().from(table).where(and(gt(table.column, 5), lt(table.column, 7)));
+db.select()
+	.from(users)
+	.where(
+		and(
+			eq(users.age, 25),
+			gt(users.age, 18),
+			gte(users.age, 21),
+			lt(users.age, 65),
+			lte(users.age, 60),
+			exists(db.select().from('other_table')),
+			isNull(users.status),
+			inArray(users.id, [1, 2, 3, 4]),
+			between(users.age, 25, 45),
+			notBetween(users.age, 0, 17),
+			not(eq(users.status, 'deleted')),
+			or(eq(users.status, 'active'), eq(users.status, 'pending')),
+			like(users.name, '%john%'),
+			ilike(users.name, '%SMITH%'), // Case insensitive (PostgreSQL only)
+			notIlike(users.name, '%banned%')
+		)
+	);
 ```
 
 #### Drizzle - Update many with different values for each row
