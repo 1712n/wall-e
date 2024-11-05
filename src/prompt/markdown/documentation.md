@@ -6,6 +6,7 @@
 - [Drizzle ORM](#drizzle-orm) for all data store interactions
   - [Usage with Cloudflare Workers](#drizzle-usage-with-cloudflare-workers)
   - [Drizzle Operations](#drizzle-operations) cover various data manipulation tasks.
+  - [Request batching](#drizzle---request-batching-examples) is important for optimizing DB resource usage.
   - Supports [vector storage](#drizzle---vector-storage) and [vector similarity search](#vector-similarity-search)
 - [Cloudflare Hyperdrive](#cloudflare-hyperdrive) for any data stores outside the Cloudflare Ecosystem to improve performance
   - Intelligent caching layer between Workers and external databases
@@ -532,8 +533,49 @@ await db.select()
 		)
 	);
 ```
+#### Drizzle - Request Batching Examples
+##### Batch Select
+```typescript
+import { and, or, inArray } from 'drizzle-orm';
 
-#### Drizzle - Update many with different values for each row
+const result = await db
+  .select()
+  .from(users)
+  .where(
+    and(
+      inArray(users.status, ['active', 'pending']),
+      or(
+        inArray(users.role, ['admin', 'moderator']),
+        inArray(users.id, specificUserIds)
+      )
+    )
+  );
+```
+##### Batch Insert
+```typescript
+const usersData = [
+  { name: 'John', email: 'john@example.com' },
+  { name: 'Jane', email: 'jane@example.com' },
+  { name: 'Bob', email: 'bob@example.com' }
+];
+
+// Insert all users in a single query
+const result = await db
+  .insert(users)
+  .values(usersData);
+```
+##### Batch Insert with Return Values
+```typescript
+const insertedUsers = await db
+  .insert(users)
+  .values(usersData)
+  .returning({
+    id: users.id,
+    name: users.name
+  });
+```
+
+##### Batch Update with different values for each row
 
 To implement update many with different values for each row within 1 request you can use sql operator with case statement and .update().set() methods like this:
 
