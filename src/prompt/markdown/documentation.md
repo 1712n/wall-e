@@ -568,7 +568,7 @@ const insertedUsers = await db
   });
 ```
 
-#### Drizzle - Update many with different values for each row
+#### Batch Update with different values for each row
 
 To implement update many with different values for each row within 1 request you can use sql operator with case statement and .update().set() methods like this:
 
