@@ -38,29 +38,6 @@
 2. Use spies or mocks to capture the arguments passed to these mock methods, allowing you to inspect the data being used.
 3. Assert that the mocked methods are called with the expected data to verify that the database interactions are functioning as expected.
 
-Example:
-
-```typescript
-it('should correctly insert JSON data into the database', async () => {
-  const expectedData = { id: 1, name: 'Test' };
-
-  // Mock the Drizzle ORM insert method to prevent real database interaction
-  const insertMock = vi.fn().mockResolvedValue([expectedData]);
-  (drizzle.pgTable as any).mockReturnValue({
-    insert: insertMock,
-  });
-
-  // Simulate the action that triggers the database insert
-  const response = await SELF.fetch('https://example.com/insert', {
-    method: 'POST',
-    body: JSON.stringify(expectedData),
-  });
-
-  // Verify that the insert method was called with the correct data
-  expect(insertMock).toHaveBeenCalledWith(expectedData);
-});
-```
-
 ### ❌ Avoid
 
 - **Unit Tests or Internal Implementation Checks**: Avoid testing specific internal functions or logic, as integration tests should generally treat the worker as a black box.
