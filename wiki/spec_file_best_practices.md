@@ -34,9 +34,9 @@
 - **Write Descriptive Test Names and Document Constraints**: Use clear, descriptive test names that align with the functional requirements of the worker. Document any known test limitations to provide context on potential areas of flakiness or incomplete simulation.
 - **Test Database and External Interactions Only**: If your worker interacts with external systems like databases or APIs, simulate these interactions using mock methods instead of real calls. This prevents the need for an external testing infrastructure.
 
-1. Replace actual calls to external services with mocks to isolate worker functionality.
-2. Use spies or mocks to capture arguments passed to these mock methods, allowing inspection of the data being used.
-3. Assert that mocked methods are called with expected data, verifying that external interactions are functioning as expected.
+  1. Replace actual calls to external services with mocks to isolate worker functionality.
+  2. Use spies or mocks to capture arguments passed to these mock methods, allowing inspection of the data being used.
+  3. Assert that mocked methods are called with expected data, verifying that external interactions are functioning as expected.
 
 ### ❌ Avoid
 
