@@ -9,7 +9,9 @@ import {
 } from './prompt';
 import { ModelName, ModelProvider, getDefaultModelForProvider, isValidProvider } from './providers';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
-import prettier from 'prettier';
+import * as prettier from 'prettier/standalone';
+import * as prettierPluginEstree from "prettier/plugins/estree";
+import * as parserTypeScript from "prettier/parser-typescript";
 
 type GitHubJob = {
 	command: UserCommand;
@@ -62,8 +64,12 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		relevantDocumentation,
 	} = params;
 
+	const extractedCode = extractCodeBlockContent(generatedCode);
+	const formattedCode = await prettier.format(extractedCode, {
+		parser: 'typescript',
+		plugins: [prettierPluginEstree, parserTypeScript]
+	});
 	const srcFilePath = ensurePath(basePath, 'src/index.ts');
-	const formattedCode = prettier.format(extractCodeBlockContent(generatedCode), { parser: 'typescript' });
 	const file = { path: srcFilePath, content: formattedCode };
 
 	try {
