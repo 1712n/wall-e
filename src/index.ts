@@ -9,6 +9,7 @@ import {
 } from './prompt';
 import { ModelName, ModelProvider, getDefaultModelForProvider, isValidProvider } from './providers';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
+import prettier from 'prettier';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -62,7 +63,8 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 	} = params;
 
 	const srcFilePath = ensurePath(basePath, 'src/index.ts');
-	const file = { path: srcFilePath, content: extractCodeBlockContent(generatedCode) };
+	const formattedCode = prettier.format(extractCodeBlockContent(generatedCode), { parser: 'typescript' });
+	const file = { path: srcFilePath, content: formattedCode };
 
 	try {
 		await github.pushFileToPullRequest(context, file, 'feat: generated code 🤖');
