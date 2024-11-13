@@ -140,17 +140,24 @@
   });
   ```
 
-- **Excessive Edge Case Testing**: Avoid focusing on rare edge cases best suited for unit testing. Instead, prioritize tests that align with common user workflows and realistic scenarios.
+- **Common-Sense Functionality Tests**: Refrain from testing trivial functionality. Assume LLMs have seen sufficient high-quality examples of common practices, such as logging, error handling, and back-off strategies.
 
   ```typescript
-  it('should handle emojis in username', async () => {
-    const response = await SELF.fetch('http://example.com/api/login', {
-      body: JSON.stringify({ username: '🤖 username 🤖', password: '123456' }),
+  it('should return error when content-type header is missing', async () => {
+    const credentials = {
+      username: 'the_donald',
+      password: 'badPassword123',
+    };
+
+    const response = await SELF.fetch('https://example.com/login', {
+      body: JSON.stringify(credentials), // Content is JSON encoded
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
+      // content-type header is intentionally omitted to simulate the error
     });
-    expect(response.status).toBe(400);
+
+    expect(response.status).toBe(400); // Assuming server returns 400 for missing content-type
+    expect(response.json()).toEqual({
+      error: 'Content-Type header missing',
+    });
   });
   ```
