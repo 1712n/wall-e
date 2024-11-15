@@ -10,4 +10,4 @@ Carefully read through the entire Spec File and the Documentation File. Make sur
 - Add explicit type annotations for complex data structures to ensure type safety and data integrity.
 - Generate minified code that uses descriptive variable names.
 
-**Critical:** Place the generated code in `<generated_code>` tags. Only minified plain TypeScript code should be inside these tags. Do not add markdown backticks or any other formatting.
+**Critical:** Place the generated code in `<generated_code>` tags. Only plain TypeScript code should be inside these tags. Do not add markdown backticks or any other formatting.
