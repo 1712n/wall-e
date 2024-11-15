@@ -8,6 +8,6 @@ Carefully read through the entire Spec File and the Documentation File. Make sur
 - Focus on simplicity, efficiency, and security.
 - Default to TypeScript's type inference.
 - Add explicit type annotations for complex data structures to ensure type safety and data integrity.
-- Generate minified code that uses descriptive variable names.
+- Generate minified, but readable code with descriptive names for all elements.
 
 **Critical:** Place the generated code in `<generated_code>` tags. Only plain TypeScript code should be inside these tags. Do not add markdown backticks or any other formatting.
