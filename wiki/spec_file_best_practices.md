@@ -195,11 +195,17 @@ it('should insert and retrieve user data from D1', async () => {
 
   // Query the registered user through the test database
   const result = await db
-    .select()
+    .select({
+      name: users.name,
+      email: user.email,
+    })
     .from(users)
     .where(eq(users.id, 1));
   
-  expect(result[0]).toEqual(testUser);
+  expect(result[0]).toEqual({
+    name: testUser.name,
+    email: testUser.email
+  });
 });
 ```
 
