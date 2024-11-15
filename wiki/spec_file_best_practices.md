@@ -161,3 +161,48 @@
     });
   });
   ```
+
+## Database Systems
+
+⚠️ Choose the appropriate database system based on your worker's requirements and complexity.
+
+### Cloudflare D1 (SQLite)
+
+For basic usage with simple data structures and moderate traffic, use [`Cloudflare D1`](https://developers.cloudflare.com/d1/). It's ideal for:
+
+- Simple CRUD operations
+- Local data storage
+- Low to moderate traffic
+- Basic relational data
+
+Example integration test with `D1`:
+
+```typescript
+import { SELF, env } from 'cloudflare:test';
+import { describe, it, expect } from 'vitest';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/d1'
+import { users } from '../schema'
+
+it('should insert and retrieve user data from D1', async () => {
+  const testUser = { name: 'John Doe', email: 'john@example.com', password: '123456' };
+
+  // Insert test user through the /register API
+  const response = await SELF.fetch('http://localhost/register', {
+    method: 'POST',
+    body: JSON.stringify(testUser)
+  });
+
+  // Query the registered user through the test database
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, 1));
+  
+  expect(result[0]).toEqual(testUser);
+});
+```
+
+### Cloudflare Hyperdrive (PostgreSQL)
+
+TBD
