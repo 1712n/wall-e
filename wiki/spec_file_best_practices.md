@@ -182,10 +182,14 @@ import { SELF, env } from 'cloudflare:test';
 import { describe, it, expect } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1'
-import { users } from '../schema'
+import { users } from '../src/schema'
 
 it('should insert and retrieve user data from D1', async () => {
-  const testUser = { name: 'John Doe', email: 'john@example.com', password: '123456' };
+  const testUser = {
+    name: 'John Doe',
+    email: 'john@example.com',
+    password: '123456'
+  };
 
   // Insert test user through the /register API
   const response = await SELF.fetch('http://localhost/register', {
@@ -194,6 +198,7 @@ it('should insert and retrieve user data from D1', async () => {
   });
 
   // Query the registered user through the test database
+  const db = drizzle(env.DB);
   const result = await db
     .select({
       name: users.name,
@@ -211,4 +216,56 @@ it('should insert and retrieve user data from D1', async () => {
 
 ### Cloudflare Hyperdrive (PostgreSQL)
 
-TBD
+For complex applications requiring advanced database features, use [`Hyperdrive`](https://developers.cloudflare.com/hyperdrive/) to connect to PostgreSQL. It's suitable for:
+
+- Complex queries and joins
+- High traffic applications
+- Advanced database features (JSON, Full-text search)
+- Large datasets
+- Time series databases (TimescaleDB)
+
+Example integration test with `Hyperdrive`:
+
+```typescript
+import { SELF } from 'cloudflare:test';
+import { it, expect, vi } from 'vitest';
+import { users } from '../src/schema';
+import { eq } from 'drizzle-orm';
+
+vi.mock('pg', () => ({
+	Client: class {
+		connect = vi.fn();
+		query = vi.fn();
+		end = vi.fn();
+	},
+}));
+
+const values = vi.fn();
+const insert = vi.fn(() => ({
+  values,
+}));
+
+vi.mock('drizzle-orm/node-postgres', async () => ({
+	drizzle: vi.fn(() => ({
+		insert,
+	})),
+}));
+
+it('should insert and retrieve user data from Postgres', async () => {
+  const testUser = {
+    name: 'John Doe',
+    email: 'john@example.com',
+    password: '123456'
+  };
+
+  // Insert test user through the /register API
+  const response = await SELF.fetch('http://localhost/register', {
+    method: 'POST',
+    body: JSON.stringify(testUser)
+  });
+
+  // Check that the insert query was called 
+  expect(insert).toHaveBeenCalledWith(users);
+  expect(values).toHaveBeenCalledWith(testUser);
+});
+```
