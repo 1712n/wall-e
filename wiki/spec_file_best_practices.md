@@ -179,38 +179,45 @@ Example integration test with `D1`:
 
 ```typescript
 import { SELF, env } from 'cloudflare:test';
-import { describe, it, expect } from 'vitest';
+import { it, expect } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/d1'
-import { users } from '../src/schema'
+import { drizzle } from 'drizzle-orm/d1';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
+const users = sqliteTable('users', {
+	id: integer('id').primaryKey(),
+	name: text('name').notNull(),
+	email: text('email').unique().notNull(),
+});
 
 it('should insert and retrieve user data from D1', async () => {
-  const testUser = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    password: '123456'
-  };
+	const testUser = {
+		name: 'John Doe',
+		email: 'john@example.com',
+	};
 
-  // Insert test user through the /register API
-  const response = await SELF.fetch('http://localhost/register', {
-    method: 'POST',
-    body: JSON.stringify(testUser)
-  });
+	// Insert test user through the /register API
+	const response = await SELF.fetch('http://localhost/register', {
+		method: 'POST',
+		body: JSON.stringify(testUser),
+	});
 
-  // Query the registered user through the test database
-  const db = drizzle(env.DB);
-  const result = await db
-    .select({
-      name: users.name,
-      email: user.email,
-    })
-    .from(users)
-    .where(eq(users.id, 1));
-  
-  expect(result[0]).toEqual({
-    name: testUser.name,
-    email: testUser.email
-  });
+	// Query the registered user through the test database
+	const db = drizzle(env.DB);
+	const result = await db
+		.select({
+			id: users.id,
+			name: users.name,
+			email: users.email,
+		})
+		.from(users)
+		.where(eq(users.email, testUser.email));
+
+	expect(result[0]).toEqual({
+		id: expect.any(Number),
+		name: testUser.name,
+		email: testUser.email,
+	});
 });
 ```
 
