@@ -161,3 +161,141 @@
     });
   });
   ```
+
+## Database Systems
+
+⚠️ Choose the appropriate database system based on your worker's requirements and complexity.
+
+### Cloudflare D1 (SQLite)
+
+For basic usage with simple data structures and moderate traffic, use [`Cloudflare D1`](https://developers.cloudflare.com/d1/). It's ideal for:
+
+- Simple CRUD operations
+- Local data storage
+- Low to moderate traffic
+- Basic relational data
+
+Example integration test with `D1`:
+
+```typescript
+import { SELF, env } from 'cloudflare:test';
+import { it, expect } from 'vitest';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/d1';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
+const users = sqliteTable('users', {
+	id: integer('id').primaryKey(),
+	name: text('name').notNull(),
+	email: text('email').unique().notNull(),
+});
+
+it('should insert and retrieve user data from D1', async () => {
+	const testUser = {
+		name: 'John Doe',
+		email: 'john@example.com',
+	};
+
+	// Insert test user through the /register API
+	const response = await SELF.fetch('http://localhost/register', {
+		method: 'POST',
+		body: JSON.stringify(testUser),
+	});
+
+	// Query the registered user through the test database
+	const db = drizzle(env.DB);
+	const result = await db
+		.select({
+			id: users.id,
+			name: users.name,
+			email: users.email,
+		})
+		.from(users)
+		.where(eq(users.email, testUser.email));
+
+	expect(result[0]).toEqual({
+		id: expect.any(Number),
+		name: testUser.name,
+		email: testUser.email,
+	});
+});
+```
+
+### Cloudflare Hyperdrive (PostgreSQL)
+
+For complex applications requiring advanced database features, use [`Hyperdrive`](https://developers.cloudflare.com/hyperdrive/) to connect to PostgreSQL. It's suitable for:
+
+- Complex queries and joins
+- High traffic applications
+- Advanced database features (JSON, Full-text search)
+- Large datasets
+- Time series databases (TimescaleDB)
+
+Example integration test with `Hyperdrive`:
+
+```typescript
+import { SELF, env } from 'cloudflare:test';
+import { it, expect } from 'vitest';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { integer, pgTable, text } from 'drizzle-orm/pg-core';
+import { Client } from 'pg';
+
+vi.mock('pg', () => ({
+	Client: class {
+		connect = vi.fn();
+		query = vi.fn();
+		end = vi.fn();
+	},
+}));
+
+const values = vi.fn();
+const insert = vi.fn(() => ({
+  values,
+}));
+
+vi.mock('drizzle-orm/node-postgres', async () => ({
+	drizzle: vi.fn(() => ({
+		insert,
+	})),
+}));
+
+const users = pgTable('users', {
+	id: integer('id').primaryKey(),
+	name: text('name').notNull(),
+	email: text('email').unique().notNull(),
+});
+
+it('should insert and retrieve user data from D1', async () => {
+	const testUser = {
+		name: 'John Doe',
+		email: 'john@example.com',
+	};
+
+	// Insert test user through the /register API
+	const response = await SELF.fetch('http://localhost/register', {
+		method: 'POST',
+		body: JSON.stringify(testUser),
+	});
+
+	// Query the registered user through the test database
+	const client = new Client({
+		connectionString: env.DB.connectionString,
+	});
+	const db = drizzle(client);
+	const result = await db
+		.select({
+			id: users.id,
+			name: users.name,
+			email: users.email,
+		})
+		.from(users)
+		.where(eq(users.email, testUser.email));
+
+	expect(result[0]).toEqual({
+		id: expect.any(Number),
+		name: testUser.name,
+		email: testUser.email,
+	});
+});
+```
