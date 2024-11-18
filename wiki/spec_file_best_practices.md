@@ -234,10 +234,12 @@ For complex applications requiring advanced database features, use [`Hyperdrive`
 Example integration test with `Hyperdrive`:
 
 ```typescript
-import { SELF } from 'cloudflare:test';
-import { it, expect, vi } from 'vitest';
-import { users } from '../src/schema';
+import { SELF, env } from 'cloudflare:test';
+import { it, expect } from 'vitest';
 import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { integer, pgTable, text } from 'drizzle-orm/pg-core';
+import { Client } from 'pg';
 
 vi.mock('pg', () => ({
 	Client: class {
@@ -258,21 +260,42 @@ vi.mock('drizzle-orm/node-postgres', async () => ({
 	})),
 }));
 
-it('should insert and retrieve user data from Postgres', async () => {
-  const testUser = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    password: '123456'
-  };
+const users = pgTable('users', {
+	id: integer('id').primaryKey(),
+	name: text('name').notNull(),
+	email: text('email').unique().notNull(),
+});
 
-  // Insert test user through the /register API
-  const response = await SELF.fetch('http://localhost/register', {
-    method: 'POST',
-    body: JSON.stringify(testUser)
-  });
+it('should insert and retrieve user data from D1', async () => {
+	const testUser = {
+		name: 'John Doe',
+		email: 'john@example.com',
+	};
 
-  // Check that the insert query was called 
-  expect(insert).toHaveBeenCalledWith(users);
-  expect(values).toHaveBeenCalledWith(testUser);
+	// Insert test user through the /register API
+	const response = await SELF.fetch('http://localhost/register', {
+		method: 'POST',
+		body: JSON.stringify(testUser),
+	});
+
+	// Query the registered user through the test database
+	const client = new Client({
+		connectionString: env.DB.connectionString,
+	});
+	const db = drizzle(client);
+	const result = await db
+		.select({
+			id: users.id,
+			name: users.name,
+			email: users.email,
+		})
+		.from(users)
+		.where(eq(users.email, testUser.email));
+
+	expect(result[0]).toEqual({
+		id: expect.any(Number),
+		name: testUser.name,
+		email: testUser.email,
+	});
 });
 ```
