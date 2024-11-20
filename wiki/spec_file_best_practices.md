@@ -185,39 +185,39 @@ import { drizzle } from 'drizzle-orm/d1';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 const users = sqliteTable('users', {
-	id: integer('id').primaryKey(),
-	name: text('name').notNull(),
-	email: text('email').unique().notNull(),
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').unique().notNull(),
 });
 
 it('should insert and retrieve user data from D1', async () => {
-	const testUser = {
-		name: 'John Doe',
-		email: 'john@example.com',
-	};
+  const testUser = {
+    name: 'John Doe',
+    email: 'john@example.com',
+  };
 
-	// Insert test user through the /register API
-	const response = await SELF.fetch('http://localhost/register', {
-		method: 'POST',
-		body: JSON.stringify(testUser),
-	});
+  // Insert test user through the /register API
+  const response = await SELF.fetch('http://localhost/register', {
+    method: 'POST',
+    body: JSON.stringify(testUser),
+  });
 
-	// Query the registered user through the test database
-	const db = drizzle(env.DB);
-	const result = await db
-		.select({
-			id: users.id,
-			name: users.name,
-			email: users.email,
-		})
-		.from(users)
-		.where(eq(users.email, testUser.email));
+  // Query the registered user through the test database
+  const db = drizzle(env.DB);
+  const result = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+    })
+    .from(users)
+    .where(eq(users.email, testUser.email));
 
-	expect(result[0]).toEqual({
-		id: expect.any(Number),
-		name: testUser.name,
-		email: testUser.email,
-	});
+  expect(result[0]).toEqual({
+    id: expect.any(Number),
+    name: testUser.name,
+    email: testUser.email,
+  });
 });
 ```
 
@@ -234,19 +234,17 @@ For complex applications requiring advanced database features, use [`Hyperdrive`
 Example integration test with `Hyperdrive`:
 
 ```typescript
-import { SELF, env } from 'cloudflare:test';
-import { it, expect } from 'vitest';
-import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { integer, pgTable, text } from 'drizzle-orm/pg-core';
-import { Client } from 'pg';
+import { SELF } from 'cloudflare:test';
+import { it, expect, vi } from 'vitest';
+
+import { users } from '../src/schemas';
 
 vi.mock('pg', () => ({
-	Client: class {
-		connect = vi.fn();
-		query = vi.fn();
-		end = vi.fn();
-	},
+  Client: class {
+    connect = vi.fn();
+    query = vi.fn();
+    end = vi.fn();
+  },
 }));
 
 const values = vi.fn();
@@ -255,47 +253,25 @@ const insert = vi.fn(() => ({
 }));
 
 vi.mock('drizzle-orm/node-postgres', async () => ({
-	drizzle: vi.fn(() => ({
-		insert,
-	})),
+  drizzle: vi.fn(() => ({
+    insert,
+  })),
 }));
 
-const users = pgTable('users', {
-	id: integer('id').primaryKey(),
-	name: text('name').notNull(),
-	email: text('email').unique().notNull(),
-});
+it('should insert and retrieve user data from Hyperdrive', async () => {
+  const testUser = {
+    name: 'John Doe',
+    email: 'john@example.com',
+  };
 
-it('should insert and retrieve user data from D1', async () => {
-	const testUser = {
-		name: 'John Doe',
-		email: 'john@example.com',
-	};
+  // Insert test user through the /register API
+  const response = await SELF.fetch('http://localhost/register', {
+    method: 'POST',
+    body: JSON.stringify(testUser),
+  });
 
-	// Insert test user through the /register API
-	const response = await SELF.fetch('http://localhost/register', {
-		method: 'POST',
-		body: JSON.stringify(testUser),
-	});
-
-	// Query the registered user through the test database
-	const client = new Client({
-		connectionString: env.DB.connectionString,
-	});
-	const db = drizzle(client);
-	const result = await db
-		.select({
-			id: users.id,
-			name: users.name,
-			email: users.email,
-		})
-		.from(users)
-		.where(eq(users.email, testUser.email));
-
-	expect(result[0]).toEqual({
-		id: expect.any(Number),
-		name: testUser.name,
-		email: testUser.email,
-	});
+  // Check that the insert query was called 
+  expect(insert).toHaveBeenCalledWith(users);
+  expect(values).toHaveBeenCalledWith(testUser);
 });
 ```
