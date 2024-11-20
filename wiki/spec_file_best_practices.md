@@ -4,7 +4,7 @@
 
 ## Functional requirements section
 
-⚠️ This section might contain technical terms, but still makes it easy for someone with limited technical knowledge to grasp the main ideas. It is placed at the beginning of the Spec File within a comment block.
+⚠️ This section might contain technical terms, but still makes it easy for someone with limited technical knowledge to grasp the main ideas. It is placed at the beginning of the Spec File within a JSDoc-style comment block.
 
 ### ✅️ Do
 
