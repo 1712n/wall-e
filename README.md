@@ -54,9 +54,9 @@ For more control, use optional parameters:
 #### Available Models
 
 - `claude-3-5-sonnet-20241022` (default)
-- `gpt-4o-2024-08-06`
+- `gpt-4o-2024-11-20`
 - `gemini-1.5-pro`
-- `gemini-1.5-pro-exp-0827`
+- `gemini-exp-1121`
 
 ### Feedback Feature
 The Feedback Feature allows you to improve existing code or add extra requirements. 
