@@ -37,7 +37,7 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		default: ModelName.Gemini_1_5_Pro,
 		models: [
 			ModelName.Gemini_1_5_Pro,
-			ModelName.Gemini_1_5_Pro_Exp_0827
+			ModelName.Gemini_Exp
 		],
 	},
 	[ModelProvider.Unknown]: {},
