@@ -87,5 +87,17 @@ export function extractXMLContent(text: string): { [key: string]: string } {
 }
 
 export function extractCodeBlockContent(text: string): string {
-	return text.replace(/^```[\w]*\n([\s\S]*?)\n```$/gm, '$1');
+	// Match and extract code block content if both opening and closing ``` are present
+	const completeCodeBlockPattern = /^```[\w]*\n([\s\S]*?)\n```$/gm;
+	if (completeCodeBlockPattern.test(text)) {
+		return text.replace(completeCodeBlockPattern, '$1');
+	}
+
+	// Remove any standalone ``` at the start or end
+	const incompleteOpeningPattern = /^```[\w]*\n?/m;
+	const incompleteClosingPattern = /\n?```$/m;
+
+	return text
+		.replace(incompleteOpeningPattern, '')
+		.replace(incompleteClosingPattern, '');
 }
