@@ -1,4 +1,4 @@
-import { ModelProvider } from './providers';
+import { ModelName, ModelProvider } from './providers';
 
 type DebugInfo = {
 	[key: string]: any;
@@ -30,6 +30,7 @@ export function getElapsedSeconds(start: Date) {
 type CommandArgs = {
 	basePath: string;
 	provider: ModelProvider;
+	model?: ModelName;
 	temperature: number;
 	fallback: boolean;
 };
@@ -55,6 +56,9 @@ export function parseCommandArgs(args: string[]) {
 				break;
 			case 'provider':
 				result.provider = value as ModelProvider;
+				break;
+			case 'model':
+				result.model = value as ModelName
 				break;
 			case 'temp':
 			case 'temperature':
