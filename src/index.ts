@@ -156,6 +156,7 @@ export default {
 			try {
 				if (!isValidProvider(provider)) {
 					const allowedProviders = Object.values(ModelProvider)
+						.filter((p) => p !== ModelProvider.Unknown)
 						.map((m) => `- \`${m}\``)
 						.join('\n');
 					const body = `The provider '${provider}' is not valid. Please use one of the following options:\n\n${allowedProviders}`;
