@@ -79,6 +79,10 @@ export function isValidModel(model: ModelName): boolean {
 	return getProviderForModel(model) !== ModelProvider.Unknown;
 }
 
+export function isValidModelForProvider(provider: ModelProvider, model: ModelName): boolean {
+	return MODEL_PROVIDERS[provider].models?.includes(model) ?? false;
+}
+
 export function getDefaultModelForProvider(provider: ModelProvider): ModelName {
 	return MODEL_PROVIDERS[provider].default!;
 }

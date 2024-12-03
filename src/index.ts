@@ -7,11 +7,19 @@ import {
 	SendPromptError,
 	buildPromptForWorkerImprovement,
 } from './prompt';
-import { ModelName, ModelProvider, getDefaultModelForProvider, isValidProvider } from './providers';
+import {
+	MODEL_PROVIDERS,
+	ModelName,
+	ModelProvider,
+	getDefaultModelForProvider,
+	isValidModel,
+	isValidModelForProvider,
+	isValidProvider,
+} from './providers';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
 import * as prettier from 'prettier/standalone';
-import * as prettierPluginEstree from "prettier/plugins/estree";
-import * as parserTypeScript from "prettier/parser-typescript";
+import * as prettierPluginEstree from 'prettier/plugins/estree';
+import * as parserTypeScript from 'prettier/parser-typescript';
 
 type GitHubJob = {
 	command: UserCommand;
@@ -67,7 +75,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 	const extractedCode = extractCodeBlockContent(generatedCode);
 	const formattedCode = await prettier.format(extractedCode, {
 		parser: 'typescript',
-		plugins: [prettierPluginEstree, parserTypeScript]
+		plugins: [prettierPluginEstree, parserTypeScript],
 	});
 	const srcFilePath = ensurePath(basePath, 'src/index.ts');
 	const file = { path: srcFilePath, content: formattedCode };
@@ -148,7 +156,7 @@ export default {
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
 			const { command, context, installationId } = message.body;
-			const { basePath, provider, temperature, fallback } = parseCommandArgs(command.args || []);
+			const { basePath, provider, temperature, fallback, ...args } = parseCommandArgs(command.args || []);
 			const github = initializeGitHub(env, installationId);
 
 			let workingCommentId: number | undefined = undefined;
@@ -156,6 +164,7 @@ export default {
 			try {
 				if (!isValidProvider(provider)) {
 					const allowedProviders = Object.values(ModelProvider)
+						.filter((p) => p !== ModelProvider.Unknown)
 						.map((m) => `- \`${m}\``)
 						.join('\n');
 					const body = `The provider '${provider}' is not valid. Please use one of the following options:\n\n${allowedProviders}`;
@@ -163,9 +172,24 @@ export default {
 					return;
 				}
 
-				workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
+				if (args.model && !isValidModel(args.model)) {
+					const allowedModels = MODEL_PROVIDERS[provider].models!
+						.map((m) => `- \`${m}\``)
+						.join('\n');
+					const body = `The model '${args.model}' is not valid. Please use one of the following options:\n\n${allowedModels}`;
+					await github.postComment(context, body);
+					return;
+				}
 
-				const model = getDefaultModelForProvider(provider);
+				const model = args.model ?? getDefaultModelForProvider(provider);
+
+				if (!isValidModelForProvider(provider, model)) {
+					const body = `The model '${model}' is not valid for the provider '${provider}'. Please use a valid model for the provider.`;
+					await github.postComment(context, body);
+					return;
+				}
+
+				workingCommentId = await github.postComment(context, 'Working on it... ⚙️');
 
 				switch (command.name) {
 					case CommandName.Generate:
@@ -414,7 +438,8 @@ export default {
 
 					case CommandName.Help:
 						{
-							const body = 'Available commands:\n\n- `/wall-e generate` - Generate code based on the spec file\n\n- `/wall-e improve` - Improve previously generated `index.ts` file';
+							const body =
+								'Available commands:\n\n- `/wall-e generate` - Generate code based on the spec file\n\n- `/wall-e improve` - Improve previously generated `index.ts` file';
 							await github.postComment(context, body);
 						}
 						break;
