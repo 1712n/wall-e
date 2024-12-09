@@ -16,6 +16,7 @@
 - Cost-Efficient Models: [Cloudflare Workers AI](#cloudflare-workers-ai)
   - Good for simpler use cases
   - Includes [text embedding models](#cloudflare-workers-ai-text-embeddings) for vector similarity search
+- [Batch APIs from OpenAI](#openai-batch-api), Google, and Anthropic are perfect for non-latency sensitive use cases.
 
 ### Requests Optimization
 - [Cloudflare AI Gateway](#cloudflare-ai-gateway) is a proxy between Cloudflare Workers and various AI models and providers.
@@ -111,8 +112,8 @@ export interface Env {
 
 #### Cloudflare Workers AI Changelog: Add AI native binding
 
--   Added new AI native binding, you can now run models with `const resp = await env.AI.run(modelName, inputs)`
--   Deprecated `@cloudflare/ai` npm package. While existing solutions using the @cloudflare/ai package will continue to work, no new Workers AI features will be supported. Moving to native AI bindings is highly recommended
+- Added new AI native binding, you can now run models with `const resp = await env.AI.run(modelName, inputs)`
+- Deprecated `@cloudflare/ai` npm package. While existing solutions using the @cloudflare/ai package will continue to work, no new Workers AI features will be supported. Moving to native AI bindings is highly recommended
 
 #### Cloudflare Workers AI Methods
 
@@ -192,70 +193,34 @@ Here’s an input example of a scoped prompt using system and user roles:
 ```
 Note that different LLMs are trained with different templates for different use cases. While Workers AI tries its best to abstract the specifics of each LLM template from the developer through a unified API, you should always refer to the model documentation for details. For example, instruct models like Codellama are fine-tuned to respond to a user-provided instruction, while chat models expect fragments of dialogs as input.
 
-##### Cloudflare Workers AI Big Context Use Cases - Mistral-7B-Instruct-v0.2 Large Language Model (LLM)
+##### Cloudflare Workers AI Low-Latency Use Cases - llama-3.1-8b-instruct-fast
 
-```
-model:
-  id: "b97d7069-48d9-461c-80dd-445d20a632eb"
-  source: 2
-  name: "@hf/mistral/mistral-7b-instruct-v0.2"
-  description: "The Mistral-7B-Instruct-v0.2 Large Language Model (LLM) is an instruct fine-tuned version of the Mistral-7B-v0.2. Mistral-7B-v0.2 has the following changes compared to Mistral-7B-v0.1: 32k context window (vs 8k context in v0.1), rope-theta = 1e6, and no Sliding-Window Attention."
-  task:
-    id: "c329a1f9-323d-4e91-b2aa-582dd4188d34"
-    name: "Text Generation"
-    description: "Family of generative text models, such as large language models (LLM), that can be adapted for a variety of natural language tasks."
-  tags: []
-  properties:
-    - property_id: "beta"
-      value: "true"
-    - property_id: "info"
-      value: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2"
-    - property_id: "lora"
-      value: "true"
-    - property_id: "max_batch_prefill_tokens"
-      value: "8192"
-    - property_id: "max_input_length"
-      value: "3072"
-    - property_id: "max_total_tokens"
-      value: "4096"
-task_type: "text-generation"
-model_display_name: "mistral-7b-instruct-v0.2"
-layout: "model"
-weight: 0
-title: "mistral-7b-instruct-v0.2"
-json_schema:
-  input: "{\n  \"type\": \"object\",\n  \"oneOf\": [\n    {\n      \"properties\": {\n        \"prompt\": {\n          \"type\": \"string\",\n          \"maxLength\": 4096\n        },\n        \"raw\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"stream\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"max_tokens\": {\n          \"type\": \"integer\",\n          \"default\": 256\n        }\n      },\n      \"required\": [\n        \"prompt\"\n      ]\n    },\n    {\n      \"properties\": {\n        \"messages\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"role\": {\n                \"type\": \"string\"\n              },\n              \"content\": {\n                \"type\": \"string\",\n                \"maxLength\": 4096\n              }\n            },\n            \"required\": [\n              \"role\",\n              \"content\"\n            ]\n          }\n        },\n        \"stream\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"max_tokens\": {\n          \"type\": \"integer\",\n          \"default\": 256\n        }\n      },\n      \"required\": [\n        \"messages\"\n      ]\n    }\n  ]\n}"
-  output: "{\n  \"oneOf\": [\n    {\n      \"type\": \"object\",\n      \"contentType\": \"application/json\",\n      \"properties\": {\n        \"response\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    {\n      \"type\": \"string\",\n      \"contentType\": \"text/event-stream\",\n      \"format\": \"binary\"\n    }\n  ]\n}"
-```
+```ts
+export interface Env {
+  AI: Ai;
+}
 
-##### Cloudflare Workers AI Superior Reasoning Use Cases - Meta Llama 3 LLM
+export default {
+  async fetch(request, env): Promise<Response> {
 
-```
-model:
-  id: "e11d8f45-7b08-499a-9eeb-71d4d3c8cbf9"
-  source: 1
-  name: "@cf/meta/llama-3-8b-instruct"
-  description: "Generation over generation, Meta Llama 3 demonstrates state-of-the-art performance on a wide range of industry benchmarks and offers new capabilities, including improved reasoning."
-  task:
-    id: "c329a1f9-323d-4e91-b2aa-582dd4188d34"
-    name: "Text Generation"
-    description: "Family of generative text models, such as large language models (LLM), that can be adapted for a variety of natural language tasks."
-  tags: []
-  properties:
-    - property_id: "beta"
-      value: "true"
-    - property_id: "info"
-      value: "https://llama.meta.com"
-    - property_id: "terms"
-      value: "https://llama.meta.com/llama3/license/#"
-task_type: "text-generation"
-model_display_name: "llama-3-8b-instruct"
-layout: "model"
-weight: 0
-title: "llama-3-8b-instruct"
-json_schema:
-  input: "{\n  \"type\": \"object\",\n  \"oneOf\": [\n    {\n      \"properties\": {\n        \"prompt\": {\n          \"type\": \"string\",\n          \"maxLength\": 4096\n        },\n        \"raw\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"stream\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"max_tokens\": {\n          \"type\": \"integer\",\n          \"default\": 256\n        }\n      },\n      \"required\": [\n        \"prompt\"\n      ]\n    },\n    {\n      \"properties\": {\n        \"messages\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"object\",\n            \"properties\": {\n              \"role\": {\n                \"type\": \"string\"\n              },\n              \"content\": {\n                \"type\": \"string\",\n                \"maxLength\": 4096\n              }\n            },\n            \"required\": [\n              \"role\",\n              \"content\"\n            ]\n          }\n        },\n        \"stream\": {\n          \"type\": \"boolean\",\n          \"default\": false\n        },\n        \"max_tokens\": {\n          \"type\": \"integer\",\n          \"default\": 256\n        }\n      },\n      \"required\": [\n        \"messages\"\n      ]\n    }\n  ]\n}"
-  output: "{\n  \"oneOf\": [\n    {\n      \"type\": \"object\",\n      \"contentType\": \"application/json\",\n      \"properties\": {\n        \"response\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    {\n      \"type\": \"string\",\n      \"contentType\": \"text/event-stream\",\n      \"format\": \"binary\"\n    }\n  ]\n}"
+    const messages = [
+      { role: "system", content: "You are a friendly assistant" },
+      {
+        role: "user",
+        content: "What is the origin of the phrase Hello, World",
+      },
+    ];
+
+    const stream = await env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", {
+      messages,
+      stream: true,
+    });
+
+    return new Response(stream, {
+      headers: { "content-type": "text/event-stream" },
+    });
+  },
+} satisfies ExportedHandler<Env>;
 ```
 
 ### Cloudflare Hyperdrive
@@ -302,47 +267,12 @@ export default {
 ### Cloudflare AI Gateway
 Cloudflare's AI Gateway is a proxy between your Cloudflare Worker and Cloudflare Workers' AI models, as well as other popular providers such as Anthropic and OpenAI. It offers built-in caching, logging, an analytics dashboard, rate limiting, request retries, and model fallback.
 
-#### Cloudflare AI Gateway - Caching
-##### Cloudflare AI Gateway Cache TTL (cf-cache-ttl)
-Set the caching duration in milliseconds. Example:
-```bash
-curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/completions \
-  --header 'Authorization: Bearer $TOKEN' \
-  --header 'Content-Type: application/json' \
-  --header 'cf-cache-ttl: 3600000' \
-  --data '{
-     "model": "gpt-3.5-turbo",
-     "messages": [
-       {
-         "role": "user",
-         "content": "how to build a wooden spoon in 3 short steps? give as short as answer as possible"
-       }
-     ]
-   }'
-```
-##### Cloudflare AI Gateway - Custom Cache Key (cf-aig-cache-key)
-Custom cache keys let you override the default cache key in order to precisely set the cacheability setting for any resource. When you use the cf-aig-cache-key header for the first time, you will receive a response from the provider. Subsequent requests with the same header will return the cached response. If the cf-cache-ttl header is used, responses will be cached according to the specified Cache Time To Live. Otherwise, responses will be cached according to the cache settings in the dashboard. If caching is not enabled for the gateway, responses will be cached for 5 minutes by default.
-```bash
-curl https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai/chat/completions \
-  --header 'Authorization: Bearer {openai_token}' \
-  --header 'Content-Type: application/json' \
-  --header 'cf-aig-cache-key: responseA' \
-  --data ' {
-    "model": "gpt-3.5-turbo",
-    "messages": [
-      {
-        "role": "user",
-        "content": "how to build a wooden spoon in 3 short steps? give as short as answer as possible"
-      }
-    ]
-  }
-'
-```
 ##### Cloudflare AI Gateway - Caching Workers AI
 To use AI Gateway's caching within a Worker, include the gateway configuration as an object in the Workers AI request options.
+
 ```ts
 const response = await env.AI.run(
-      "@cf/meta/llama-3-8b-instruct",
+      "@cf/meta/llama-3.1-8b-instruct-fast",
       {
         prompt: "Why should you use Cloudflare for your AI inference?"
       },
@@ -354,103 +284,6 @@ const response = await env.AI.run(
         }
       }
     );
-```
-
-### Cloudflare Workers Cache API
-Cloudflare Workers Cache API is a service that allows Workers to programmatically cache both internal and external fetch requests, including `POST` requests that can't be cached automatically by Cloudflare network.
-The Cache API can be thought of as an ephemeral key-value store, whereby the `Request` object (or more specifically, the request URL) is the key, and the `Response` is the value.
-
-There are two types of cache namespaces available to the Cloudflare Cache:
-- **`caches.default`** – You can access the default cache (the same cache shared with `fetch` requests) by accessing `caches.default`. This is useful when needing to override content that is already cached, after receiving the response.
-- **`caches.open()`** – You can access a namespaced cache (separate from the cache shared with `fetch` requests) using `let cache = await caches.open(CACHE_NAME)`. Note that caches.open is an async function, unlike `caches.default`.
-
-When to use the Cache API:
-- When you want to programmatically save and/or delete responses from a cache. For example, say an origin is responding with a `Cache-Control: max-age:0` header and cannot be changed. Instead, you can clone the `Response`, adjust the header to the `max-age=3600` value, and then use the Cache API to save the modified `Response` for an hour.
-- When you want to programmatically access a Response from a cache without relying on a `fetch` request. For example, you can check to see if you have already cached a `Response` for the `https://example.com/slow-response` endpoint. If so, you can avoid the slow request.
-#### Using the Cache API
-```ts
-interface Env {}
-export default {
-  async fetch(request, env, ctx): Promise<Response> {
-    const cacheUrl = new URL(request.url);
-
-    // Construct the cache key from the cache URL
-    const cacheKey = new Request(cacheUrl.toString(), request);
-    const cache = caches.default;
-
-    // Check whether the value is already available in the cache
-    // if not, you will need to fetch it from origin, and store it in the cache
-    let response = await cache.match(cacheKey);
-
-    if (!response) {
-      console.log(
-        `Response for request url: ${request.url} not present in cache. Fetching and caching request.`
-      );
-      // If not in cache, get it from origin
-      response = await fetch(request);
-
-      // Must use Response constructor to inherit all of response's fields
-      response = new Response(response.body, response);
-
-      // Cache API respects Cache-Control headers. Setting s-max-age to 10
-      // will limit the response to be in cache for 10 seconds max
-
-      // Any changes made to the response here will be reflected in the cached value
-      response.headers.append("Cache-Control", "s-maxage=10");
-
-      ctx.waitUntil(cache.put(cacheKey, response.clone()));
-    } else {
-      console.log(`Cache hit for: ${request.url}.`);
-    }
-    return response;
-  },
-} satisfies ExportedHandler<Env>;
-```
-#### Cache POST requests
-```ts
-interface Env {}
-export default {
-  async fetch(request, env, ctx): Promise<Response> {
-    async function sha256(message) {
-      // encode as UTF-8
-      const msgBuffer = await new TextEncoder().encode(message);
-      // hash the message
-      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-      // convert bytes to hex string
-      return [...new Uint8Array(hashBuffer)]
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-    }
-    try {
-      if (request.method.toUpperCase() === "POST") {
-        const body = await request.clone().text();
-        // Hash the request body to use it as a part of the cache key
-        const hash = await sha256(body);
-        const cacheUrl = new URL(request.url);
-        // Store the URL in cache by prepending the body's hash
-        cacheUrl.pathname = "/posts" + cacheUrl.pathname + hash;
-        // Convert to a GET to be able to cache
-        const cacheKey = new Request(cacheUrl.toString(), {
-          headers: request.headers,
-          method: "GET",
-        });
-
-        const cache = caches.default;
-        // Find the cache key in the cache
-        let response = await cache.match(cacheKey);
-        // Otherwise, fetch response to POST request from origin
-        if (!response) {
-          response = await fetch(request);
-          ctx.waitUntil(cache.put(cacheKey, response.clone()));
-        }
-        return response;
-      }
-      return fetch(request);
-    } catch (e) {
-      return new Response("Error thrown " + e.message);
-    }
-  },
-} satisfies ExportedHandler<Env>;
 ```
 
 ### Cloudflare Browser Rendering
@@ -473,6 +306,117 @@ export default {
     return Response.json(metrics);
   },
 } satisfies ExportedHandler<Env>;
+```
+
+## OpenAI Batch API
+
+Use OpenAI's Batch API to send asynchronous groups of requests with 50% lower costs, a separate pool of significantly higher rate limits, and up to 24 hours of turnaround time. The Batch API can currently be used to execute queries against gpt-4o and gpt-4o-mini models.
+
+### OpenAI Batch API - Preparing Batch File
+Batches start with a .jsonl file where each line contains the details of an individual request to the API. For now, the available endpoints are /v1/chat/completions (Chat Completions API) and /v1/embeddings (Embeddings API). For a given input file, the parameters in each line's body field are the same as the parameters for the underlying endpoint. Each request must include a unique custom_id value, which you can use to reference results after completion. Here's an example of an input file with 2 requests. Note that each input file can only include requests to a single model.
+
+```json
+{"custom_id": "request-1", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "gpt-4o", "messages": [{"role": "system", "content": "You are a helpful assistant."},{"role": "user", "content": "Hello world!"}],"max_tokens": 1000}}
+{"custom_id": "request-2", "method": "POST", "url": "/v1/chat/completions", "body": {"model": "gpt-4o", "messages": [{"role": "system", "content": "You are an unhelpful assistant."},{"role": "user", "content": "Hello world!"}],"max_tokens": 1000}}
+```
+
+### OpenAI Batch API - Uploading Batch Input File
+You must first upload your input file so that you can reference it correctly when kicking off batches. Upload your .jsonl file using the Files API.
+
+```ts
+import fs from "fs";
+import OpenAI from "openai";
+const openai = new OpenAI();
+async function main() {
+  const file = await openai.files.create({
+    file: fs.createReadStream("batchinput.jsonl"),
+    purpose: "batch",
+  })}
+```
+
+### OpenAI Batch API - Creating the Batch
+
+Once you've successfully uploaded your input file, you can use the input File object's ID to create a batch. In this case, let's assume the file ID is file-abc123. For now, the completion window can only be set to 24h. You can also provide custom metadata via an optional metadata parameter.
+
+```ts
+import OpenAI from "openai";
+const openai = new OpenAI();
+async function main() {
+  const batch = await openai.batches.create({
+    input_file_id: "file-abc123",
+    endpoint: "/v1/chat/completions",
+    completion_window: "24h"
+  })}
+```
+
+This request will return a Batch object with metadata about your batch:
+
+```json
+{
+  "id": "batch_abc123",
+  "object": "batch",
+  "endpoint": "/v1/chat/completions",
+  "errors": null,
+  "input_file_id": "file-abc123",
+  "completion_window": "24h",
+  "status": "validating",
+  "output_file_id": null,
+  "error_file_id": null,
+  "created_at": 1714508499,
+  "in_progress_at": null,
+  "expires_at": 1714536634,
+  "completed_at": null,
+  "failed_at": null,
+  "expired_at": null,
+  "request_counts": {
+    "total": 0,
+    "completed": 0,
+    "failed": 0
+  },
+  "metadata": null
+}
+```
+
+### OpenAI Batch API - Checking the Status of a Batch
+
+You can check the status of a batch at any time, which will also return a Batch object.
+
+```ts
+import OpenAI from "openai";
+const openai = new OpenAI();
+async function main() {const batch = await openai.batches.retrieve("batch_abc123")}
+```
+
+The status of a given Batch object can be any of the following:
+
+Status	Description
+validating	the input file is being validated before the batch can begin
+failed	the input file has failed the validation process
+in_progress	the input file was successfully validated and the batch is currently being run
+finalizing	the batch has completed and the results are being prepared
+completed	the batch has been completed and the results are ready
+expired	the batch was not able to be completed within the 24-hour time window
+cancelling	the batch is being cancelled (may take up to 10 minutes)
+cancelled	the batch was cancelled
+
+### OpenAI Batch API - Retrieving the Results
+
+Once the batch is complete, you can download the output by making a request against the Files API via the output_file_id field from the Batch object and writing it to a file on your machine, in this case batch_output.jsonl
+
+```ts
+import OpenAI from "openai";
+const openai = new OpenAI();
+async function main() {
+  const fileResponse = await openai.files.content("file-xyz123");
+  const fileContents = await fileResponse.text()
+}
+```
+
+The output .jsonl file will have one response line for every successful request line in the input file. Any failed requests in the batch will have their error information written to an error file that can be found via the batch's error_file_id. Note that the output line order may not match the input line order. Instead of relying on order to process your results, use the custom_id field which will be present in each line of your output file and allow you to map requests in your input to results in your output.
+
+```json
+{"id": "batch_req_123", "custom_id": "request-2", "response": {"status_code": 200, "request_id": "req_123", "body": {"id": "chatcmpl-123", "object": "chat.completion", "created": 1711652795, "model": "gpt-4o", "choices": [{"index": 0, "message": {"role": "assistant", "content": "Hello."}, "logprobs": null, "finish_reason": "stop"}], "usage": {"prompt_tokens": 22, "completion_tokens": 2, "total_tokens": 24}, "system_fingerprint": "fp_123"}}, "error": null}
+{"id": "batch_req_456", "custom_id": "request-1", "response": {"status_code": 200, "request_id": "req_789", "body": {"id": "chatcmpl-abc", "object": "chat.completion", "created": 1711652789, "model": "gpt-4o", "choices": [{"index": 0, "message": {"role": "assistant", "content": "Hello! How can I assist you today?"}, "logprobs": null, "finish_reason": "stop"}], "usage": {"prompt_tokens": 20, "completion_tokens": 9, "total_tokens": 29}, "system_fingerprint": "fp_3ba"}}, "error": null}
 ```
 
 ## Drizzle ORM
@@ -622,6 +566,7 @@ const table = pgTable('table', {
    embedding: vector('embedding', { dimensions: 3 })
 })
 ```
+
 #### Vector Similarity Search
 To perform vector similarity search, you can use gt and sql operators with cosineDistance function to calculate the similarity between the embedding column and the generated embedding:
 ```ts
