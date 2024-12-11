@@ -16,6 +16,7 @@ export enum ModelName {
 	GPT_4o = 'gpt-4o-2024-11-20',
 	Gemini_1_5_Pro = 'gemini-1.5-pro-002',
 	Gemini_Exp = 'gemini-exp-1206',
+	Gemini_Flash = 'gemini-2.0-flash-exp'
 }
 
 type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: ModelName[] }>;
@@ -37,7 +38,8 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		default: ModelName.Gemini_1_5_Pro,
 		models: [
 			ModelName.Gemini_1_5_Pro,
-			ModelName.Gemini_Exp
+			ModelName.Gemini_Exp,
+			ModelName.Gemini_Flash
 		],
 	},
 	[ModelProvider.Unknown]: {},
