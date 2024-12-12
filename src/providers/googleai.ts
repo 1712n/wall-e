@@ -10,7 +10,7 @@ interface GoogleAIStudioContent {
 interface GoogleAIStudioQuery {
 	contents: GoogleAIStudioContent[];
 	tools?: {
-		google_search_retrieval: {};
+		google_search: {};
 	}[];
 }
 
