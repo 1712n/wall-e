@@ -212,7 +212,7 @@ export default {
 							await sendPrompt(
 								env,
 								{
-									model: ModelName.Claude_3_5_Sonnet_20241022,
+									model: ModelName.Gemini_Flash,
 									prompts: analyzeSpecFilePrompts,
 									temperature: 0,
 								},
@@ -238,12 +238,12 @@ export default {
 								}
 							});
 
-							// Use the spec file and documentation file to get only the relevant documentation
+							// Generate relevant documentation file
 							const documentationPrompts = buildPromptForDocs(specFileContent);
 							const relevantDocumentation = await sendPrompt(
 								env,
 								{
-									model: ModelName.Claude_3_5_Sonnet_20241022,
+									model: ModelName.Gemini_Flash,
 									prompts: documentationPrompts,
 									temperature: 0,
 								},
@@ -354,7 +354,7 @@ export default {
 							const relevantDocumentation = await sendPrompt(
 								env,
 								{
-									model: ModelName.Claude_3_5_Sonnet_20241022,
+									model: ModelName.Gemini_Flash,
 									prompts: documentationPrompts,
 									temperature: 0,
 								},

@@ -35,7 +35,7 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		],
 	},
 	[ModelProvider.GoogleAi]: {
-		default: ModelName.Gemini_1_5_Pro,
+		default: ModelName.Gemini_Flash,
 		models: [
 			ModelName.Gemini_1_5_Pro,
 			ModelName.Gemini_Exp,
@@ -199,7 +199,7 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 		console.warn(`Events are not from ${ModelProvider.OpenAI}: ${error}`);
 	}
 
-	try {
+    try {
 		const firstEvent = events[0];
 		if (firstEvent.candidates && firstEvent.usageMetadata) {
 			return ModelProvider.GoogleAi;
