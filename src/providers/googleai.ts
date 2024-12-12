@@ -45,7 +45,7 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 			],
 			tools: [
 				{
-					google_search_retrieval: {},
+					google_search: {},
 				},
 			],
 		},
