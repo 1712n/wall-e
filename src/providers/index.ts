@@ -16,7 +16,7 @@ export enum ModelName {
 	GPT_4o = 'gpt-4o-2024-11-20',
 	Gemini_1_5_Pro = 'gemini-1.5-pro-002',
 	Gemini_Exp = 'gemini-exp-1206',
-	Gemini_Flash = 'gemini-2.0-flash-exp'
+	Gemini_Flash = 'gemini-2.0-flash-exp',
 }
 
 type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: ModelName[] }>;
@@ -199,7 +199,7 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 		console.warn(`Events are not from ${ModelProvider.OpenAI}: ${error}`);
 	}
 
-    try {
+	try {
 		const firstEvent = events[0];
 		if (firstEvent.candidates && firstEvent.usageMetadata) {
 			return ModelProvider.GoogleAi;

@@ -8,10 +8,10 @@ interface GoogleAIStudioContent {
 }
 
 interface GoogleAIStudioQuery {
-  contents: GoogleAIStudioContent[];
+	contents: GoogleAIStudioContent[];
 	tools?: {
-		google_search_retrieval: {}
-	}[]
+		google_search_retrieval: {};
+	}[];
 }
 
 interface GoogleAIStudioHeaders {
@@ -45,9 +45,9 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 			],
 			tools: [
 				{
-					google_search_retrieval: {}
-				}
-			]
+					google_search_retrieval: {},
+				},
+			],
 		},
 	};
 }
@@ -60,11 +60,11 @@ type GoogleGeminiResponse = {
 		};
 		finishReason: string;
 		index: number;
-        groundingMetadata?: {
-            search_entry_point?: {
-                rendered_content?: string;
-            }
-        }
+		groundingMetadata?: {
+			search_entry_point?: {
+				rendered_content?: string;
+			};
+		};
 		safetyRatings?: { category: string; probability: string }[];
 	}[];
 	usageMetadata: {
@@ -79,12 +79,11 @@ export function googleGeminiResponseText(response: GoogleGeminiResponse[]): stri
 
 	for (const res of response) {
 		for (const candidate of res.candidates) {
-            if (candidate.content && candidate.content.parts) {
-                for (const part of candidate.content.parts) {
-                    result += part.text; // Accumulate the text from each part
-                }
-            }
-
+			if (candidate.content && candidate.content.parts) {
+				for (const part of candidate.content.parts) {
+					result += part.text; // Accumulate the text from each part
+				}
+			}
 		}
 	}
 
