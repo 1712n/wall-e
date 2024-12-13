@@ -38,7 +38,7 @@ type CommandArgs = {
 export function parseCommandArgs(args: string[]) {
 	const result: CommandArgs = {
 		basePath: '',
-		provider: ModelProvider.Anthropic,
+		provider: ModelProvider.GoogleAi,
 		temperature: 0.5,
 		fallback: true,
 	};
