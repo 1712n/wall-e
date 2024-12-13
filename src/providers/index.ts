@@ -220,29 +220,34 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 	}
 
 	const provider = getModelProviderFromEvents(events);
-	switch (provider) {
-		case ModelProvider.Anthropic:
-			return {
-				text: anthropicResponseTextFromSSE(events),
-				provider,
-				model: events[0].message.model,
-			};
+	try {
+		switch (provider) {
+			case ModelProvider.Anthropic:
+				return {
+					text: anthropicResponseTextFromSSE(events),
+					provider,
+					model: events[0].message.model,
+				};
 
-		case ModelProvider.OpenAI:
-			return {
-				text: openAiResponseTextFromSSE(events),
-				provider,
-				model: events[0].model,
-			};
+			case ModelProvider.OpenAI:
+				return {
+					text: openAiResponseTextFromSSE(events),
+					provider,
+					model: events[0].model,
+				};
 
-		case ModelProvider.GoogleAi:
-			return {
-				text: googleGeminiResponseText(events),
-				provider,
-			};
+			case ModelProvider.GoogleAi:
+				return {
+					text: googleGeminiResponseText(events),
+					provider,
+				};
 
-		default:
-			const message = JSON.stringify(events, null, 2);
-			throw new Error(`Could not determine provider from events: ${message}`);
+			default:
+				throw new Error(`Unknown provider: ${provider}`);
+		}
+	} catch (error) {
+		console.error('Error handling stream response:', error);
+		console.error('Streamed events:', JSON.stringify(events, null, 2));
+		throw error;
 	}
 }
