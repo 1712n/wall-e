@@ -22,6 +22,14 @@ export enum ModelName {
 type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: ModelName[] }>;
 
 export const MODEL_PROVIDERS: ModelProviderMap = {
+	[ModelProvider.GoogleAi]: {
+		default: ModelName.Gemini_Flash,
+		models: [
+			ModelName.Gemini_Flash,
+			ModelName.Gemini_1_5_Pro,
+			ModelName.Gemini_Exp
+		],
+	},
 	[ModelProvider.Anthropic]: {
 		default: ModelName.Claude_3_5_Sonnet_20241022,
 		models: [
@@ -32,14 +40,6 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		default: ModelName.GPT_4o,
 		models: [
 			ModelName.GPT_4o
-		],
-	},
-	[ModelProvider.GoogleAi]: {
-		default: ModelName.Gemini_Flash,
-		models: [
-			ModelName.Gemini_1_5_Pro,
-			ModelName.Gemini_Exp,
-			ModelName.Gemini_Flash
 		],
 	},
 	[ModelProvider.Unknown]: {},
