@@ -214,7 +214,7 @@ export default {
 								{
 									model: ModelName.Gemini_Flash,
 									prompts: analyzeSpecFilePrompts,
-									temperature: 0,
+									temperature: 1,
 								},
 								fallback,
 							).then(async ({ model, text }) => {
@@ -245,7 +245,7 @@ export default {
 								{
 									model: ModelName.Gemini_Flash,
 									prompts: documentationPrompts,
-									temperature: 0,
+									temperature: 1,
 								},
 								fallback,
 							).then(async ({ model, text }) => {
@@ -356,7 +356,7 @@ export default {
 								{
 									model: ModelName.Gemini_Flash,
 									prompts: documentationPrompts,
-									temperature: 0,
+									temperature: 1,
 								},
 								fallback,
 							).then(async ({ model, text }) => {
