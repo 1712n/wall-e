@@ -75,17 +75,27 @@ type GoogleGeminiResponse = {
 };
 
 export function googleGeminiResponseText(response: GoogleGeminiResponse[]): string {
-	let result = '';
+    let result = '';
 
-	for (const res of response) {
-		for (const candidate of res.candidates) {
-			if (candidate.content && candidate.content.parts) {
-				for (const part of candidate.content.parts) {
-					result += part.text; // Accumulate the text from each part
-				}
-			}
-		}
-	}
+    for (const res of response) {
+        try {
+            if (Array.isArray(res.candidates)) {
+                for (const candidate of res.candidates) {
+                    if (candidate.content && candidate.content.parts) {
+                        for (const part of candidate.content.parts) {
+                            result += part.text; // Accumulate the text from each part
+                        }
+                    }
+                }
+            } else {
+                console.warn('Skipping response due to missing or invalid candidates:', res);
+            }
+        } catch (error) {
+            console.error('Error processing response from Gemini model:', error);
+            console.error('Gemini response:', JSON.stringify(res, null, 2));
+            throw error; // Re-throw the error after logging
+        }
+    }
 
-	return result;
+    return result;
 }
