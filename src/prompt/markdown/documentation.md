@@ -12,7 +12,7 @@
   - Intelligent caching layer between Workers and external databases
 
 ### AI Models
-- Advanced Reasoning use cases need to rely on frontier models from external LLM services, such as GPT4o and Claude Sonnet 3.5.
+- Advanced Reasoning use cases need to rely on frontier models from external LLM services, such as Gemini 2.0, GPT4o, and Claude Sonnet 3.5.
 - Cost-Efficient Models: [Cloudflare Workers AI](#cloudflare-workers-ai)
   - Good for simpler use cases
   - Includes [text embedding models](#cloudflare-workers-ai-text-embeddings) for vector similarity search
