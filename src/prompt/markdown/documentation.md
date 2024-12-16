@@ -132,10 +132,7 @@ const answer = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
 
 #### Cloudflare Workers AI Models
 
-Workers AI comes with a curated set of popular open-source models that enable you to do tasks such as image classification, text generation, object detection and more.
-
 ##### Cloudflare Workers AI Text Embeddings
-Feature extraction models transform raw data into numerical features that can be processed while preserving the information in the original dataset. These models are ideal as part of building vector search applications or Retrieval Augmented Generation workflows with LLMs.
 
 ##### Cloudflare Workers AI BAAI general embedding model
 ```
@@ -170,30 +167,7 @@ json_schema:
 
 ##### Cloudflare Workers AI Text Generation
 
-##### Scoped prompts
-This is the recommended method. With scoped prompts, Workers AI takes the burden of knowing and using different chat templates for different models and provides a unified interface to developers when building prompts and creating text generation tasks.
-
-Scoped prompts are a list of messages. Each message defines two keys: the role and the content.
-
-Typically, the role can be one of three options:
-
-`system` - System messages define the AI’s personality. You can use them to set rules and how you expect the AI to behave.
-`user` - User messages are where you actually query the AI by providing a question or a conversation.
-assistant - Assistant messages hint to the AI about the desired output format. Not all models support this role.
-Even though chat templates are flexible, other text generation models tend to follow the same conventions.
-
-Here’s an input example of a scoped prompt using system and user roles:
-```
-{
-  messages: [
-    { role: "system", content: "you are a very funny comedian and you like emojis" },
-    { role: "user", content: "tell me a joke about cloudflare" },
-  ],
-};
-```
-Note that different LLMs are trained with different templates for different use cases. While Workers AI tries its best to abstract the specifics of each LLM template from the developer through a unified API, you should always refer to the model documentation for details. For example, instruct models like Codellama are fine-tuned to respond to a user-provided instruction, while chat models expect fragments of dialogs as input.
-
-##### Cloudflare Workers AI Low-Latency Use Cases - llama-3.1-8b-instruct-fast
+##### Cloudflare Workers AI Low-Latency Simple Use Cases - llama-3.1-8b-instruct-fast
 
 ```ts
 export interface Env {
@@ -233,28 +207,19 @@ Example Worker, which passes the connection string generated from env.HYPERDRIVE
 import { Client } from 'pg';
 
 export interface Env {
-  // If you set another name in wrangler.toml as the value for 'binding',
-  // replace "HYPERDRIVE" with the variable name you defined.
   HYPERDRIVE: Hyperdrive;
 }
 
 export default {
   async fetch(request, env, ctx): Promise<Response> {
     console.log(JSON.stringify(env))
-    // Create a database client that connects to our database via Hyperdrive
-    // Hyperdrive generates a unique connection string you can pass to
-    // supported drivers, including node-postgres, Postgres.js, and the many
-    // ORMs and query builders that use these drivers.
     const client = new Client({ connectionString: env.HYPERDRIVE.connectionString });
 
     try {
-      // Connect to our database
       await client.connect();
 
-      // Test query
       const result = await client.query({ text: 'SELECT * FROM pg_tables' });
 
-      // Returns result rows as JSON
       return Response.json({ result: result });
     } catch (e) {
       console.log(e);
