@@ -133,7 +133,6 @@ const answer = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
 #### Cloudflare Workers AI Models
 
 ##### Cloudflare Workers AI Text Embeddings
-Feature extraction models transform raw data into numerical features that can be processed while preserving the information in the original dataset. These models are ideal as part of building vector search applications or Retrieval Augmented Generation workflows with LLMs.
 
 ##### Cloudflare Workers AI BAAI general embedding model
 ```
