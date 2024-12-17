@@ -214,7 +214,7 @@ export default {
 							await sendPrompt(
 								env,
 								{
-									model: ModelName.Gemini_Flash,
+									model: ModelName.Gemini_Exp,
 									prompts: analyzeSpecFilePrompts,
 									temperature: 0.5,
 								},
@@ -247,7 +247,7 @@ export default {
 								relevantDocumentation = await sendPrompt(
 									env,
 									{
-										model: ModelName.Gemini_Flash,
+										model: ModelName.Gemini_Exp,
 										prompts: documentationPrompts,
 										temperature: 0.5,
 									},
@@ -362,7 +362,7 @@ export default {
 								relevantDocumentation = await sendPrompt(
 									env,
 									{
-										model: ModelName.Gemini_Flash,
+										model: ModelName.Gemini_Exp,
 										prompts: documentationPrompts,
 										temperature: 0.5,
 									},
