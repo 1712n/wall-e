@@ -33,6 +33,7 @@ type CommandArgs = {
 	model?: ModelName;
 	temperature: number;
 	fallback: boolean;
+	disableDocumentation: boolean;
 };
 
 export function parseCommandArgs(args: string[]) {
@@ -41,6 +42,7 @@ export function parseCommandArgs(args: string[]) {
 		provider: ModelProvider.GoogleAi,
 		temperature: 0.5,
 		fallback: true,
+		disableDocumentation: false,
 	};
 
 	for (const arg of args) {
@@ -69,6 +71,9 @@ export function parseCommandArgs(args: string[]) {
 				break;
 			case 'fallback':
 				result.fallback = value !== 'false';
+				break;
+			case 'disable-documentation':
+				result.disableDocumentation = value === 'true';
 				break;
 		}
 	}
