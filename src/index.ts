@@ -54,6 +54,7 @@ type CommitGeneratedCodeParams = {
 		generateWorker: string;
 	};
 	relevantDocumentation: string;
+	disableDocumentation: boolean;
 };
 
 async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
@@ -155,7 +156,7 @@ export default {
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
 			const { command, context, installationId } = message.body;
-			const { basePath, provider, temperature, fallback, ...args } = parseCommandArgs(command.args || []);
+			const { basePath, provider, temperature, fallback, disableDocumentation, ...args } = parseCommandArgs(command.args || []);
 			const github = initializeGitHub(env, installationId);
 
 			let workingCommentId: number | undefined = undefined;
@@ -211,7 +212,7 @@ export default {
 							await sendPrompt(
 								env,
 								{
-									model: ModelName.Gemini_Flash,
+									model: ModelName.Gemini_Exp,
 									prompts: analyzeSpecFilePrompts,
 									temperature: 0.5,
 								},
@@ -237,33 +238,37 @@ export default {
 								}
 							});
 
-							// Generate relevant documentation file
-							const documentationPrompts = buildPromptForDocs(specFileContent);
-							const relevantDocumentation = await sendPrompt(
-								env,
-								{
-									model: ModelName.Gemini_Flash,
-									prompts: documentationPrompts,
-									temperature: 0.5,
-								},
-								fallback,
-							).then(async ({ model, text }) => {
-								if (!text) {
-									const elapsedTime = getElapsedSeconds(message.timestamp);
-									const debugInfo = formatDebugInfo({
-										elapsedTime,
-										model, // The actual model used to extract the relevant documentation
-										documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-										documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
-									});
-									await github.postComment(
-										context,
-										`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
-										workingCommentId,
-									);
-								}
-								return text;
-							});
+							let relevantDocumentation = '';
+							let documentationPrompts: any = {};
+							if (!disableDocumentation) {
+								// Generate relevant documentation file
+								documentationPrompts = buildPromptForDocs(specFileContent);
+								relevantDocumentation = await sendPrompt(
+									env,
+									{
+										model: ModelName.Gemini_Flash,
+										prompts: documentationPrompts,
+										temperature: 0.5,
+									},
+									fallback,
+								).then(async ({ model, text }) => {
+									if (!text) {
+										const elapsedTime = getElapsedSeconds(message.timestamp);
+										const debugInfo = formatDebugInfo({
+											elapsedTime,
+											model, // The actual model used to extract the relevant documentation
+											documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+											documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
+										});
+										await github.postComment(
+											context,
+											`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
+											workingCommentId,
+										);
+									}
+									return text;
+								});
+							}
 
 							// Generate the code based on the spec file and relevant documentation
 							const generateWorkerPrompts = buildPromptForWorkerGeneration(specFileContent, relevantDocumentation);
@@ -309,6 +314,7 @@ export default {
 										generateWorker: generateWorkerPrompts.system,
 									},
 									relevantDocumentation,
+									disableDocumentation,
 								});
 							});
 						}
@@ -347,34 +353,37 @@ export default {
 							// Fetch the contents of the spec file and index file
 							const specFileContent = await github.fetchFileContents(context, specFile.sha);
 							const indexFileContent = await github.fetchFileContents(context, indexFile!.sha);
-
-							// Generate relevant documentation based on the spec file
-							const documentationPrompts = buildPromptForDocs(specFileContent);
-							const relevantDocumentation = await sendPrompt(
-								env,
-								{
-									model: ModelName.Gemini_Flash,
-									prompts: documentationPrompts,
-									temperature: 0.5,
-								},
-								fallback,
-							).then(async ({ model, text }) => {
-								if (!text) {
-									const elapsedTime = getElapsedSeconds(message.timestamp);
-									const debugInfo = formatDebugInfo({
-										elapsedTime,
-										model, // Model used for extracting relevant documentation
-										documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-										documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
-									});
-									await github.postComment(
-										context,
-										`No relevant documentation was extracted. Falling back to using the entire documentation file ⚠️.\n\n${debugInfo}`,
-										workingCommentId,
-									);
-								}
-								return text;
-							});
+							let relevantDocumentation = '';
+							let documentationPrompts: any = {};
+							if (!disableDocumentation) {
+								// Generate relevant documentation based on the spec file
+								documentationPrompts = buildPromptForDocs(specFileContent);
+								relevantDocumentation = await sendPrompt(
+									env,
+									{
+										model: ModelName.Gemini_Flash,
+										prompts: documentationPrompts,
+										temperature: 0.5,
+									},
+									fallback,
+								).then(async ({ model, text }) => {
+									if (!text) {
+										const elapsedTime = getElapsedSeconds(message.timestamp);
+										const debugInfo = formatDebugInfo({
+											elapsedTime,
+											model, // Model used for extracting relevant documentation
+											documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
+											documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
+										});
+										await github.postComment(
+											context,
+											`No relevant documentation was extracted. Falling back to using the entire documentation file ⚠️.\n\n${debugInfo}`,
+											workingCommentId,
+										);
+									}
+									return text;
+								});
+							}
 
 							const reviewerFeedback = command.extra;
 							if (!reviewerFeedback) {
@@ -430,6 +439,7 @@ export default {
 										generateWorker: improvementPrompts.system,
 									},
 									relevantDocumentation,
+									disableDocumentation,
 								});
 							});
 						}

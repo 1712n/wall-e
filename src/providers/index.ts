@@ -23,7 +23,7 @@ type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: Mo
 
 export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.GoogleAi]: {
-		default: ModelName.Gemini_Flash,
+		default: ModelName.Gemini_Exp,
 		models: [
 			ModelName.Gemini_Flash,
 			ModelName.Gemini_1_5_Pro,

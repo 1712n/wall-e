@@ -57,12 +57,12 @@ export function buildPromptForDocs(specFile: string): PromptMessages {
 	};
 }
 
-export function buildPromptForWorkerGeneration(specFile: string, relevantDocs: string = documentation): PromptMessages {
+export function buildPromptForWorkerGeneration(specFile: string, relevantDocs: string = documentation, disableDocumentation: boolean = false): PromptMessages {
 	return {
 		system: generateWorker,
 		user: buildUserMessage({
 			specFile,
-			documentationFile: relevantDocs,
+			documentationFile: disableDocumentation ? '' : relevantDocs,
 		}),
 	};
 }
