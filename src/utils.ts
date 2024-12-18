@@ -72,6 +72,9 @@ export function parseCommandArgs(args: string[]) {
 			case 'fallback':
 				result.fallback = value !== 'false';
 				break;
+			case 'disable-docs':
+			case 'skip-docs':
+			case 'omit-docs':
 			case 'disable-documentation':
 				result.disableDocumentation = value === 'true';
 				break;
