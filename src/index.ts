@@ -16,7 +16,7 @@ import {
 	isValidModelForProvider,
 	isValidProvider,
 } from './providers';
-import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractCodeBlockContent, extractXMLContent } from './utils';
+import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractXMLContent, extractGeneratedCode } from './utils';
 import * as prettier from 'prettier/standalone';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as parserTypeScript from 'prettier/parser-typescript';
@@ -72,8 +72,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		relevantDocumentation,
 	} = params;
 
-	const extractedCode = extractCodeBlockContent(generatedCode);
-	const formattedCode = await prettier.format(extractedCode, {
+	const formattedCode = await prettier.format(generatedCode, {
 		parser: 'typescript',
 		plugins: [prettierPluginEstree, parserTypeScript],
 	});
@@ -277,7 +276,7 @@ export default {
 								},
 								fallback,
 							).then(async ({ provider, model: fallbackModel, text }) => {
-								const { generated_code: generatedCode } = extractXMLContent(text);
+								const generatedCode = extractGeneratedCode(text);
 								if (!generatedCode) {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
 									const debugInfo = formatDebugInfo({
@@ -400,7 +399,7 @@ export default {
 								},
 								fallback,
 							).then(async ({ provider, model: fallbackModel, text }) => {
-								const { generated_code: generatedCode } = extractXMLContent(text);
+								const generatedCode = extractGeneratedCode(text);
 								if (!generatedCode) {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
 									const debugInfo = formatDebugInfo({
