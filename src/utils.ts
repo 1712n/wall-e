@@ -105,3 +105,16 @@ export function extractCodeBlockContent(text: string): string {
 		.replace(incompleteOpeningPattern, '')
 		.replace(incompleteClosingPattern, '');
 }
+
+export function extractGeneratedCode(text: string): string {
+	// Try to extract generated code from XML content
+	const { generated_code: generatedCode } = extractXMLContent(text);
+
+	// If no generated code is found, try to extract code block content
+	if (!generatedCode) {
+		return extractCodeBlockContent(text);
+	}
+
+	// Extract code block content from the generated code, if present
+	return extractCodeBlockContent(generatedCode);
+}
