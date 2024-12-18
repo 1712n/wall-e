@@ -71,7 +71,6 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		temperature,
 		prompts,
 		relevantDocumentation,
-		disableDocumentation,
 	} = params;
 
 	const extractedCode = extractCodeBlockContent(generatedCode);
@@ -241,9 +240,10 @@ export default {
 							});
 
 							let relevantDocumentation = '';
+							let documentationPrompts: any = {};
 							if (!disableDocumentation) {
 								// Generate relevant documentation file
-								const documentationPrompts = buildPromptForDocs(specFileContent);
+								documentationPrompts = buildPromptForDocs(specFileContent);
 								relevantDocumentation = await sendPrompt(
 									env,
 									{
@@ -354,11 +354,11 @@ export default {
 							// Fetch the contents of the spec file and index file
 							const specFileContent = await github.fetchFileContents(context, specFile.sha);
 							const indexFileContent = await github.fetchFileContents(context, indexFile!.sha);
-
 							let relevantDocumentation = '';
+							let documentationPrompts: any = {};
 							if (!disableDocumentation) {
 								// Generate relevant documentation based on the spec file
-								const documentationPrompts = buildPromptForDocs(specFileContent);
+								documentationPrompts = buildPromptForDocs(specFileContent);
 								relevantDocumentation = await sendPrompt(
 									env,
 									{
