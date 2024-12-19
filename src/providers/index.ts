@@ -1,7 +1,7 @@
 import { PromptMessages, SendPromptResponse } from '../prompt';
 
 import { anthropicResponseTextFromSSE, anthropicRequest } from './anthropic';
-import { googleAIStudioRequest, googleGeminiResponseText } from './googleai';
+import { googleAIStudioRequest, googleGeminiParsedResponse } from './googleai';
 import { openAiRequest, openAiResponseTextFromSSE } from './openai';
 
 export enum ModelProvider {
@@ -237,8 +237,9 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 				};
 
 			case ModelProvider.GoogleAi:
+				const response = googleGeminiParsedResponse(events);
 				return {
-					text: googleGeminiResponseText(events),
+					...response,
 					provider,
 				};
 

@@ -55,6 +55,7 @@ type CommitGeneratedCodeParams = {
 	};
 	relevantDocumentation: string;
 	disableDocumentation: boolean;
+	metaData?: any;
 };
 
 async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
@@ -71,6 +72,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		temperature,
 		prompts,
 		relevantDocumentation,
+		metaData,
 	} = params;
 
 	const formattedCode = await prettier.format(generatedCode, {
@@ -91,6 +93,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 			documentationExtractionPrompt: JSON.stringify(prompts.documentationExtration, null, 2),
 			relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
 			generateWorkerPrompt: JSON.stringify(prompts.generateWorker, null, 2),
+			...(metaData && { metaData: JSON.stringify(metaData, null, 2) }),
 		});
 		const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 		await github.postComment(context, comment, workingCommentId);
