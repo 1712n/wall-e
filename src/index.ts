@@ -55,6 +55,10 @@ type CommitGeneratedCodeParams = {
 	};
 	relevantDocumentation: string;
 	disableDocumentation: boolean;
+	metaData?: {
+		code: any;
+		documentation: any;
+	};
 };
 
 async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
@@ -71,6 +75,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		temperature,
 		prompts,
 		relevantDocumentation,
+		metaData,
 	} = params;
 
 	const formattedCode = await prettier.format(generatedCode, {
@@ -91,6 +96,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 			documentationExtractionPrompt: JSON.stringify(prompts.documentationExtration, null, 2),
 			relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
 			generateWorkerPrompt: JSON.stringify(prompts.generateWorker, null, 2),
+			...(metaData && { metaData: JSON.stringify(metaData, null, 2) }),
 		});
 		const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 		await github.postComment(context, comment, workingCommentId);
@@ -239,11 +245,12 @@ export default {
 							});
 
 							let relevantDocumentation = '';
+							let relevantDocMetaData = [];
 							let documentationPrompts: any = {};
 							if (!disableDocumentation) {
 								// Generate relevant documentation file
 								documentationPrompts = buildPromptForDocs(specFileContent);
-								relevantDocumentation = await sendPrompt(
+								const { text, metaData } = await sendPrompt(
 									env,
 									{
 										model: ModelName.Gemini_Flash,
@@ -251,7 +258,7 @@ export default {
 										temperature: 0.5,
 									},
 									fallback,
-								).then(async ({ model, text }) => {
+								).then(async ({ model, text, metaData }) => {
 									if (!text) {
 										const elapsedTime = getElapsedSeconds(message.timestamp);
 										const debugInfo = formatDebugInfo({
@@ -266,8 +273,14 @@ export default {
 											workingCommentId,
 										);
 									}
-									return text;
+									return {
+										text,
+										metaData,
+									};
 								});
+
+								relevantDocumentation = text;
+								relevantDocMetaData = metaData;
 							}
 
 							// Generate the code based on the spec file and relevant documentation
@@ -280,7 +293,7 @@ export default {
 									temperature,
 								},
 								fallback,
-							).then(async ({ provider, model: fallbackModel, text }) => {
+							).then(async ({ provider, model: fallbackModel, text, metaData }) => {
 								const generatedCode = extractGeneratedCode(text);
 								if (!generatedCode) {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
@@ -315,6 +328,10 @@ export default {
 									},
 									relevantDocumentation,
 									disableDocumentation,
+									metaData: {
+										code: metaData,
+										documentation: relevantDocMetaData,
+									}
 								});
 							});
 						}

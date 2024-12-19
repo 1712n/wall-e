@@ -111,6 +111,7 @@ export type SendPromptResponse = {
 	text: string;
 	provider: ModelProvider;
 	model?: ModelName;
+	metaData?: any;
 };
 
 export async function sendPrompt(env: Env, params: SendPromptParams, fallback: boolean): Promise<SendPromptResponse> {

@@ -1,4 +1,4 @@
-import { Role, ProviderRequestParams } from '.';
+import { Role, ProviderRequestParams, ModelName } from '.';
 
 interface GoogleAIStudioContent {
 	role: Role;
@@ -28,6 +28,11 @@ export interface GoogleAIStudioRequest {
 
 export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderRequestParams): GoogleAIStudioRequest {
 	const { user, system } = prompts;
+	const tools = [];
+
+	if (model !== ModelName.Gemini_Exp) {
+		tools.push({ google_search: {} });
+	}
 
 	return {
 		provider: 'google-ai-studio',
@@ -43,11 +48,7 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 					parts: [{ text: `${system}\n\n${user}` }],
 				},
 			],
-			tools: [
-				{
-					google_search: {},
-				},
-			],
+			tools,
 		},
 	};
 }
@@ -72,10 +73,19 @@ type GoogleGeminiResponse = {
 		candidatesTokenCount: number;
 		totalTokenCount: number;
 	};
+	modelVersion: string;
 };
 
-export function googleGeminiResponseText(response: GoogleGeminiResponse[]): string {
-	let result = '';
+type GoogleGeminiParsedResponse = {
+	text: string;
+	model: ModelName;
+	meta?: any[];
+};
+
+export function googleGeminiParsedResponse(response: GoogleGeminiResponse[]): GoogleGeminiParsedResponse {
+	let text = '';
+	let model;
+	let meta = [];
 
 	for (const res of response) {
 		try {
@@ -83,7 +93,11 @@ export function googleGeminiResponseText(response: GoogleGeminiResponse[]): stri
 				for (const candidate of res.candidates) {
 					if (candidate.content && candidate.content.parts) {
 						for (const part of candidate.content.parts) {
-							result += part.text; // Accumulate the text from each part
+							text += part.text; // Accumulate the text from each part
+						}
+
+						if (candidate.groundingMetadata) {
+							meta.push(candidate.groundingMetadata);
 						}
 					}
 				}
@@ -97,5 +111,15 @@ export function googleGeminiResponseText(response: GoogleGeminiResponse[]): stri
 		}
 	}
 
-	return result;
+	try {
+		model = response[0].modelVersion;
+	} catch (error) {
+		console.error('Error extracting model version from Gemini response:', error);
+	}
+
+	return {
+		text,
+		model: model as ModelName,
+		meta
+	};
 }
