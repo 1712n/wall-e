@@ -7,10 +7,20 @@ interface GoogleAIStudioContent {
 	}[];
 }
 
+enum DynamicRetrievalMode {
+	UNSPECIFIED = 0,
+	DYNAMIC = 1,
+};
+
 interface GoogleAIStudioQuery {
 	contents: GoogleAIStudioContent[];
 	tools?: {
-		googleSearchRetrieval: {};
+		googleSearchRetrieval: {
+			dynamicRetrievalConfig: {
+				mode: DynamicRetrievalMode;
+				dynamicThreshold?: number;
+			};
+		};
 	}[];
 }
 
@@ -31,7 +41,14 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 	const tools = [];
 
 	if (model !== ModelName.Gemini_Exp) {
-		tools.push({ googleSearchRetrieval: {} });
+		tools.push({
+			googleSearchRetrieval: {
+				dynamicRetrievalConfig: {
+					mode: DynamicRetrievalMode.DYNAMIC,
+					dynamicThreshold: 0,
+				},
+			},
+		});
 	}
 
 	return {
@@ -120,6 +137,6 @@ export function googleGeminiParsedResponse(response: GoogleGeminiResponse[]): Go
 	return {
 		text,
 		model: model as ModelName,
-		meta
+		meta,
 	};
 }
