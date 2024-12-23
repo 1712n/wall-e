@@ -111,7 +111,7 @@ type GoogleGeminiResponse = {
 type GoogleGeminiParsedResponse = {
 	text: string;
 	model: ModelName;
-	meta?: any[];
+	metaData?: any[];
 };
 
 export function googleGeminiParsedResponse(response: GoogleGeminiResponse[]): GoogleGeminiParsedResponse {
@@ -152,6 +152,6 @@ export function googleGeminiParsedResponse(response: GoogleGeminiResponse[]): Go
 	return {
 		text,
 		model: model as ModelName,
-		meta,
+		metaData: meta,
 	};
 }
