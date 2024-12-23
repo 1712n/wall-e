@@ -45,7 +45,7 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 			googleSearchRetrieval: {
 				dynamicRetrievalConfig: {
 					mode: DynamicRetrievalMode.DYNAMIC,
-					dynamicThreshold: 0.3,
+					dynamicThreshold: 0,
 				},
 			},
 		});
