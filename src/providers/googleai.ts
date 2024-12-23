@@ -82,9 +82,8 @@ type GoogleGeminiParsedResponse = {
 	meta?: any[];
 };
 
-export function googleGeminiParsedResponse(response: GoogleGeminiResponse[]): GoogleGeminiParsedResponse {
+export function googleGeminiParsedResponse(response: GoogleGeminiResponse[], requestedModel: ModelName): GoogleGeminiParsedResponse {
 	let text = '';
-	let model;
 	let meta = [];
 
 	for (const res of response) {
@@ -93,7 +92,7 @@ export function googleGeminiParsedResponse(response: GoogleGeminiResponse[]): Go
 				for (const candidate of res.candidates) {
 					if (candidate.content && candidate.content.parts) {
 						for (const part of candidate.content.parts) {
-							text += part.text; // Accumulate the text from each part
+							text += part.text;
 						}
 
 						if (candidate.groundingMetadata) {
@@ -107,19 +106,13 @@ export function googleGeminiParsedResponse(response: GoogleGeminiResponse[]): Go
 		} catch (error) {
 			console.error('Error processing response from Gemini model:', error);
 			console.error('Gemini response:', JSON.stringify(res, null, 2));
-			throw error; // Re-throw the error after logging
+			throw error;
 		}
-	}
-
-	try {
-		model = response[0].modelVersion;
-	} catch (error) {
-		console.error('Error extracting model version from Gemini response:', error);
 	}
 
 	return {
 		text,
-		model: model as ModelName,
+		model: requestedModel,
 		meta
 	};
 }

@@ -211,7 +211,10 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 	return ModelProvider.Unknown;
 }
 
-export async function handleStreamResponse(reader: ReadableStreamDefaultReader<any>): Promise<SendPromptResponse> {
+export async function handleStreamResponse(
+	reader: ReadableStreamDefaultReader<any>,
+	params: ProviderRequestParams
+): Promise<SendPromptResponse> {
 	const events = await parseStreamedEvents(reader);
 	console.log('All events:', JSON.stringify(events, null, 2));
 
@@ -237,7 +240,7 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 				};
 
 			case ModelProvider.GoogleAi:
-				const response = googleGeminiParsedResponse(events);
+				const response = googleGeminiParsedResponse(events, params.model);
 				return {
 					...response,
 					provider,
