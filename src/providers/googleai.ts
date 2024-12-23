@@ -10,7 +10,7 @@ interface GoogleAIStudioContent {
 enum DynamicRetrievalMode {
 	UNSPECIFIED = 0,
 	DYNAMIC = 1,
-};
+}
 
 interface DynamicRetrievalConfig {
 	dynamicRetrievalConfig: {
@@ -48,7 +48,7 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 			mode: DynamicRetrievalMode.DYNAMIC,
 			dynamicThreshold: 0,
 		},
-	}
+	};
 
 	switch (model) {
 		case ModelName.Gemini_Flash:
@@ -60,7 +60,7 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 		case ModelName.Gemini_1_5_Pro:
 			tools.push({
 				googleSearchRetrieval: {
-					...defaultDynamicRetrievalConfig
+					...defaultDynamicRetrievalConfig,
 				},
 			});
 			break;
