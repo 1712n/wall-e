@@ -114,11 +114,9 @@ export type SendPromptResponse = {
 	metaData?: any;
 };
 
-export async function sendPrompt(env: Env, params: SendPromptParams, fallback: boolean): Promise<SendPromptResponse> {
+export async function sendPrompt(env: Env, params: SendPromptParams, fallback: boolean, stream: boolean = true): Promise<SendPromptResponse> {
 	const accountId = env.CF_ACCOUNT_ID;
 	const gatewayId = env.CF_GATEWAY_AI_ID;
-
-	const stream = true;
 
 	const mainProvider = getProviderForModel(params.model);
 	const providerRequests = [

@@ -57,7 +57,7 @@ type CommitGeneratedCodeParams = {
 	disableDocumentation: boolean;
 	metaData?: {
 		code: any;
-		documentation: any;
+		docs: any;
 	};
 };
 
@@ -330,7 +330,7 @@ export default {
 									disableDocumentation,
 									metaData: {
 										code: metaData,
-										documentation: relevantDocMetaData,
+										docs: relevantDocMetaData,
 									}
 								});
 							});
