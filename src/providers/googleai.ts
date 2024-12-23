@@ -10,7 +10,7 @@ interface GoogleAIStudioContent {
 interface GoogleAIStudioQuery {
 	contents: GoogleAIStudioContent[];
 	tools?: {
-		google_search: {};
+		googleSearchRetrieval: {};
 	}[];
 }
 
@@ -31,7 +31,7 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 	const tools = [];
 
 	if (model !== ModelName.Gemini_Exp) {
-		tools.push({ google_search: {} });
+		tools.push({ googleSearchRetrieval: {} });
 	}
 
 	return {
