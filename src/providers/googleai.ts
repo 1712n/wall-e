@@ -12,15 +12,18 @@ enum DynamicRetrievalMode {
 	DYNAMIC = 1,
 };
 
+interface DynamicRetrievalConfig {
+	dynamicRetrievalConfig: {
+		mode: DynamicRetrievalMode;
+		dynamicThreshold?: number;
+	};
+}
+
 interface GoogleAIStudioQuery {
 	contents: GoogleAIStudioContent[];
 	tools?: {
-		googleSearchRetrieval: {
-			dynamicRetrievalConfig: {
-				mode: DynamicRetrievalMode;
-				dynamicThreshold?: number;
-			};
-		};
+		googleSearchRetrieval?: DynamicRetrievalConfig;
+		googleSearch?: {};
 	}[];
 }
 
@@ -40,15 +43,27 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 	const { user, system } = prompts;
 	const tools = [];
 
-	if (model !== ModelName.Gemini_Exp) {
-		tools.push({
-			googleSearchRetrieval: {
-				dynamicRetrievalConfig: {
-					mode: DynamicRetrievalMode.DYNAMIC,
-					dynamicThreshold: 0,
+	const defaultDynamicRetrievalConfig: DynamicRetrievalConfig = {
+		dynamicRetrievalConfig: {
+			mode: DynamicRetrievalMode.DYNAMIC,
+			dynamicThreshold: 0,
+		},
+	}
+
+	switch (model) {
+		case ModelName.Gemini_Flash:
+			tools.push({
+				googleSearch: {},
+			});
+			break;
+
+		case ModelName.Gemini_1_5_Pro:
+			tools.push({
+				googleSearchRetrieval: {
+					...defaultDynamicRetrievalConfig
 				},
-			},
-		});
+			});
+			break;
 	}
 
 	return {
