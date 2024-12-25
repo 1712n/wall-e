@@ -13,7 +13,7 @@ interface AnthropicQuery {
 
 interface AnthropicHeaders {
 	'x-api-key': string;
-	'anthropic-beta': string;
+	'anthropic-beta'?: string;
 	'anthropic-version': string;
 	'content-type': string;
 }
