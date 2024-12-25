@@ -231,7 +231,7 @@ export default {
 								}
 							});
 
-							// Generate the code based on the spec file and relevant documentation
+							// Generate the code based on the spec file
 							const generateWorkerPrompts = buildPromptForWorkerGeneration(specFileContent);
 							await sendPrompt(
 								env,
@@ -318,7 +318,7 @@ export default {
 								return;
 							}
 
-							// Use the provided feedback, index file, spec file, and relevant documentation to generate improved code
+							// Use the provided feedback, index file, and spec file to generate improved code
 							const improvementPrompts = buildPromptForWorkerImprovement(
 								indexFileContent,
 								specFileContent,
