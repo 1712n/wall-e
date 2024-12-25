@@ -1,6 +1,5 @@
 import { CommandName, GitHub, CommandContext, UserCommand } from './github';
 import {
-	buildPromptForDocs,
 	buildPromptForWorkerGeneration,
 	sendPrompt,
 	buildPromptForAnalyzeSpecFile,
@@ -50,14 +49,7 @@ type CommitGeneratedCodeParams = {
 	temperature: number;
 	fallbackModel?: ModelName;
 	prompts: {
-		documentationExtration: string;
 		generateWorker: string;
-	};
-	relevantDocumentation: string;
-	disableDocumentation: boolean;
-	metaData?: {
-		code: any;
-		docs: any;
 	};
 };
 
@@ -68,14 +60,12 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		github,
 		message,
 		context,
-		workingCommentId,
+			workingCommentId,
 		provider,
 		model,
 		fallbackModel,
 		temperature,
 		prompts,
-		relevantDocumentation,
-		metaData,
 	} = params;
 
 	const formattedCode = await prettier.format(generatedCode, {
@@ -93,10 +83,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 			provider,
 			model: fallbackModel ?? model,
 			temperature,
-			documentationExtractionPrompt: JSON.stringify(prompts.documentationExtration, null, 2),
-			relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
 			generateWorkerPrompt: JSON.stringify(prompts.generateWorker, null, 2),
-			...(metaData && { metaData: JSON.stringify(metaData, null, 2) }),
 		});
 		const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 		await github.postComment(context, comment, workingCommentId);
@@ -162,7 +149,7 @@ export default {
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
 			const { command, context, installationId } = message.body;
-			const { basePath, provider, temperature, fallback, disableDocumentation, ...args } = parseCommandArgs(command.args || []);
+			const { basePath, provider, temperature, fallback, ...args } = parseCommandArgs(command.args || []);
 			const github = initializeGitHub(env, installationId);
 
 			let workingCommentId: number | undefined = undefined;
@@ -244,47 +231,8 @@ export default {
 								}
 							});
 
-							let relevantDocumentation = '';
-							let relevantDocMetaData = [];
-							let documentationPrompts: any = {};
-							if (!disableDocumentation) {
-								// Generate relevant documentation file
-								documentationPrompts = buildPromptForDocs(specFileContent);
-								const { text, metaData } = await sendPrompt(
-									env,
-									{
-										model: ModelName.Gemini_Flash,
-										prompts: documentationPrompts,
-										temperature: 0.5,
-									},
-									fallback,
-								).then(async ({ model, text, metaData }) => {
-									if (!text) {
-										const elapsedTime = getElapsedSeconds(message.timestamp);
-										const debugInfo = formatDebugInfo({
-											elapsedTime,
-											model, // The actual model used to extract the relevant documentation
-											documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-											documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
-										});
-										await github.postComment(
-											context,
-											`No relevant documentation was found. Using the whole Documentation file ⚠️.\n\n${debugInfo}`,
-											workingCommentId,
-										);
-									}
-									return {
-										text,
-										metaData,
-									};
-								});
-
-								relevantDocumentation = text;
-								relevantDocMetaData = metaData;
-							}
-
 							// Generate the code based on the spec file and relevant documentation
-							const generateWorkerPrompts = buildPromptForWorkerGeneration(specFileContent, relevantDocumentation);
+							const generateWorkerPrompts = buildPromptForWorkerGeneration(specFileContent);
 							await sendPrompt(
 								env,
 								{
@@ -303,7 +251,6 @@ export default {
 										model: fallbackModel ?? model, // The actual model used to generate the code
 										temperature,
 										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
-										relevantDocumentation: JSON.stringify(relevantDocumentation, null, 2),
 										modelResponse: JSON.stringify(text, null, 2),
 									});
 									await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
@@ -323,15 +270,8 @@ export default {
 									fallbackModel,
 									temperature,
 									prompts: {
-										documentationExtration: documentationPrompts.system,
 										generateWorker: generateWorkerPrompts.system,
 									},
-									relevantDocumentation,
-									disableDocumentation,
-									metaData: {
-										code: metaData,
-										docs: relevantDocMetaData,
-									}
 								});
 							});
 						}
@@ -370,37 +310,6 @@ export default {
 							// Fetch the contents of the spec file and index file
 							const specFileContent = await github.fetchFileContents(context, specFile.sha);
 							const indexFileContent = await github.fetchFileContents(context, indexFile!.sha);
-							let relevantDocumentation = '';
-							let documentationPrompts: any = {};
-							if (!disableDocumentation) {
-								// Generate relevant documentation based on the spec file
-								documentationPrompts = buildPromptForDocs(specFileContent);
-								relevantDocumentation = await sendPrompt(
-									env,
-									{
-										model: ModelName.Gemini_Flash,
-										prompts: documentationPrompts,
-										temperature: 0.5,
-									},
-									fallback,
-								).then(async ({ model, text }) => {
-									if (!text) {
-										const elapsedTime = getElapsedSeconds(message.timestamp);
-										const debugInfo = formatDebugInfo({
-											elapsedTime,
-											model, // Model used for extracting relevant documentation
-											documentationExtractionPrompt: JSON.stringify(documentationPrompts.system, null, 2),
-											documentationExtractionResponse: JSON.stringify(relevantDocumentation, null, 2),
-										});
-										await github.postComment(
-											context,
-											`No relevant documentation was extracted. Falling back to using the entire documentation file ⚠️.\n\n${debugInfo}`,
-											workingCommentId,
-										);
-									}
-									return text;
-								});
-							}
 
 							const reviewerFeedback = command.extra;
 							if (!reviewerFeedback) {
@@ -414,7 +323,6 @@ export default {
 								indexFileContent,
 								specFileContent,
 								reviewerFeedback,
-								relevantDocumentation,
 							);
 							await sendPrompt(
 								env,
@@ -452,11 +360,8 @@ export default {
 									fallbackModel,
 									temperature,
 									prompts: {
-										documentationExtration: documentationPrompts.system,
 										generateWorker: improvementPrompts.system,
 									},
-									relevantDocumentation,
-									disableDocumentation,
 								});
 							});
 						}

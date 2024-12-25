@@ -7,7 +7,7 @@ import {
 	getProviderForModel,
 	getDefaultModelForProvider,
 } from '../providers';
-import { documentation, documentationExtraction, generateWorker, improveWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
+import { documentation, generateWorker, improveWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
 
 const MODEL_PROVIDER_ORDER = [
 	ModelProvider.Anthropic,
@@ -47,22 +47,12 @@ const buildUserMessage = ({
 	return message;
 };
 
-export function buildPromptForDocs(specFile: string): PromptMessages {
-	return {
-		system: documentationExtraction,
-		user: buildUserMessage({
-			specFile,
-			documentationFile: documentation,
-		}),
-	};
-}
-
-export function buildPromptForWorkerGeneration(specFile: string, relevantDocs: string = documentation, disableDocumentation: boolean = false): PromptMessages {
+export function buildPromptForWorkerGeneration(specFile: string): PromptMessages {
 	return {
 		system: generateWorker,
 		user: buildUserMessage({
 			specFile,
-			documentationFile: disableDocumentation ? '' : relevantDocs,
+			documentationFile: documentation,
 		}),
 	};
 }
@@ -71,13 +61,12 @@ export function buildPromptForWorkerImprovement(
 	indexFile: string,
 	specFile: string,
 	reviewerFeedback: string,
-	relevantDocs: string = documentation,
 ): PromptMessages {
 	return {
 		system: improveWorker,
 		user: buildUserMessage({
 			specFile,
-			documentationFile: relevantDocs,
+			documentationFile: documentation,
 			indexFile,
 			reviewerFeedback,
 		}),
