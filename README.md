@@ -76,7 +76,7 @@ Activate the feedback feature in a pull request by commenting:
 
 ### Prompt
 
-The prompt sent to the LLM consists of 3 sections: instructions, a spec file, and additional documentation.
+The prompt sent to the LLM consists of 2 sections: instructions and a spec file.
 
 #### Instructions
 
@@ -87,10 +87,6 @@ The [instructions section](markdown/instructions.md) of the prompt explains the 
 The Spec File is copied from the head branch and should contain 2 important sections: comments covering all functional requirements and Vitest integration tests covering all input/output interfaces, as well as any business logic-related edge cases.
 
 Please adhere to [our best practices](wiki/spec_file_best_practices.md) when writing your spec files!
-
-#### Additional Documentation
-
-Sometimes LLMs can't keep up with software updates, so we maintain a separate [markdown file](markdown/documentation.md) with information about recently added features.
 
 ## Code quality
 

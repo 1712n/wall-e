@@ -7,7 +7,7 @@ import {
 	getProviderForModel,
 	getDefaultModelForProvider,
 } from '../providers';
-import { documentation, documentationExtraction, generateWorker, improveWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
+import { generateWorker, improveWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
 
 const MODEL_PROVIDER_ORDER = [
 	ModelProvider.Anthropic,
@@ -22,12 +22,10 @@ export type PromptMessages = {
 
 const buildUserMessage = ({
 	specFile,
-	documentationFile,
 	indexFile,
 	reviewerFeedback,
 }: {
 	specFile: string;
-	documentationFile: string;
 	indexFile?: string;
 	reviewerFeedback?: string;
 }): string => {
@@ -42,27 +40,15 @@ const buildUserMessage = ({
 	}
 
 	message += `<spec_file>\n${specFile}\n</spec_file>\n\n`;
-	message += `<documentation_file>\n${documentationFile}\n</documentation_file>`;
 
 	return message;
 };
 
-export function buildPromptForDocs(specFile: string): PromptMessages {
-	return {
-		system: documentationExtraction,
-		user: buildUserMessage({
-			specFile,
-			documentationFile: documentation,
-		}),
-	};
-}
-
-export function buildPromptForWorkerGeneration(specFile: string, relevantDocs: string = documentation, disableDocumentation: boolean = false): PromptMessages {
+export function buildPromptForWorkerGeneration(specFile: string): PromptMessages {
 	return {
 		system: generateWorker,
 		user: buildUserMessage({
 			specFile,
-			documentationFile: disableDocumentation ? '' : relevantDocs,
 		}),
 	};
 }
@@ -71,13 +57,11 @@ export function buildPromptForWorkerImprovement(
 	indexFile: string,
 	specFile: string,
 	reviewerFeedback: string,
-	relevantDocs: string = documentation,
 ): PromptMessages {
 	return {
 		system: improveWorker,
 		user: buildUserMessage({
 			specFile,
-			documentationFile: relevantDocs,
 			indexFile,
 			reviewerFeedback,
 		}),
