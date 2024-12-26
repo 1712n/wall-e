@@ -56,14 +56,6 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 				googleSearch: {},
 			});
 			break;
-
-		case ModelName.Gemini_1_5_Pro:
-			tools.push({
-				googleSearchRetrieval: {
-					...defaultDynamicRetrievalConfig,
-				},
-			});
-			break;
 	}
 
 	return {

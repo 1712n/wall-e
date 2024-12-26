@@ -14,7 +14,6 @@ export enum ModelProvider {
 export enum ModelName {
 	Claude_3_5_Sonnet_20241022 = 'claude-3-5-sonnet-20241022',
 	GPT_4o = 'gpt-4o-2024-11-20',
-	Gemini_1_5_Pro = 'gemini-1.5-pro-002',
 	Gemini_Exp = 'gemini-exp-1206',
 	Gemini_Flash = 'gemini-2.0-flash-exp',
 }
@@ -26,7 +25,6 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		default: ModelName.Gemini_Exp,
 		models: [
 			ModelName.Gemini_Flash,
-			ModelName.Gemini_1_5_Pro,
 			ModelName.Gemini_Exp
 		],
 	},
