@@ -53,10 +53,9 @@ For more control, use optional parameters:
 
 #### Available Models
 
-- `gemini-2.0-flash-exp` (default)
+- `gemini-2.0-flash-exp` (default, search grounding enabled)
 - `claude-3-5-sonnet-20241022`
 - `gpt-4o-2024-11-20`
-- `gemini-1.5-pro-002`
 - `gemini-exp-1206`
 
 ### Feedback Feature
