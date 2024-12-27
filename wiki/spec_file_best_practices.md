@@ -11,10 +11,10 @@
 - **Elevator Pitch**: Clearly describe what the worker does and how it can be used. Anyone on the team should be able to understand the worker's purpose and value, regardless of their role and specialization. For example: _"This worker generates vector embeddings for input text using Workers AI Text Embedding Model and is used in applications requiring vector search. The worker provides an HTTP API endpoint which accepts a single text as input and returns the corresponding vector embedding."_
 - **Specific Project Priorities**: Focus on what the worker should achieve, not how it should be built. For instance, say _"The worker should include extensive error handling,"_ rather than listing specific error cases like _"The worker should handle errors X, Y, Z."_
 - **Technical Requirements**: After the high-level description, include more detailed technical information, such as:
-- Input and output formats (e.g., JSON structures for REST APIs)
-- Database schemas (e.g., Drizzle schema definitions)
-- Algorithms that contain custom business logic (e.g., similarity score calculation)
-- Integration with other systems or services
+  - Input and output formats (e.g., JSON structures for REST APIs)
+  - Database schemas (e.g., Drizzle schema definitions)
+  - Algorithms that contain custom business logic (e.g., similarity score calculation)
+  - Integration with other systems or services
 - **System Context**: If relevant, provide a brief explanation of how the worker fits into a larger system or interacts with other components. Keep this high-level and focused on the worker's immediate interactions.
 - **Examples**: Where helpful, provide examples of input/output, SQL queries, or other relevant code snippets to illustrate the worker's functionality or usage.
 
