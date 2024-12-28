@@ -13,7 +13,7 @@
 - **Technical Requirements**: After the high-level description, include more detailed technical information, such as:
   - Input and output formats (e.g., JSON structures for REST APIs)
   - Database schemas (e.g., Drizzle schema definitions)
-  - Algorithms that contain custom business logic (e.g., similarity score calculation)
+  - Algorithms that contain custom business logic (e.g., message prioritization based on similarity scores, topic-industry relevance and timestamp)
   - Integration with other systems or services
 - **System Context**: If relevant, provide a brief explanation of how the worker fits into a larger system or interacts with other components. Keep this high-level and focused on the worker's immediate interactions.
 - **Examples**: Where helpful, provide examples of input/output, SQL queries, or other relevant code snippets to illustrate the worker's functionality or usage.
