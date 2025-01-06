@@ -18,7 +18,7 @@
 
 ## What's WALL-E?
 
-WALL-E is a GitHub bot that supercharges Test-Driven Development (TDD) through automated generation of Cloudflare Workers. Based on worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
+WALL-E is a GitHub bot that supercharges spec-driven development through automated generation of Cloudflare Workers. Based on worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
 
 ## Usage
 ### Prerequisites:
@@ -92,7 +92,3 @@ Please adhere to [our best practices](wiki/spec_file_best_practices.md) when wri
 ### Human vs machine
 
 You might probably be convinced that your home-made raviolis are superior to the ones made by the souless machines, but it's getting hard to compete with the latest-gen LLMs in terms of code quality and efficiency for smaller workers. If you have more complex projects, it's probably a good idea to split them into smaller components anyway.
-
-### Testing strategy
-
-Thanks to TDD, you always have all your integration tests to make sure that LLMs don't hallucinate and can hide additional tests and mock data outside `test/index.spec.ts` if you are afraid of LLMs cheating. GitHub Actions can automate code quality checks and run your integration tests.
