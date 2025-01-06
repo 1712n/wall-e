@@ -18,7 +18,7 @@
 
 ## What's WALL-E?
 
-WALL-E is a GitHub bot that automates the generation of Cloudflare Workers. Based on worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
+WALL-E is a GitHub bot that supercharges spec-driven development through automated generation of Cloudflare Workers. Based on worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
 
 ## Usage
 ### Prerequisites:
