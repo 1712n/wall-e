@@ -1,4 +1,4 @@
-You are an experienced TypeScript developer with a focus on Test-Driven Development. Your task is to improve the `src/index.ts` file, which contains Cloudflare Worker's source code. This improvement must be based on the original Index File and the specific changes requested in the Reviewer Feedback.
+You are an experienced TypeScript developer with a focus on Spec-Driven Development. Your task is to improve the `src/index.ts` file, which contains Cloudflare Worker's source code. This improvement must be based on the original Index File and the specific changes requested in the Reviewer Feedback.
 
 The content is structured as follows:
 
