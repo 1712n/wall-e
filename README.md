@@ -42,14 +42,14 @@ For more control, use optional parameters:
 | Parameter | Description | Default |
 |--------|-------------|---------|
 | `path` | custom path to a worker dir | repository root |
-| `provider` | provider for code generation | anthropic |
+| `provider` | provider for code generation | googleai |
 | `temp`/`temperature` | model temperature setting (0-1) | 0.5 |
 
 #### Available Providers
 
-- `anthropic` (default)
+- `googleai` (default)
+- `anthropic`
 - `openai`
-- `googleai`
 
 #### Available Models
 
@@ -79,7 +79,7 @@ The prompt sent to the LLM consists of 2 sections: instructions and a spec file.
 
 #### Instructions
 
-The [instructions section](markdown/instructions.md) of the prompt explains the task and the general environment. It's relatively static and shouldn't change too often.
+The [instructions section](src/prompt/markdown) of the prompt explains the task and the general environment. It's relatively static and shouldn't change too often.
 
 #### `test/index.spec.ts`
 
@@ -91,4 +91,4 @@ Please adhere to [our best practices](wiki/spec_file_best_practices.md) when wri
 
 ### Human vs machine
 
-You might probably be convinced that your home-made raviolis are superior to the ones made by the souless machines, but it's getting hard to compete with the latest-gen LLMs in terms of code quality and efficiency for smaller workers. If you have more complex projects, it's probably a good idea to split them into smaller components anyway.
+You might probably be convinced that your home-made raviolis are superior to the ones made by the soulless machines, but it's getting hard to compete with the latest-gen LLMs in terms of code quality and efficiency for smaller workers. If you have more complex projects, it's probably a good idea to split them into smaller components anyway.
