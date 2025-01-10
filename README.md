@@ -79,7 +79,7 @@ The prompt sent to the LLM consists of 2 sections: instructions and a spec file.
 
 #### Instructions
 
-The [instructions section](src/prompt/markdown) of the prompt explains the task and the general environment. It's relatively static and shouldn't change too often.
+The [instructions section](src/prompt/markdown/generate_worker.md) of the prompt explains the task and the general environment. It's relatively static and shouldn't change too often.
 
 #### `test/index.spec.ts`
 
