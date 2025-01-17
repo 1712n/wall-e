@@ -1,0 +1,36 @@
+name: Close inactive issues/PRs
+on:
+  schedule:
+    - cron: '55 1 * * *'
+
+jobs:
+  close-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@v9.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Issues
+          days-before-issue-stale: 7
+          days-before-issue-close: 7
+          exempt-issue-labels: 'status - to do,status - on hold'
+          stale-issue-label: 'stale'
+          stale-issue-message: |
+            👋 This issue is stale because it has been open for a week with no activity. If you do not want to close it, give an update here, or use the labels on `status - on hold` ✋ if there is no progress.
+          close-issue-message: |
+            👋 Closing this issue because it has been stalled for 7 days with no activity since being marked as stale. 
+            Feel free to reopen if you believe this issue still requires attention.
+          # Pull requests
+          days-before-pr-stale: 7
+          days-before-pr-close: 7
+          exempt-pr-labels: 'status - on hold'
+          stale-pr-label: 'stale'
+          stale-pr-message: |
+            👋 This PR is stale because it has been open for a week with no activity. If you do not want to close it, give an update here, or use the labels on `status - on hold` ✋ if there is no progress.
+          close-pr-message: |
+            👋 Closing this PR because it has been stalled for 7 days with no activity since being marked as stale.
+            Feel free to reopen if you believe this needs to continue.
