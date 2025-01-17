@@ -51,9 +51,7 @@ Open a pull request that includes your `test/index.spec.ts` file.
 
 #### 3. Prepare the `test/index.spec.ts` file
 
-The file should include the following:
-  - A comments section listing functional requirements.
-  - Integration tests to validate functionality.
+Follow [spec file best practices](wiki/spec_file_best_practices.md/) for creating your `test/index.spec.ts` file.
 
 ### Basic Usage
 
