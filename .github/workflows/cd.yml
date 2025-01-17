@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - src/**
+      - wiki/**
+      - package.json
+      - wrangler.toml
 
 jobs:
   deploy:
