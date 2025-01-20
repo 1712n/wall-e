@@ -19,7 +19,7 @@
   - [Advanced Usage](#advanced-usage)
     - [Available Providers](#available-providers)
     - [Available Models](#available-models)
-  - [Improve Feature](#improve-feature)
+    - [Improve Feature](#improve-feature)
 - [How It Works](#how-it-works)
   - [Prompt](#prompt)
     - [Instructions](#instructions)
@@ -88,7 +88,7 @@ For more control, use optional parameters:
 - `gpt-4o-2024-11-20`
 - `gemini-exp-1206`
 
-### Improve Feature
+#### Improve Feature
 
 The Improve Feature helps enhance your code by analyzing the existing code and spec file. It generates improved code based on the provided feedback. Example:
 
