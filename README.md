@@ -19,7 +19,7 @@
   - [Advanced Usage](#advanced-usage)
     - [Available Providers](#available-providers)
     - [Available Models](#available-models)
-  - [Feedback Feature](#feedback-feature)
+  - [Improve Feature](#improve-feature)
 - [How It Works](#how-it-works)
   - [Prompt](#prompt)
     - [Instructions](#instructions)
@@ -88,19 +88,23 @@ For more control, use optional parameters:
 - `gpt-4o-2024-11-20`
 - `gemini-exp-1206`
 
-### Feedback Feature
+### Improve Feature
 
-The Feedback Feature allows you to improve existing code or add extra requirements. 
-
-Activate the feedback feature in a pull request by commenting:
+The Improve Feature helps enhance your code by analyzing the existing code and spec file. It generates improved code based on the provided feedback. Example:
 
 ```
 /wall-e improve path:workers/deduplicated-insert provider:googleai
 
 ---
-- Add user authentication via API Key (stored in Env)
-- No need to import "AI" from cloudflare:ai package
+- No need to import "Ai" from `cloudflare:ai` package
+- Update "AI" binding to use "Ai" as type
 ```
+
+Use this feature when you need to improve generated code with aspects not covered in spec files, such as:
+
+- Fixing imports
+- Adjusting types
+- Correcting API usage
 
 ## How It Works
 ### Prompt
