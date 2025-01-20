@@ -105,6 +105,7 @@ Use this feature when you need to improve generated code with aspects not covere
 - Fixing imports
 - Adjusting types
 - Correcting API usage
+- Correcting typos
 
 ## How It Works
 ### Prompt
