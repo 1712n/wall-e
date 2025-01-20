@@ -90,7 +90,7 @@ For more control, use optional parameters:
 
 #### Improve Feature
 
-The Improve Feature helps enhance your code by analyzing the existing code and spec file. It generates improved code based on the provided feedback. Example:
+The Improve Feature uses the existing code and spec file to generate optimized code based on the provided feedback. Example:
 
 ```
 /wall-e improve path:workers/deduplicated-insert provider:googleai
