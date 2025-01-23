@@ -1,4 +1,4 @@
-import { ProviderRequestParams, Role } from '.';
+import { ModelName, ProviderRequestParams, Role } from '.';
 
 interface OpenAIQuery {
 	model: string;
@@ -27,6 +27,33 @@ export interface OpenAIRequest {
 export function openAiRequest({ model, apiKey, prompts, temperature, stream }: ProviderRequestParams): OpenAIRequest {
 	const { user, system } = prompts;
 
+	const query: OpenAIQuery = {
+		model,
+		stream,
+		messages: [
+			{
+				role: 'system',
+				content: system,
+			},
+			{
+				role: 'user',
+				content: user,
+			},
+		],
+	};
+
+	switch (model) {
+		case ModelName.GPT_o1_Preview:
+			query.messages[0].role = 'user';
+			break;
+
+		default:
+			query.max_tokens = 4_096;
+			query.temperature = temperature;
+			query.seed = 0;
+			break;
+	}
+
 	return {
 		provider: 'openai',
 		endpoint: 'chat/completions',
@@ -34,23 +61,7 @@ export function openAiRequest({ model, apiKey, prompts, temperature, stream }: P
 			Authorization: `Bearer ${apiKey}`,
 			'Content-Type': 'application/json',
 		},
-		query: {
-			model,
-			stream,
-			messages: [
-				{
-					role: 'system',
-					content: system,
-				},
-				{
-					role: 'user',
-					content: user,
-				},
-			],
-			max_tokens: 4_096,
-			temperature,
-			seed: 0,
-		},
+		query,
 	};
 }
 
