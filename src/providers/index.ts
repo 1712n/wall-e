@@ -14,7 +14,9 @@ export enum ModelProvider {
 export enum ModelName {
 	Claude_3_5_Sonnet_20241022 = 'claude-3-5-sonnet-20241022',
 	GPT_4o = 'gpt-4o-2024-11-20',
-	Gemini_Exp = 'gemini-exp-1206',
+	GPT_o1 = 'o1-2024-12-17',
+	Gemini_Exp_Pro = 'gemini-exp-1206',
+	Gemini_Exp_Flash_Thinking = 'gemini-2.0-flash-thinking-exp-01-21',
 	Gemini_Flash = 'gemini-2.0-flash-exp',
 }
 
@@ -22,10 +24,11 @@ type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: Mo
 
 export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.GoogleAi]: {
-		default: ModelName.Gemini_Exp,
+		default: ModelName.Gemini_Exp_Pro,
 		models: [
 			ModelName.Gemini_Flash,
-			ModelName.Gemini_Exp
+			ModelName.Gemini_Exp_Pro,
+			ModelName.Gemini_Exp_Flash_Thinking,
 		],
 	},
 	[ModelProvider.Anthropic]: {
@@ -35,9 +38,10 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		],
 	},
 	[ModelProvider.OpenAI]: {
-		default: ModelName.GPT_4o,
+		default: ModelName.GPT_o1,
 		models: [
-			ModelName.GPT_4o
+			ModelName.GPT_4o,
+			ModelName.GPT_o1,
 		],
 	},
 	[ModelProvider.Unknown]: {},
