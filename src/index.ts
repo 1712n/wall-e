@@ -205,7 +205,7 @@ export default {
 							await sendPrompt(
 								env,
 								{
-									model: ModelName.Gemini_Exp,
+									model: ModelName.Gemini_Exp_Pro,
 									prompts: analyzeSpecFilePrompts,
 									temperature: 0.5,
 								},
