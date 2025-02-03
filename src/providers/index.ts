@@ -16,6 +16,7 @@ export enum ModelName {
 	GPT_4o = 'gpt-4o-2024-11-20',
 	GPT_o1 = 'o1-2024-12-17',
 	GPT_o1_Preview = 'o1-preview-2024-09-12',
+	GPT_o3_Mini = 'o3-mini-2025-01-31',
 	Gemini_Exp_Pro = 'gemini-exp-1206',
 	Gemini_Exp_Flash_Thinking = 'gemini-2.0-flash-thinking-exp-01-21',
 	Gemini_Flash = 'gemini-2.0-flash-exp',
@@ -43,7 +44,8 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		models: [
 			ModelName.GPT_4o,
 			ModelName.GPT_o1,
-			ModelName.GPT_o1_Preview
+			ModelName.GPT_o1_Preview,
+			ModelName.GPT_o3_Mini
 		],
 	},
 	[ModelProvider.Unknown]: {},
