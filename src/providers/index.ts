@@ -16,9 +16,9 @@ export enum ModelName {
 	GPT_4o = 'gpt-4o-2024-11-20',
 	GPT_o1 = 'o1-2024-12-17',
 	GPT_o1_Preview = 'o1-preview-2024-09-12',
-	Gemini_Exp_Pro = 'gemini-exp-1206',
+	Gemini_Exp_Pro = 'gemini-2.0-pro-exp-02-05',
 	Gemini_Exp_Flash_Thinking = 'gemini-2.0-flash-thinking-exp-01-21',
-	Gemini_Flash = 'gemini-2.0-flash-exp',
+	Gemini_Flash = 'gemini-2.0-flash',
 }
 
 type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: ModelName[] }>;
