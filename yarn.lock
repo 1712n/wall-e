@@ -715,6 +715,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@octokit/openapi-types@npm:^23.0.1":
+  version: 23.0.1
+  resolution: "@octokit/openapi-types@npm:23.0.1"
+  checksum: 10c0/ab734ceb26343d9f051a59503b8cb5bdc7fec9ca044b60511b227179bec73141dd9144a6b2d68bcd737741881b136c1b7d5392da89ae2e35e39acc489e5eb4c1
+  languageName: node
+  linkType: hard
+
 "@octokit/openapi-webhooks-types@npm:8.2.1":
   version: 8.2.1
   resolution: "@octokit/openapi-webhooks-types@npm:8.2.1"
@@ -722,7 +729,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/plugin-paginate-rest@npm:11.3.0, @octokit/plugin-paginate-rest@npm:^11.0.0":
+"@octokit/plugin-paginate-rest@npm:11.4.1":
+  version: 11.4.1
+  resolution: "@octokit/plugin-paginate-rest@npm:11.4.1"
+  dependencies:
+    "@octokit/types": "npm:^13.7.0"
+  peerDependencies:
+    "@octokit/core": ">=6"
+  checksum: 10c0/d21b5f61a678e99fdf5afdfd08360d16a7be1469aa6c65184131d864d64be34fd6108ebc49052c17433d149cff09186908ada2a8ad0083e4063aa290d8aebf60
+  languageName: node
+  linkType: hard
+
+"@octokit/plugin-paginate-rest@npm:^11.0.0":
   version: 11.3.0
   resolution: "@octokit/plugin-paginate-rest@npm:11.3.0"
   dependencies:
@@ -760,6 +778,15 @@ __metadata:
   dependencies:
     "@octokit/openapi-types": "npm:^22.2.0"
   checksum: 10c0/355ebc6776ce23feace1b1be0927cdda758790fda83068109c4f27b354dcd43d0447d4dc24e5eafdb596465469ea1baed23f3fd63adfec508cc375ccd1dcb0a3
+  languageName: node
+  linkType: hard
+
+"@octokit/types@npm:^13.7.0":
+  version: 13.8.0
+  resolution: "@octokit/types@npm:13.8.0"
+  dependencies:
+    "@octokit/openapi-types": "npm:^23.0.1"
+  checksum: 10c0/e08c2fcf10e374f18e4c9fa12a6ada33a40f112d1209012a39f0ce40ae7aa9dcf0598b6007b467f63cc4a97e7b1388d6eed34ddef61494655e08b5a95afaad97
   languageName: node
   linkType: hard
 
@@ -3155,7 +3182,7 @@ __metadata:
     "@cloudflare/vitest-pool-workers": "npm:^0.4.6"
     "@cloudflare/workers-types": "npm:^4.20240620.0"
     "@octokit/app": "npm:^15.1.0"
-    "@octokit/plugin-paginate-rest": "npm:11.3.0"
+    "@octokit/plugin-paginate-rest": "npm:11.4.1"
     "@octokit/webhooks": "npm:^13.2.7"
     prettier: "npm:^3.3.2"
     typescript: "npm:^5.5.2"
