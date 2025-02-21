@@ -44,6 +44,7 @@ export function openAiRequest({ model, apiKey, prompts, temperature, stream }: P
 
 	switch (model) {
 		case ModelName.GPT_o1_Preview:
+		case ModelName.GPT_o3_Mini:
 			query.messages[0].role = 'user';
 			break;
 
