@@ -89,6 +89,7 @@ For more control, use optional parameters:
 - `claude-3-5-sonnet-20241022`
 - `gpt-4o-2024-11-20`
 - `o1-preview-2024-09-12`
+- `o3-mini-2025-01-31`
 
 #### Improve Feature
 
