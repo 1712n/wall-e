@@ -13,6 +13,7 @@ export enum ModelProvider {
 
 export enum ModelName {
 	Claude_3_5_Sonnet_20241022 = 'claude-3-5-sonnet-20241022',
+	Claude_3_7_Sonnet_20250219 = 'claude-3-7-sonnet-20250219'
 	GPT_4o = 'gpt-4o-2024-11-20',
 	GPT_o1 = 'o1-2024-12-17',
 	GPT_o1_Preview = 'o1-preview-2024-09-12',
@@ -34,9 +35,10 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		],
 	},
 	[ModelProvider.Anthropic]: {
-		default: ModelName.Claude_3_5_Sonnet_20241022,
+		default: ModelName.Claude_3_7_Sonnet_20250219,
 		models: [
 			ModelName.Claude_3_5_Sonnet_20241022
+			ModelName.Claude_3_7_Sonnet_20250219
 		],
 	},
 	[ModelProvider.OpenAI]: {
