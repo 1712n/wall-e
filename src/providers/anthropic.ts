@@ -5,6 +5,10 @@ interface AnthropicQuery {
 	max_tokens: number;
 	stream: boolean;
 	system: string;
+	thinking: {
+		type: string;
+		budget_tokens: number;
+	};
 	messages: {
 		role: Role;
 		content: string;
@@ -38,6 +42,10 @@ export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderReq
 		query: {
 			model: model,
 			max_tokens: 8_192,
+			thinking: {
+        "type": "enabled",
+        "budget_tokens": 8000
+    },
 			stream,
 			system,
 			messages: [
@@ -74,4 +82,5 @@ export function anthropicResponseTextFromSSE(sse: AnthropicSSE[]): string {
 	}
 
 	return result;
+}
 }
