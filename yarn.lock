@@ -736,7 +736,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/plugin-paginate-rest@npm:^11.4.2, @octokit/plugin-paginate-rest@npm:^11.4.3":
+"@octokit/plugin-paginate-rest@npm:^11.4.2":
   version: 11.4.3
   resolution: "@octokit/plugin-paginate-rest@npm:11.4.3"
   dependencies:
@@ -3220,7 +3220,6 @@ __metadata:
     "@cloudflare/vitest-pool-workers": "npm:^0.4.6"
     "@cloudflare/workers-types": "npm:^4.20240620.0"
     "@octokit/app": "npm:^15.1.5"
-    "@octokit/plugin-paginate-rest": "npm:^11.4.3"
     "@octokit/webhooks": "npm:^13.2.7"
     prettier: "npm:^3.3.2"
     typescript: "npm:^5.5.2"
