@@ -69,12 +69,12 @@ For more control, use optional parameters:
 /wall-e generate path:workers/generate-embeddings provider:openai temperature:0.8
 ```
 
-| Parameter     | Aliases | Description                                      | Default                  |
-| ------------- | ------- | ------------------------------------------------ | ------------------------ |
-| `path`        |         | custom path to a worker dir                      | repository root          |
-| `provider`    |         | provider for code generation                     | googleai                 |
-| `model`       |         | model name from the provider                          | gemini-2.0-pro-exp-02-05 |
-| `temperature` | `temp`  | model temperature setting (0-1)                  | 0.5                      |
+| Parameter     | Aliases | Description                                    | Default                  |
+| ------------- | ------- | ---------------------------------------------- | ------------------------ |
+| `path`        |         | custom path to a worker dir                    | repository root          |
+| `provider`    |         | provider for code generation                   | googleai                 |
+| `model`       |         | model name from the provider                   | gemini-2.0-pro-exp-02-05 |
+| `temperature` | `temp`  | model temperature setting (0-1)                | 0.5                      |
 | `fallback`    |         | whether or not you want to use fallback models | true                     |
 
 #### Available Providers
