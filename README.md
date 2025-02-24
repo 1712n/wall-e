@@ -86,7 +86,8 @@ For more control, use optional parameters:
 - `gemini-2.0-pro-exp-02-05` (default, medium-size, search grounding disabled)
 - `gemini-2.0-flash` (small size, search grounding enabled)
 - `gemini-2.0-flash-thinking-exp-01-21` (small size, thinking, search grounding disabled)
-- `claude-3-5-sonnet-20241022`
+- `claude-3-5-sonnet-20241022
+- `claude-3-7-sonnet-20250219`
 - `gpt-4o-2024-11-20`
 - `o1-preview-2024-09-12`
 - `o3-mini-2025-01-31`
