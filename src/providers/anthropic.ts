@@ -27,14 +27,21 @@ export interface AnthropicRequest {
 
 export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderRequestParams): AnthropicRequest {
 	const { user, system } = prompts;
+	const headers: AnthropicHeaders = {
+		'x-api-key': apiKey,
+		'anthropic-version': '2023-06-01',
+		'content-type': 'application/json',
+	};
+
+	if (model === 'claude-3-7-sonnet-20250219-thinking') {
+		headers['anthropic-beta'] = 'output-128k-2025-02-19';
+		model = 'claude-3-7-sonnet-20250219';
+	}
+
 	return {
 		provider: 'anthropic',
 		endpoint: 'v1/messages',
-		headers: {
-			'x-api-key': apiKey,
-			'anthropic-version': '2023-06-01',
-			'content-type': 'application/json',
-		},
+		headers,
 		query: {
 			model: model,
 			max_tokens: 8_192,
