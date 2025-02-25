@@ -1,4 +1,4 @@
-import { ProviderRequestParams, Role } from '.';
+import { ProviderRequestParams, Role, ModelName } from '.';
 
 interface AnthropicQuery {
 	model: string;
@@ -51,7 +51,7 @@ export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderReq
 		],
 	};
 
-	if (model === 'claude-3-7-sonnet-20250219-thinking') {
+	if (model === ModelName.Claude_3_7_Sonnet_20250219_Thinking) {
 		headers['anthropic-beta'] = 'output-128k-2025-02-19';
 		query.max_tokens = 128000;
 		query.thinking = {
@@ -59,7 +59,7 @@ export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderReq
 			budget_tokens: 32000,
 		};
 		query.betas = ['output-128k-2025-02-19'];
-		model = 'claude-3-7-sonnet-20250219';
+		model = ModelName.Claude_3_7_Sonnet_20250219;
 	}
 
 	return {
