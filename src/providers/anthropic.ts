@@ -1,4 +1,4 @@
-import { ProviderRequestParams, Role } from '.';
+import { ProviderRequestParams, Role, ModelName } from '.';
 
 interface AnthropicQuery {
 	model: string;
@@ -9,6 +9,11 @@ interface AnthropicQuery {
 		role: Role;
 		content: string;
 	}[];
+	thinking?: {
+		type: string;
+		budget_tokens: number;
+	};
+	betas?: string[];
 }
 
 interface AnthropicHeaders {
@@ -27,26 +32,41 @@ export interface AnthropicRequest {
 
 export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderRequestParams): AnthropicRequest {
 	const { user, system } = prompts;
+	const headers: AnthropicHeaders = {
+		'x-api-key': apiKey,
+		'anthropic-version': '2023-06-01',
+		'content-type': 'application/json',
+	};
+
+	const query: AnthropicQuery = {
+		model: model,
+		max_tokens: 8_192,
+		stream,
+		system,
+		messages: [
+			{
+				role: 'user',
+				content: user,
+			},
+		],
+	};
+
+	if (model === ModelName.Claude_3_7_Sonnet_20250219_Thinking) {
+		headers['anthropic-beta'] = 'output-128k-2025-02-19';
+		query.max_tokens = 128000;
+		query.thinking = {
+			type: 'enabled',
+			budget_tokens: 32000,
+		};
+		query.betas = ['output-128k-2025-02-19'];
+		model = ModelName.Claude_3_7_Sonnet_20250219;
+	}
+
 	return {
 		provider: 'anthropic',
 		endpoint: 'v1/messages',
-		headers: {
-			'x-api-key': apiKey,
-			'anthropic-version': '2023-06-01',
-			'content-type': 'application/json',
-		},
-		query: {
-			model: model,
-			max_tokens: 8_192,
-			stream,
-			system,
-			messages: [
-				{
-					role: 'user',
-					content: user,
-				},
-			],
-		},
+		headers,
+		query,
 	};
 }
 
