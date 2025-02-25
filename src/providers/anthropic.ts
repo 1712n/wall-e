@@ -57,7 +57,7 @@ export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderReq
 			type: 'enabled',
 			budget_tokens: 32000,
 		};
-		model = ModelName.Claude_3_7_Sonnet_20250219;
+		query.model = ModelName.Claude_3_7_Sonnet_20250219;
 	}
 
 	return {
