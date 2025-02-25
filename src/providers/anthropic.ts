@@ -13,7 +13,6 @@ interface AnthropicQuery {
 		type: string;
 		budget_tokens: number;
 	};
-	betas?: string[];
 }
 
 interface AnthropicHeaders {
@@ -58,7 +57,6 @@ export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderReq
 			type: 'enabled',
 			budget_tokens: 32000,
 		};
-		query.betas = ['output-128k-2025-02-19'];
 		model = ModelName.Claude_3_7_Sonnet_20250219;
 	}
 
