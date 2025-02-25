@@ -9,6 +9,11 @@ interface AnthropicQuery {
 		role: Role;
 		content: string;
 	}[];
+	thinking?: {
+		type: string;
+		budget_tokens: number;
+	};
+	betas?: string[];
 }
 
 interface AnthropicHeaders {
@@ -33,8 +38,27 @@ export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderReq
 		'content-type': 'application/json',
 	};
 
+	const query: AnthropicQuery = {
+		model: model,
+		max_tokens: 8_192,
+		stream,
+		system,
+		messages: [
+			{
+				role: 'user',
+				content: user,
+			},
+		],
+	};
+
 	if (model === 'claude-3-7-sonnet-20250219-thinking') {
 		headers['anthropic-beta'] = 'output-128k-2025-02-19';
+		query.max_tokens = 128000;
+		query.thinking = {
+			type: 'enabled',
+			budget_tokens: 32000,
+		};
+		query.betas = ['output-128k-2025-02-19'];
 		model = 'claude-3-7-sonnet-20250219';
 	}
 
@@ -42,18 +66,7 @@ export function anthropicRequest({ model, prompts, apiKey, stream }: ProviderReq
 		provider: 'anthropic',
 		endpoint: 'v1/messages',
 		headers,
-		query: {
-			model: model,
-			max_tokens: 8_192,
-			stream,
-			system,
-			messages: [
-				{
-					role: 'user',
-					content: user,
-				},
-			],
-		},
+		query,
 	};
 }
 
