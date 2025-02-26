@@ -7,7 +7,7 @@ interface OpenAIQuery {
 		role: Role;
 		content: string;
 	}[];
-	max_tokens?: number;
+	max_completion_tokens?: number;
 	temperature?: number;
 	seed?: number;
 }
@@ -46,10 +46,9 @@ export function openAiRequest({ model, apiKey, prompts, temperature, stream }: P
 		case ModelName.GPT_o1_Preview:
 		case ModelName.GPT_o3_Mini:
 			query.messages[0].role = 'user';
-			break;
 
 		default:
-			query.max_tokens = 4_096;
+			query.max_completion_tokens = 4_096;
 			query.temperature = temperature;
 			query.seed = 0;
 			break;
