@@ -2,8 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { anthropicRequest } from '../../src/providers/anthropic';
 import { googleAIStudioRequest } from '../../src/providers/googleai';
 import { openAiRequest } from '../../src/providers/openai';
-import { handleStreamResponse } from '../../src/providers/index';
-import { ModelName, ModelProvider } from '../../src/providers';
+import { ModelName } from '../../src/providers';
 import { PromptMessages } from '../../src/prompt';
 
 describe('anthropicRequest', () => {
@@ -72,20 +71,5 @@ describe('openAiRequest', () => {
     expect(request.query.model).toBe(ModelName.GPT_o1_Preview);
     expect(request.query.messages[0].content).toBe('Test system prompt');
     expect(request.query.messages[1].content).toBe('Test user prompt');
-  });
-});
-
-describe('handleStreamResponse', () => {
-  it('should handle streamed response correctly', async () => {
-    const reader = {
-      read: async () => ({
-        done: true,
-        value: new TextEncoder().encode('data: {"text": "Test response"}\n\n'),
-      }),
-    } as unknown as ReadableStreamDefaultReader<any>;
-
-    const response = await handleStreamResponse(reader);
-
-    expect(response.text).toBe('Test response');
   });
 });

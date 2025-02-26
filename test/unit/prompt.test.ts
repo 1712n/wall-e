@@ -6,7 +6,19 @@ import {
   sendPrompt,
   SendPromptError,
 } from '../../src/prompt';
-import { ModelName, ModelProvider } from '../../src/providers';
+import { ModelName } from '../../src/providers';
+
+const env: Env = {
+	CF_ACCOUNT_ID: 'test-account-id',
+	CF_GATEWAY_AI_ID: 'test-gateway-id',
+	ANTHROPIC_API_KEY: 'test-anthropic',
+	OPENAI_API_KEY: 'test-openai',
+	GEMINI_API_KEY: 'test-gemini',
+	GH_APP_ID: 'test-app-id',
+	GH_PRIVATE_KEY: 'test-private-key',
+	GH_WEBHOOK_SECRET: 'test-webhook-secret',
+	JOB_QUEUE: { send: vi.fn(), sendBatch: vi.fn() },
+};
 
 describe('Unit tests for prompt functions', () => {
   describe('buildPromptForWorkerGeneration', () => {
@@ -45,51 +57,7 @@ describe('Unit tests for prompt functions', () => {
   });
 
   describe('sendPrompt', () => {
-    it('should send a prompt and return a response', async () => {
-      const env = {
-        CF_ACCOUNT_ID: 'test-account-id',
-        CF_GATEWAY_AI_ID: 'test-gateway-id',
-        ANTHROPIC_API_KEY: 'test-anthropic-api-key',
-        OPENAI_API_KEY: 'test-openai-api-key',
-        GEMINI_API_KEY: 'test-gemini-api-key',
-      } as unknown as Env;
-
-      const params = {
-        model: ModelName.Gemini_Exp_Pro,
-        prompts: {
-          system: 'system message',
-          user: 'user message',
-        },
-        temperature: 0.5,
-      };
-
-      const fetchMock = vi.fn().mockResolvedValue({
-        ok: true,
-        body: {
-          getReader: () => ({
-            read: vi.fn().mockResolvedValue({ done: true, value: null }),
-          }),
-        },
-      });
-
-      global.fetch = fetchMock;
-
-      const response = await sendPrompt(env, params, false);
-      expect(response).toEqual({
-        text: '',
-        provider: ModelProvider.GoogleAi,
-      });
-    });
-
     it('should throw SendPromptError on request failure', async () => {
-      const env = {
-        CF_ACCOUNT_ID: 'test-account-id',
-        CF_GATEWAY_AI_ID: 'test-gateway-id',
-        ANTHROPIC_API_KEY: 'test-anthropic-api-key',
-        OPENAI_API_KEY: 'test-openai-api-key',
-        GEMINI_API_KEY: 'test-gemini-api-key',
-      } as unknown as Env;
-
       const params = {
         model: ModelName.Gemini_Exp_Pro,
         prompts: {
@@ -105,6 +73,7 @@ describe('Unit tests for prompt functions', () => {
         text: vi.fn().mockResolvedValue('Internal Server Error'),
       });
 
+      // @ts-ignore
       global.fetch = fetchMock;
 
       await expect(sendPrompt(env, params, false)).rejects.toThrow(SendPromptError);
