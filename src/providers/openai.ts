@@ -7,7 +7,7 @@ interface OpenAIQuery {
 		role: Role;
 		content: string;
 	}[];
-	max_tokens?: number;
+	max_completion_tokens?: number;
 	temperature?: number;
 	seed?: number;
 }
@@ -40,18 +40,19 @@ export function openAiRequest({ model, apiKey, prompts, temperature, stream }: P
 				content: user,
 			},
 		],
+		/**
+		 * What sampling temperature to use, between 0 and 2.
+		 * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+		 * https://platform.openai.com/docs/api-reference/chat/create#chat-create-temperature
+		 */
+		temperature: (temperature * 2),
+		seed: 0
 	};
 
 	switch (model) {
 		case ModelName.GPT_o1_Preview:
 		case ModelName.GPT_o3_Mini:
 			query.messages[0].role = 'user';
-			break;
-
-		default:
-			query.max_tokens = 4_096;
-			query.temperature = temperature;
-			query.seed = 0;
 			break;
 	}
 
