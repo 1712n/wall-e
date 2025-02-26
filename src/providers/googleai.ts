@@ -1,7 +1,7 @@
 import { Role, ProviderRequestParams, ModelName } from '.';
 
 interface GoogleAIStudioContent {
-	role: Role;
+	role?: Role;
 	parts: {
 		text: string;
 	}[];
@@ -20,11 +20,15 @@ interface DynamicRetrievalConfig {
 }
 
 interface GoogleAIStudioQuery {
+	systemInstruction: GoogleAIStudioContent;
 	contents: GoogleAIStudioContent[];
 	tools?: {
 		googleSearchRetrieval?: DynamicRetrievalConfig;
 		googleSearch?: {};
 	}[];
+	generationConfig?: {
+		temperature?: number;
+	};
 }
 
 interface GoogleAIStudioHeaders {
@@ -39,16 +43,9 @@ export interface GoogleAIStudioRequest {
 	query: GoogleAIStudioQuery;
 }
 
-export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderRequestParams): GoogleAIStudioRequest {
+export function googleAIStudioRequest({ model, apiKey, prompts, temperature }: ProviderRequestParams): GoogleAIStudioRequest {
 	const { user, system } = prompts;
 	const tools = [];
-
-	const defaultDynamicRetrievalConfig: DynamicRetrievalConfig = {
-		dynamicRetrievalConfig: {
-			mode: DynamicRetrievalMode.DYNAMIC,
-			dynamicThreshold: 0,
-		},
-	};
 
 	switch (model) {
 		case ModelName.Gemini_Flash:
@@ -69,10 +66,16 @@ export function googleAIStudioRequest({ model, apiKey, prompts }: ProviderReques
 			contents: [
 				{
 					role: 'user',
-					parts: [{ text: `${system}\n\n${user}` }],
+					parts: [{ text: user }],
 				},
 			],
 			tools,
+			generationConfig: {
+				temperature,
+			},
+			systemInstruction: {
+				parts: [{ text: system }],
+			},
 		},
 	};
 }
