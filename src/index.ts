@@ -20,7 +20,7 @@ import * as prettier from 'prettier/standalone';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as parserTypeScript from 'prettier/parser-typescript';
 
-type GitHubJob = {
+export type GitHubJob = {
 	command: UserCommand;
 	context: CommandContext;
 	installationId: number;
