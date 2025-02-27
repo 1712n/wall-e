@@ -1,5 +1,5 @@
 import { SELF } from 'cloudflare:test';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CommandName, GitHub } from '../../src/github';
 
 import worker from '../../src';
@@ -18,6 +18,16 @@ const env: Env = {
 };
 
 describe('Integration tests for fetch method', () => {
+	beforeEach(() => {
+		vi.spyOn(GitHub.prototype, 'verifyRequest').mockResolvedValue(
+			new Response(JSON.stringify({ ok: true }), {
+				headers: { 'content-type': 'application/json' },
+			}),
+		);
+
+		vi.spyOn(GitHub.prototype, 'postComment').mockResolvedValue(-1);
+	});
+
 	it('should return a response with "Nothing to see here..." for GET request', async () => {
 		const request = new Request('https://example.com', { method: 'GET' });
 		const response = await SELF.fetch(request);
@@ -42,15 +52,6 @@ describe('Integration tests for fetch method', () => {
 			},
 			body: JSON.stringify({ installation: { id: 123 } }),
 		});
-
-		const github = new GitHub({
-			appId: env.GH_APP_ID,
-			privateKey: env.GH_PRIVATE_KEY,
-			installationId: 123,
-			webhooks: { secret: env.GH_WEBHOOK_SECRET },
-		});
-
-		vi.spyOn(github, 'verifyRequest').mockResolvedValue(new Response(JSON.stringify({ ok: true })));
 
 		const response = await worker.fetch(request, env);
 		const json: { ok: boolean } = await response.json();
