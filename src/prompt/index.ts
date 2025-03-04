@@ -7,7 +7,7 @@ import {
 	getProviderForModel,
 	getDefaultModelForProvider,
 } from '../providers';
-import { generateWorker, improveWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
+import { generateWorkerTs, generateWorkerJs, improveWorker, analyzeSpecFile, specFileBestPractices } from './markdown';
 
 const MODEL_PROVIDER_ORDER = [
 	ModelProvider.Anthropic,
@@ -44,9 +44,9 @@ const buildUserMessage = ({
 	return message;
 };
 
-export function buildPromptForWorkerGeneration(specFile: string): PromptMessages {
+export function buildPromptForWorkerGeneration(specFile: string, language: 'js' | 'ts' = 'ts'): PromptMessages {
 	return {
-		system: generateWorker,
+		system: language === 'js' ? generateWorkerJs : generateWorkerTs,
 		user: buildUserMessage({
 			specFile,
 		}),

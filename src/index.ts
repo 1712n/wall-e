@@ -48,6 +48,7 @@ type CommitGeneratedCodeParams = {
 	model: ModelName;
 	temperature: number;
 	fallbackModel?: ModelName;
+	language?: 'js' | 'ts';
 	prompts: {
 		generateWorker: string;
 	};
@@ -65,14 +66,16 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		model,
 		fallbackModel,
 		temperature,
+		language = 'ts',
 		prompts,
 	} = params;
 
 	const formattedCode = await prettier.format(generatedCode, {
-		parser: 'typescript',
+		parser: language === 'js' ? 'babel' : 'typescript',
 		plugins: [prettierPluginEstree, parserTypeScript],
 	});
-	const srcFilePath = ensurePath(basePath, 'src/index.ts');
+	const extension = language === 'js' ? 'js' : 'ts';
+	const srcFilePath = ensurePath(basePath, `src/index.${extension}`);
 	const file = { path: srcFilePath, content: formattedCode };
 
 	try {
@@ -189,11 +192,30 @@ export default {
 						{
 							// Get the spec file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
-							const specFilePath = ensurePath(basePath, 'test/index.spec.ts');
-							const specFile = changedFiles.find((file) => file.filename === specFilePath);
-
-							if (!specFile) {
-								const body = `Please change the spec file (${specFilePath}) in this pull request. It should contain new requirements for the code you will need me to write.`;
+							
+							// Look for both TS and JS spec files
+							const tsSpecFilePath = ensurePath(basePath, 'test/index.spec.ts');
+							const jsSpecFilePath = ensurePath(basePath, 'test/index.spec.js');
+							
+							const tsSpecFile = changedFiles.find((file) => file.filename === tsSpecFilePath);
+							const jsSpecFile = changedFiles.find((file) => file.filename === jsSpecFilePath);
+							
+							// Determine language and file based on what was found
+							let specFile;
+							let language: 'js' | 'ts';
+							
+							if (tsSpecFile && jsSpecFile) {
+								const body = `Found both TypeScript and JavaScript spec files. Please include only one spec file type in your pull request.`;
+								await github.postComment(context, body, workingCommentId);
+								return;
+							} else if (tsSpecFile) {
+								specFile = tsSpecFile;
+								language = 'ts';
+							} else if (jsSpecFile) {
+								specFile = jsSpecFile;
+								language = 'js';
+							} else {
+								const body = `No spec file found. Please include either a TypeScript (${tsSpecFilePath}) or JavaScript (${jsSpecFilePath}) spec file in your pull request.`;
 								await github.postComment(context, body, workingCommentId);
 								return;
 							}
@@ -232,7 +254,7 @@ export default {
 							});
 
 							// Generate the code based on the spec file
-							const generateWorkerPrompts = buildPromptForWorkerGeneration(specFileContent);
+							const generateWorkerPrompts = buildPromptForWorkerGeneration(specFileContent, language);
 							await sendPrompt(
 								env,
 								{
@@ -257,7 +279,7 @@ export default {
 									return;
 								}
 
-								// Write the generated file (src/index.ts) to the pull request's branch
+								// Write the generated file to the pull request's branch
 								await commitGeneratedCode({
 									basePath,
 									generatedCode,
@@ -269,6 +291,7 @@ export default {
 									model,
 									fallbackModel,
 									temperature,
+									language,
 									prompts: {
 										generateWorker: generateWorkerPrompts.system,
 									},
@@ -281,22 +304,61 @@ export default {
 						{
 							// Retrieve the list of files changed in the pull request
 							const pullRequestFiles = await github.listPullRequestFiles(context);
-							const specFilePath = ensurePath(basePath, 'test/index.spec.ts');
-							const specFile = pullRequestFiles.find((file) => file.filename === specFilePath);
-
-							if (!specFile) {
-								const message = `The specification file (${specFilePath}) is missing from this pull request. Please include it to define the new requirements for the code to be written.`;
-								await github.postComment(context, message, workingCommentId);
+							
+							// Look for both TS and JS spec files
+							const tsSpecFilePath = ensurePath(basePath, 'test/index.spec.ts');
+							const jsSpecFilePath = ensurePath(basePath, 'test/index.spec.js');
+							
+							const tsSpecFile = pullRequestFiles.find((file) => file.filename === tsSpecFilePath);
+							const jsSpecFile = pullRequestFiles.find((file) => file.filename === jsSpecFilePath);
+							
+							// Determine language and file based on what was found
+							let specFile;
+							let language: 'js' | 'ts';
+							
+							if (tsSpecFile && jsSpecFile) {
+								const body = `Found both TypeScript and JavaScript spec files. Please include only one spec file type in your pull request.`;
+								await github.postComment(context, body, workingCommentId);
+								return;
+							} else if (tsSpecFile) {
+								specFile = tsSpecFile;
+								language = 'ts';
+							} else if (jsSpecFile) {
+								specFile = jsSpecFile;
+								language = 'js';
+							} else {
+								const body = `No spec file found. Please include either a TypeScript (${tsSpecFilePath}) or JavaScript (${jsSpecFilePath}) spec file in your pull request.`;
+								await github.postComment(context, body, workingCommentId);
 								return;
 							}
 
-							const indexFilePath = ensurePath(basePath, 'src/index.ts');
-							let indexFile = pullRequestFiles.find((file) => file.filename === indexFilePath);
+							// Look for both TS and JS index files
+							const tsIndexFilePath = ensurePath(basePath, 'src/index.ts');
+							const jsIndexFilePath = ensurePath(basePath, 'src/index.js');
+							
+							// First try to find the index file matching the language of the spec file
+							const preferredIndexFilePath = language === 'js' ? jsIndexFilePath : tsIndexFilePath;
+							let indexFile = pullRequestFiles.find((file) => file.filename === preferredIndexFilePath);
+							
+							// If not found, try the other language as fallback
+							if (!indexFile) {
+								const fallbackIndexFilePath = language === 'js' ? tsIndexFilePath : jsIndexFilePath;
+								indexFile = pullRequestFiles.find((file) => file.filename === fallbackIndexFilePath);
+							}
 
 							if (!indexFile) {
-								const existingIndexFile = await github.getMainBranchFile(context, indexFilePath);
+								// Try to get the index file from the main branch, prioritizing the language of the spec file
+								const preferredFilePath = language === 'js' ? jsIndexFilePath : tsIndexFilePath;
+								let existingIndexFile = await github.getMainBranchFile(context, preferredFilePath);
+								
+								// If not found, try the other language as fallback
 								if (!existingIndexFile) {
-									const message = `The index file (${indexFilePath}) was not found in the repository. Please create it and try again.`;
+									const fallbackFilePath = language === 'js' ? tsIndexFilePath : jsIndexFilePath;
+									existingIndexFile = await github.getMainBranchFile(context, fallbackFilePath);
+								}
+								
+								if (!existingIndexFile) {
+									const message = `No index file was found in the repository. Please create either a JavaScript (${jsIndexFilePath}) or TypeScript (${tsIndexFilePath}) index file and try again.`;
 									await github.postComment(context, message, workingCommentId);
 									return;
 								}
@@ -305,6 +367,13 @@ export default {
 									...existingIndexFile,
 									filename: existingIndexFile.name,
 								};
+								
+								// Determine language based on the file extension if we found a file
+								if (indexFile.filename.endsWith('.js')) {
+									language = 'js';
+								} else if (indexFile.filename.endsWith('.ts')) {
+									language = 'ts';
+								}
 							}
 
 							// Fetch the contents of the spec file and index file
@@ -359,6 +428,7 @@ export default {
 									model,
 									fallbackModel,
 									temperature,
+									language,
 									prompts: {
 										generateWorker: improvementPrompts.system,
 									},
