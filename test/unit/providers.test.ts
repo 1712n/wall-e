@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { anthropicRequest } from '../../src/providers/anthropic';
-import { googleAIStudioRequest } from '../../src/providers/googleai';
+import { googleAIStudioRequest, googleGeminiParsedResponse } from '../../src/providers/googleai';
 import { openAiRequest } from '../../src/providers/openai';
 import { ModelName, ProviderRequestParams } from '../../src/providers';
 
-describe('anthropicRequest', () => {
+describe('Anthropic provider', () => {
 	it('should build a valid request for Anthropic provider', () => {
 		const params: ProviderRequestParams = {
 			model: ModelName.Claude_3_7_Sonnet_20250219,
@@ -29,7 +29,7 @@ describe('anthropicRequest', () => {
 	});
 });
 
-describe('googleAIStudioRequest', () => {
+describe('Google AI provider', () => {
 	it('should build a valid request for Google AI Studio provider', () => {
 		const params: ProviderRequestParams = {
 			model: ModelName.Gemini_Exp_Pro,
@@ -51,9 +51,18 @@ describe('googleAIStudioRequest', () => {
 		expect(request.query.systemInstruction.parts[0].text).toBe('Test system prompt');
 		expect(request.query.generationConfig?.temperature).toBe(0.5);
 	});
+
+	it('should parse streamed response', async () => {
+		const { default: response } = await import('./googleai/present-xml-tags-response.json');
+
+		const parsedResponse = googleGeminiParsedResponse(response);
+		expect(parsedResponse).toBeDefined();
+		expect(parsedResponse.model).toBe('gemini-2.0-pro-exp-02-05');
+		expect(parsedResponse.metaData).toMatchObject([]);
+	});
 });
 
-describe('openAiRequest', () => {
+describe('OpenAI provider', () => {
 	it('should build a valid request for OpenAI provider', () => {
 		const params: ProviderRequestParams = {
 			model: ModelName.GPT_o1_Preview,
