@@ -32,7 +32,7 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		models: [
 			ModelName.Gemini_Flash,
 			ModelName.Gemini_Exp_Pro,
-			ModelName.Gemini_Exp_Flash_Thinking,
+			ModelName.Gemini_Exp_Flash_Thinking
 		],
 	},
 	[ModelProvider.Anthropic]: {
@@ -221,7 +221,8 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 	return ModelProvider.Unknown;
 }
 
-export async function handleStreamResponse(reader: ReadableStreamDefaultReader<any>): Promise<SendPromptResponse> {
+export async function handleStreamResponse(response: Response): Promise<SendPromptResponse> {
+	const reader = response.body!.getReader();
 	const events = await parseStreamedEvents(reader);
 	console.log('All events:', JSON.stringify(events, null, 2));
 
@@ -229,6 +230,7 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 		throw new Error('No events received from the model provider.');
 	}
 
+	const eventId = response.headers.get('cf-aig-event-id');
 	const provider = getModelProviderFromEvents(events);
 	try {
 		switch (provider) {
@@ -237,6 +239,7 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 					text: anthropicResponseTextFromSSE(events),
 					provider,
 					model: events[0].message.model,
+					eventId,
 				};
 
 			case ModelProvider.OpenAI:
@@ -244,6 +247,7 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 					text: openAiResponseTextFromSSE(events),
 					provider,
 					model: events[0].model,
+					eventId,
 				};
 
 			case ModelProvider.GoogleAi:
@@ -251,6 +255,7 @@ export async function handleStreamResponse(reader: ReadableStreamDefaultReader<a
 				return {
 					...response,
 					provider,
+					eventId,
 				};
 
 			default:

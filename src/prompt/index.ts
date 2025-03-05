@@ -53,11 +53,7 @@ export function buildPromptForWorkerGeneration(specFile: string, language: 'js' 
 	};
 }
 
-export function buildPromptForWorkerImprovement(
-	indexFile: string,
-	specFile: string,
-	reviewerFeedback: string,
-): PromptMessages {
+export function buildPromptForWorkerImprovement(indexFile: string, specFile: string, reviewerFeedback: string): PromptMessages {
 	return {
 		system: improveWorker,
 		user: buildUserMessage({
@@ -94,11 +90,17 @@ export class SendPromptError extends Error {
 export type SendPromptResponse = {
 	text: string;
 	provider: ModelProvider;
+	eventId: string | null;
 	model?: ModelName;
 	metaData?: any;
 };
 
-export async function sendPrompt(env: Env, params: SendPromptParams, fallback: boolean, stream: boolean = true): Promise<SendPromptResponse> {
+export async function sendPrompt(
+	env: Env,
+	params: SendPromptParams,
+	fallback: boolean,
+	stream: boolean = true,
+): Promise<SendPromptResponse> {
 	const accountId = env.CF_ACCOUNT_ID;
 	const gatewayId = env.CF_GATEWAY_AI_ID;
 
@@ -147,6 +149,5 @@ export async function sendPrompt(env: Env, params: SendPromptParams, fallback: b
 		throw new SendPromptError('No response body found.', params);
 	}
 
-	const reader = response.body.getReader();
-	return handleStreamResponse(reader);
+	return handleStreamResponse(response);
 }
