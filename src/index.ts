@@ -52,6 +52,7 @@ type CommitGeneratedCodeParams = {
 	prompts: {
 		generateWorker: string;
 	};
+	eventId: string | null;
 };
 
 async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
@@ -68,6 +69,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		temperature,
 		language = 'ts',
 		prompts,
+		eventId
 	} = params;
 
 	const formattedCode = await prettier.format(generatedCode, {
@@ -86,13 +88,14 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 			provider,
 			model: fallbackModel ?? model,
 			temperature,
+			eventId,
 			generateWorkerPrompt: JSON.stringify(prompts.generateWorker, null, 2),
 		});
 		const comment = `Code generated successfully! 🎉\n\n${debugInfo}`;
 		await github.postComment(context, comment, workingCommentId);
 	} catch (error) {
 		const elapsedTime = getElapsedSeconds(message.timestamp);
-		const debugInfo = formatDebugInfo({ elapsedTime, model, fallbackModel, temperature, error });
+		const debugInfo = formatDebugInfo({ elapsedTime, model, fallbackModel, temperature, eventId, error });
 		const comment = `An error occurred while pushing the code. Please try again.\n\n${debugInfo}`;
 		await github.postComment(context, comment, workingCommentId);
 	}
@@ -232,12 +235,13 @@ export default {
 									temperature: 0.5,
 								},
 								fallback,
-							).then(async ({ model, text }) => {
+							).then(async ({ model, text, eventId }) => {
 								if (!text) {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
 									const debugInfo = formatDebugInfo({
 										elapsedTime,
 										model, // The actual model used to analyze the spec file
+										eventId,
 										analyzeSpecFilePrompt: JSON.stringify(analyzeSpecFilePrompts.system, null, 2),
 										analyzeSpecFileResponse: JSON.stringify(text, null, 2),
 									});
@@ -263,7 +267,7 @@ export default {
 									temperature,
 								},
 								fallback,
-							).then(async ({ provider, model: fallbackModel, text, metaData }) => {
+							).then(async ({ provider, model: fallbackModel, text, eventId }) => {
 								const generatedCode = extractGeneratedCode(text);
 								if (!generatedCode) {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
@@ -272,6 +276,7 @@ export default {
 										provider,
 										model: fallbackModel ?? model, // The actual model used to generate the code
 										temperature,
+										eventId,
 										generateWorkerPrompt: JSON.stringify(generateWorkerPrompts.system, null, 2),
 										modelResponse: JSON.stringify(text, null, 2),
 									});
@@ -295,6 +300,7 @@ export default {
 									prompts: {
 										generateWorker: generateWorkerPrompts.system,
 									},
+									eventId
 								});
 							});
 						}
@@ -401,7 +407,7 @@ export default {
 									temperature,
 								},
 								fallback,
-							).then(async ({ provider, model: fallbackModel, text }) => {
+							).then(async ({ provider, model: fallbackModel, text, eventId }) => {
 								const generatedCode = extractGeneratedCode(text);
 								if (!generatedCode) {
 									const elapsedTime = getElapsedSeconds(message.timestamp);
@@ -410,6 +416,7 @@ export default {
 										provider,
 										model: fallbackModel ?? model, // Model used to generate the code
 										temperature,
+										eventId,
 										improvementPrompts: JSON.stringify(improvementPrompts.system, null, 2),
 									});
 									await github.postComment(context, `No code was generated. Please try again.\n\n${debugInfo}`, workingCommentId);
@@ -432,6 +439,7 @@ export default {
 									prompts: {
 										generateWorker: improvementPrompts.system,
 									},
+									eventId
 								});
 							});
 						}
