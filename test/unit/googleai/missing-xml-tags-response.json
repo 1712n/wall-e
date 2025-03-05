@@ -1,0 +1,408 @@
+[
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "```typescript\n<"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 4,
+      "totalTokenCount": 1294,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "generated_code>\ninterface Env {\n\tAI: any;\n}"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 20,
+      "totalTokenCount": 1310,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "\n\ninterface EmbeddingRequest {\n\ttext: string;\n}\n\ninterface Embedding"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 35,
+      "totalTokenCount": 1325,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "Response {\n\tembedding: number[];\n}\n\nasync function generateEmbedding(env: Env, text: string): Promise<EmbeddingResponse> {\n\ttry"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 68,
+      "totalTokenCount": 1358,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": " {\n\t\tconst aiResponse = await env.AI.run('@cf/baai/bge-base-en-v1.5', { text });"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 102,
+      "totalTokenCount": 1392,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "\n\t\tif (!aiResponse || !aiResponse.data || !Array.isArray(aiResponse.data) || aiResponse.data.length === 0 || !Array.isArray(aiResponse.data[0])) {\n"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 147,
+      "totalTokenCount": 1437,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "\t\t\tconsole.error('ERROR: generateEmbedding: Invalid AI response', aiResponse);\n\t\t\tthrow new Error('Invalid AI response');\n\t\t}\n\t\treturn { embedding: aiResponse.data[0] };\n\t} catch (error:"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 197,
+      "totalTokenCount": 1487,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": " any) {\n\t\tconsole.error('ERROR: generateEmbedding:', error);\n\t\tthrow new Error('Failed to generate embedding');\n\t}\n}\n\nexport default {\n\tasync fetch(request: Request, env: Env): Promise<Response> {\n\t\tif (request.url.endsWith('/')) {\n"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 263,
+      "totalTokenCount": 1553,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "\t\t\tif (request.method === 'POST') {\n\t\t\t\ttry {\n\t\t\t\t\tlet input: EmbeddingRequest;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tinput = await request.json<EmbeddingRequest>();\n\t\t\t\t\t} catch (error) {\n\t\t\t\t\t\tconsole.error('ERROR: Input parsing:', error);\n\t\t\t\t\t\treturn new"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 326,
+      "totalTokenCount": 1616,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": " Response('Invalid input text', { status: 400 });\n\t\t\t\t\t}\n\n\t\t\t\t\tif (typeof input.text !== 'string') {\n\t\t\t\t\t\tconsole.error('ERROR: Input validation: Invalid input type');\n\t\t\t\t\t\treturn new Response('Invalid input text', { status: 400 });\n\t\t\t\t\t"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 389,
+      "totalTokenCount": 1679,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "}\n\n\t\t\t\t\tif (!input.text) {\n\t\t\t\t\t\tconsole.error('ERROR: Input validation: Empty text');\n\t\t\t\t\t\treturn new Response('Invalid input for \"text\"', { status: 400 });\n\t\t\t\t\t}\n\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst embedding = await generateEmbedding(env, input."
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 453,
+      "totalTokenCount": 1743,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "text);\n\t\t\t\t\t\tconsole.log('INFO: Embedding generation: Success');\n\t\t\t\t\t\treturn new Response(JSON.stringify(embedding), {\n\t\t\t\t\t\t\theaders: { 'Content-Type': 'application/json' },\n\t\t\t\t\t\t});\n\t\t\t\t\t} catch (error: any) {\n\t\t\t\t\t\tconsole.error('ERROR: Embedding"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 519,
+      "totalTokenCount": 1809,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": " generation:', error);\n\t\t\t\t\t\treturn new Response('Internal server error, please see logs.', { status: 500 });\n\t\t\t\t\t}\n\t\t\t\t} catch (error: any) {\n\t\t\t\t\tconsole.error('ERROR: Request processing:', error);\n\t\t\t\t\treturn new Response('Internal server error, please see logs"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 584,
+      "totalTokenCount": 1874,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": ".', { status: 500 });\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tconsole.log('INFO: Invalid request path:', request.url);\n\t\treturn new Response('Please use / request path', { status: 404 });\n\t},\n};\n</generated_code>"
+            }
+          ],
+          "role": "model"
+        },
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 649,
+      "totalTokenCount": 1939,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  },
+  {
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "\n```"
+            }
+          ],
+          "role": "model"
+        },
+        "finishReason": "STOP",
+        "index": 0
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 1290,
+      "candidatesTokenCount": 650,
+      "totalTokenCount": 1940,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1290
+        }
+      ]
+    },
+    "modelVersion": "gemini-2.0-pro-exp-02-05"
+  }
+]
