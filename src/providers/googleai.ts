@@ -86,7 +86,7 @@ type GoogleGeminiResponse = {
 			parts: { text: string }[];
 			role: string;
 		};
-		finishReason: string;
+		finishReason?: string;
 		index: number;
 		groundingMetadata?: {
 			search_entry_point?: {

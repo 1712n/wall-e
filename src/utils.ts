@@ -91,10 +91,15 @@ export function extractXMLContent(text: string): { [key: string]: string } {
 }
 
 export function extractCodeBlockContent(text: string): string {
+	// Remove orphaned XML tags outside the code block
+	const orphanedXMLPattern = /<\/?(\w+)>/g;
+	text = text.replace(orphanedXMLPattern, '');
+
 	// Match and extract code block content if both opening and closing ``` are present
-	const completeCodeBlockPattern = /^```[\w]*\n([\s\S]*?)\n```$/gm;
-	if (completeCodeBlockPattern.test(text)) {
-		return text.replace(completeCodeBlockPattern, '$1');
+	const completeCodeBlockPattern = /```[\w]*\n([\s\S]*?)\n```/gm;
+	const match = completeCodeBlockPattern.exec(text);
+	if (match) {
+		return match[1];
 	}
 
 	// Remove any standalone ``` at the start or end
