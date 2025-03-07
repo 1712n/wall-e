@@ -14,6 +14,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cloudflare/unenv-preset@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@cloudflare/unenv-preset@npm:2.0.0"
+  peerDependencies:
+    unenv: 2.0.0-rc.8
+    workerd: ^1.20250124.0
+  peerDependenciesMeta:
+    workerd:
+      optional: true
+  checksum: 10c0/c15e65cdbde4bd3508de297b93562ae46806fd0d62ac1a24de795a986b93eee6de4057e19acfd0ea1a92d3736858ae91f5f27c7dcd5703d19ece2885f8ae4f8e
+  languageName: node
+  linkType: hard
+
 "@cloudflare/vitest-pool-workers@npm:^0.6.4":
   version: 0.6.16
   resolution: "@cloudflare/vitest-pool-workers@npm:0.6.16"
@@ -41,9 +54,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workerd-darwin-64@npm:1.20250214.0":
-  version: 1.20250214.0
-  resolution: "@cloudflare/workerd-darwin-64@npm:1.20250214.0"
+"@cloudflare/workerd-darwin-64@npm:1.20250224.0":
+  version: 1.20250224.0
+  resolution: "@cloudflare/workerd-darwin-64@npm:1.20250224.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
@@ -55,9 +68,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workerd-darwin-arm64@npm:1.20250214.0":
-  version: 1.20250214.0
-  resolution: "@cloudflare/workerd-darwin-arm64@npm:1.20250214.0"
+"@cloudflare/workerd-darwin-arm64@npm:1.20250224.0":
+  version: 1.20250224.0
+  resolution: "@cloudflare/workerd-darwin-arm64@npm:1.20250224.0"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
@@ -69,9 +82,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workerd-linux-64@npm:1.20250214.0":
-  version: 1.20250214.0
-  resolution: "@cloudflare/workerd-linux-64@npm:1.20250214.0"
+"@cloudflare/workerd-linux-64@npm:1.20250224.0":
+  version: 1.20250224.0
+  resolution: "@cloudflare/workerd-linux-64@npm:1.20250224.0"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
@@ -83,9 +96,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workerd-linux-arm64@npm:1.20250214.0":
-  version: 1.20250214.0
-  resolution: "@cloudflare/workerd-linux-arm64@npm:1.20250214.0"
+"@cloudflare/workerd-linux-arm64@npm:1.20250224.0":
+  version: 1.20250224.0
+  resolution: "@cloudflare/workerd-linux-arm64@npm:1.20250224.0"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
@@ -97,9 +110,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workerd-windows-64@npm:1.20250214.0":
-  version: 1.20250214.0
-  resolution: "@cloudflare/workerd-windows-64@npm:1.20250214.0"
+"@cloudflare/workerd-windows-64@npm:1.20250224.0":
+  version: 1.20250224.0
+  resolution: "@cloudflare/workerd-windows-64@npm:1.20250224.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -1797,6 +1810,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"exsolve@npm:^1.0.0":
+  version: 1.0.2
+  resolution: "exsolve@npm:1.0.2"
+  checksum: 10c0/1f9217c2096c2e5cf32b4326adc99caca272cd5ba7af35aaee22bdd11f8ebb64443f3288ab6034d3baa51ee51f30f92827db6946b4f51937925bd3eedb7eac50
+  languageName: node
+  linkType: hard
+
 "fast-content-type-parse@npm:^2.0.0":
   version: 2.0.1
   resolution: "fast-content-type-parse@npm:2.0.1"
@@ -2095,9 +2115,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"miniflare@npm:3.20250214.1":
-  version: 3.20250214.1
-  resolution: "miniflare@npm:3.20250214.1"
+"miniflare@npm:3.20250224.0":
+  version: 3.20250224.0
+  resolution: "miniflare@npm:3.20250224.0"
   dependencies:
     "@cspotcode/source-map-support": "npm:0.8.1"
     acorn: "npm:8.14.0"
@@ -2106,13 +2126,13 @@ __metadata:
     glob-to-regexp: "npm:0.4.1"
     stoppable: "npm:1.1.0"
     undici: "npm:^5.28.5"
-    workerd: "npm:1.20250214.0"
+    workerd: "npm:1.20250224.0"
     ws: "npm:8.18.0"
     youch: "npm:3.2.3"
     zod: "npm:3.22.3"
   bin:
     miniflare: bootstrap.js
-  checksum: 10c0/f73f98ea8ce601acdc06d85fcc738f6ea5564ba4e2a64659c2b306b6a95d1b873a5d4d4d8b4c9e580f0e244b6c87c41bce667112093c55c4e4f09a79201f1899
+  checksum: 10c0/8b475547cea8884b6c5df5dbc2a1fb5c3e80ca950c5481365444b0520a319ac63e3377c57405b125e471249ee7ca68ab32429377b63ef7763d7040e340f94cae
   languageName: node
   linkType: hard
 
@@ -2307,6 +2327,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ohash@npm:^2.0.5":
+  version: 2.0.11
+  resolution: "ohash@npm:2.0.11"
+  checksum: 10c0/d07c8d79cc26da082c1a7c8d5b56c399dd4ed3b2bd069fcae6bae78c99a9bcc3ad813b1e1f49ca2f335292846d689c6141a762cf078727d2302a33d414e69c79
+  languageName: node
+  linkType: hard
+
 "p-map@npm:^4.0.0":
   version: 4.0.0
   resolution: "p-map@npm:4.0.0"
@@ -2354,7 +2381,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pathe@npm:^2.0.1":
+"pathe@npm:^2.0.1, pathe@npm:^2.0.3":
   version: 2.0.3
   resolution: "pathe@npm:2.0.3"
   checksum: 10c0/c118dc5a8b5c4166011b2b70608762e260085180bb9e33e80a50dcdb1e78c010b1624f4280c492c92b05fc276715a4c357d1f9edc570f8f1b3d90b6839ebaca1
@@ -2923,6 +2950,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unenv@npm:2.0.0-rc.8":
+  version: 2.0.0-rc.8
+  resolution: "unenv@npm:2.0.0-rc.8"
+  dependencies:
+    defu: "npm:^6.1.4"
+    exsolve: "npm:^1.0.0"
+    ohash: "npm:^2.0.5"
+    pathe: "npm:^2.0.3"
+    ufo: "npm:^1.5.4"
+  checksum: 10c0/391a265cb1bbf1dabe335af324590af1df3eda03cedf31e9512d5a444053c33c07c23e4338a6814458aaac810d8edac000b8b409cf6e4557967f167cdba63473
+  languageName: node
+  linkType: hard
+
 "unique-filename@npm:^3.0.0":
   version: 3.0.0
   resolution: "unique-filename@npm:3.0.0"
@@ -3074,7 +3114,7 @@ __metadata:
     prettier: "npm:^3.3.2"
     typescript: "npm:^5.5.2"
     vitest: "npm:~2.1.9"
-    wrangler: "npm:^3.109.1"
+    wrangler: "npm:^3.114.0"
   languageName: unknown
   linkType: soft
 
@@ -3138,15 +3178,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"workerd@npm:1.20250214.0":
-  version: 1.20250214.0
-  resolution: "workerd@npm:1.20250214.0"
+"workerd@npm:1.20250224.0":
+  version: 1.20250224.0
+  resolution: "workerd@npm:1.20250224.0"
   dependencies:
-    "@cloudflare/workerd-darwin-64": "npm:1.20250214.0"
-    "@cloudflare/workerd-darwin-arm64": "npm:1.20250214.0"
-    "@cloudflare/workerd-linux-64": "npm:1.20250214.0"
-    "@cloudflare/workerd-linux-arm64": "npm:1.20250214.0"
-    "@cloudflare/workerd-windows-64": "npm:1.20250214.0"
+    "@cloudflare/workerd-darwin-64": "npm:1.20250224.0"
+    "@cloudflare/workerd-darwin-arm64": "npm:1.20250224.0"
+    "@cloudflare/workerd-linux-64": "npm:1.20250224.0"
+    "@cloudflare/workerd-linux-arm64": "npm:1.20250224.0"
+    "@cloudflare/workerd-windows-64": "npm:1.20250224.0"
   dependenciesMeta:
     "@cloudflare/workerd-darwin-64":
       optional: true
@@ -3160,7 +3200,7 @@ __metadata:
       optional: true
   bin:
     workerd: bin/workerd
-  checksum: 10c0/9fbcb7c7e39ac3a413179fcc18a7abab50ffcabc4aebc1673246991de26941ed4de801bfb9875c9db5256079742409ac92df41425666818ca58253ad3ca5cacd
+  checksum: 10c0/e9abc6836e19af47f3709b5af24c0c210e380347172d86bc9d08615b9d3933d8cdeb0cb1f525f7a315659a211124cb724f727de4448d0644d0fb64627e2e9721
   languageName: node
   linkType: hard
 
@@ -3196,23 +3236,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wrangler@npm:^3.109.1":
-  version: 3.110.0
-  resolution: "wrangler@npm:3.110.0"
+"wrangler@npm:^3.114.0":
+  version: 3.114.0
+  resolution: "wrangler@npm:3.114.0"
   dependencies:
     "@cloudflare/kv-asset-handler": "npm:0.3.4"
+    "@cloudflare/unenv-preset": "npm:2.0.0"
     "@esbuild-plugins/node-globals-polyfill": "npm:0.2.3"
     "@esbuild-plugins/node-modules-polyfill": "npm:0.2.2"
     blake3-wasm: "npm:2.1.5"
     esbuild: "npm:0.17.19"
     fsevents: "npm:~2.3.2"
-    miniflare: "npm:3.20250214.1"
+    miniflare: "npm:3.20250224.0"
     path-to-regexp: "npm:6.3.0"
     sharp: "npm:^0.33.5"
-    unenv: "npm:2.0.0-rc.1"
-    workerd: "npm:1.20250214.0"
+    unenv: "npm:2.0.0-rc.8"
+    workerd: "npm:1.20250224.0"
   peerDependencies:
-    "@cloudflare/workers-types": ^4.20250214.0
+    "@cloudflare/workers-types": ^4.20250224.0
   dependenciesMeta:
     fsevents:
       optional: true
@@ -3224,7 +3265,7 @@ __metadata:
   bin:
     wrangler: bin/wrangler.js
     wrangler2: bin/wrangler.js
-  checksum: 10c0/0e8842eeb452cdf56a2056c7b01c0d1a387db5bdd7d651a20619f59df575820575060e8cf2044a1f65376fbc64fcb2273e143662e3fbfb695bc7829d3981587b
+  checksum: 10c0/fd1145febc3d7a804e3f91e43648bae12f87c0586637c58dca7026a6c416ff6d77bbc6e67b03dcc304b0e06207dddf49cffa3906d18032462dd00a1f1f488fc9
   languageName: node
   linkType: hard
 
