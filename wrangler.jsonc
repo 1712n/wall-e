@@ -1,50 +1,46 @@
 /**
  * ==================================================================
  * 🚀 This file was generated using `wrangler-cfg migrate` command. 🚀
- * 
+ *
  * 📌 Learn more, contribute, or report issues:
  *    👉 [https://github.com/jalmonter/wrangler-cfg#readme]
- *     
+ *
  * You can safely remove this banner if you want.
  * ==================================================================
  */
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "wall-e",
-  "main": "src/index.ts",
-  "compatibility_date": "2024-04-05",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "workers_dev": true,
-  "rules": [
-    {
-      "type": "Text",
-      "globs": [
-        "**/*.md"
-      ],
-      "fallthrough": true
-    }
-  ],
-  "vars": {
-    "GH_APP_ID": "902658",
-    "CF_ACCOUNT_ID": "db689c11d173a5ae2c9f023a40b526f9",
-    "CF_GATEWAY_AI_ID": "wall-e"
-  },
-  "queues": {
-    "producers": [
-      {
-        "queue": "job-queue",
-        "binding": "JOB_QUEUE"
-      }
-    ],
-    "consumers": [
-      {
-        "queue": "job-queue"
-      }
-    ]
-  },
-  "observability": {
-    "enabled": true
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "wall-e",
+	"main": "src/index.ts",
+	"compatibility_date": "2024-04-05",
+	"compatibility_flags": ["nodejs_compat"],
+	"workers_dev": true,
+	"rules": [
+		{
+			"type": "Text",
+			"globs": ["**/*.md"],
+			"fallthrough": true
+		}
+	],
+	"vars": {
+		"GH_APP_ID": "902658",
+		"CF_ACCOUNT_ID": "db689c11d173a5ae2c9f023a40b526f9",
+		"CF_GATEWAY_AI_ID": "wall-e"
+	},
+	"queues": {
+		"producers": [
+			{
+				"queue": "job-queue",
+				"binding": "JOB_QUEUE"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "job-queue"
+			}
+		]
+	},
+	"observability": {
+		"enabled": true
+	}
 }
