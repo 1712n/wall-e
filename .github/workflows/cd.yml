@@ -8,7 +8,7 @@ on:
       - src/**
       - wiki/**
       - package.json
-      - wrangler.toml
+      - wrangler.*
 
 jobs:
   deploy:
