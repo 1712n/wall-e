@@ -224,7 +224,6 @@ function getModelProviderFromEvents(events: any[]): ModelProvider {
 export async function handleStreamResponse(response: Response): Promise<SendPromptResponse> {
 	const reader = response.body!.getReader();
 	const events = await parseStreamedEvents(reader);
-	console.log('All events:', JSON.stringify(events, null, 2));
 
 	if (events.length === 0) {
 		throw new Error('No events received from the model provider.');
