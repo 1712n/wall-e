@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { env } from 'cloudflare:test';
 import {
 	buildPromptForWorkerGeneration,
 	buildPromptForWorkerImprovement,
@@ -8,16 +9,21 @@ import {
 } from '../../src/prompt';
 import { ModelName } from '../../src/providers';
 
-const env: Env = {
-	CF_ACCOUNT_ID: 'test-account-id',
-	CF_GATEWAY_AI_ID: 'test-gateway-id',
+const providedEnv = {
+	...env,
 	ANTHROPIC_API_KEY: 'test-anthropic',
 	OPENAI_API_KEY: 'test-openai',
 	GEMINI_API_KEY: 'test-gemini',
-	GH_APP_ID: 'test-app-id',
 	GH_PRIVATE_KEY: 'test-private-key',
 	GH_WEBHOOK_SECRET: 'test-webhook-secret',
-	JOB_QUEUE: { send: vi.fn(), sendBatch: vi.fn() },
+	INVOCATION_LOCK: {
+		idFromName: vi.fn((name: string) => name),
+		get: vi.fn((id: string) => ({
+			fetch: vi.fn((url: string, init: RequestInit) => ({
+				ok: true,
+			})),
+		}))
+	}
 };
 
 describe('Unit tests for prompt functions', () => {
@@ -76,7 +82,7 @@ describe('Unit tests for prompt functions', () => {
 			// @ts-ignore
 			global.fetch = fetchMock;
 
-			await expect(() => sendPrompt(env, params, false)).rejects.toThrow(SendPromptError);
+			await expect(() => sendPrompt(providedEnv as unknown as Env, params, false)).rejects.toThrow(SendPromptError);
 		});
 	});
 });

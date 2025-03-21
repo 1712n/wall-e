@@ -1,20 +1,25 @@
-import { SELF } from 'cloudflare:test';
+import { SELF, env } from 'cloudflare:test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CommandName, GitHub } from '../../src/github';
 
 import worker from '../../src';
 import type { GitHubJob } from '../../src';
 
-const env: Env = {
-	CF_ACCOUNT_ID: 'test-account-id',
-	CF_GATEWAY_AI_ID: 'test-gateway-id',
+const providedEnv = {
+	...env,
 	ANTHROPIC_API_KEY: 'test-anthropic',
 	OPENAI_API_KEY: 'test-openai',
 	GEMINI_API_KEY: 'test-gemini',
-	GH_APP_ID: 'test-app-id',
 	GH_PRIVATE_KEY: 'test-private-key',
 	GH_WEBHOOK_SECRET: 'test-webhook-secret',
-	JOB_QUEUE: { send: vi.fn(), sendBatch: vi.fn() },
+	INVOCATION_LOCK: {
+		idFromName: vi.fn((name: string) => name),
+		get: vi.fn((id: string) => ({
+			fetch: vi.fn((url: string, init: RequestInit) => ({
+				ok: true,
+			})),
+		}))
+	}
 };
 
 describe('Integration tests for fetch method', () => {
@@ -53,7 +58,7 @@ describe('Integration tests for fetch method', () => {
 			body: JSON.stringify({ installation: { id: 123 } }),
 		});
 
-		const response = await worker.fetch(request, env);
+		const response = await worker.fetch(request, providedEnv as unknown as Env);
 		const json: { ok: boolean } = await response.json();
 		expect(json.ok).toBe(true);
 	});
@@ -66,6 +71,7 @@ describe('Integration tests for queue method', () => {
 				command: { name: CommandName.Generate, args: [] },
 				context: { owner: 'test-owner', repo: 'test-repo', issueNumber: 1 },
 				installationId: 123,
+				lockId: 'test-lock-id',
 			},
 			ack: vi.fn(),
 			id: 'test-id',
@@ -81,7 +87,7 @@ describe('Integration tests for queue method', () => {
 			ackAll: vi.fn(),
 		};
 
-		await worker.queue(batch, env);
+		await worker.queue(batch, providedEnv as unknown as Env);
 		expect(message.ack).toHaveBeenCalled();
 	});
 
@@ -91,6 +97,7 @@ describe('Integration tests for queue method', () => {
 				command: { name: CommandName.Generate, args: [] },
 				context: { owner: 'test-owner', repo: 'test-repo', issueNumber: 1 },
 				installationId: 123,
+				lockId: 'test-lock-id',
 			},
 			ack: vi.fn(),
 			id: 'test-id',
@@ -111,7 +118,7 @@ describe('Integration tests for queue method', () => {
 		});
 
 		await expect(async () => {
-			await worker.queue(batch, env);
+			await worker.queue(batch, providedEnv as unknown as Env);
 		}).rejects.toThrow('Test error');
 
 		expect(message.ack).toHaveBeenCalled();
