@@ -18,6 +18,8 @@ import {
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractXMLContent, extractGeneratedCode } from './utils';
 import { startLock, endLock } from './lock';
 
+export { Lock } from './lock';
+
 import * as prettier from 'prettier/standalone';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as parserTypeScript from 'prettier/parser-typescript';
@@ -122,7 +124,8 @@ export default {
 				const lockId = `${context.owner}/${context.repo}/${context.issueNumber}`;
 				const isLocked = await startLock(env, lockId);
 				if (!isLocked) {
-					const body = 'A command is already running. Please wait for the current command to finish before trying again.';
+					const body =
+						'A command is already running in this pull request. Please wait for the current command to finish before trying again.';
 					await github.postComment(context, body);
 					return;
 				}
