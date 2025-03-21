@@ -55,6 +55,12 @@
 			}
 		]
 	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_classes": ["Lock"]
+		}
+	],
 	"observability": {
 		"enabled": true
 	}
