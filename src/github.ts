@@ -208,7 +208,7 @@ export class GitHub {
 			return undefined;
 		}
 
-		return result.data as { sha: string; name: string; path: string; };
+		return result.data as { sha: string; name: string; path: string };
 	}
 
 	public async listPullRequestFiles({ owner, repo, issueNumber }: CommandContext) {

@@ -58,7 +58,7 @@ export function parseCommandArgs(args: string[]) {
 				result.provider = value as ModelProvider;
 				break;
 			case 'model':
-				result.model = value as ModelName
+				result.model = value as ModelName;
 				break;
 			case 'temp':
 			case 'temperature':

@@ -4,10 +4,4 @@ import improveWorker from './improve_worker.md';
 import analyzeSpecFile from './analyze_spec_file.md';
 import specFileBestPractices from '../../../wiki/spec_file_best_practices.md';
 
-export {
-  generateWorkerTs,
-  generateWorkerJs,
-  improveWorker,
-  analyzeSpecFile,
-  specFileBestPractices
-};
+export { generateWorkerTs, generateWorkerJs, improveWorker, analyzeSpecFile, specFileBestPractices };

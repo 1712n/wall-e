@@ -29,28 +29,15 @@ type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: Mo
 export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.GoogleAi]: {
 		default: ModelName.Gemini_Exp_Pro,
-		models: [
-			ModelName.Gemini_Flash,
-			ModelName.Gemini_Exp_Pro,
-			ModelName.Gemini_Exp_Flash_Thinking
-		],
+		models: [ModelName.Gemini_Flash, ModelName.Gemini_Exp_Pro, ModelName.Gemini_Exp_Flash_Thinking],
 	},
 	[ModelProvider.Anthropic]: {
 		default: ModelName.Claude_3_7_Sonnet_20250219,
-		models: [
-			ModelName.Claude_3_5_Sonnet_20241022,
-			ModelName.Claude_3_7_Sonnet_20250219,
-			ModelName.Claude_3_7_Sonnet_20250219_Thinking
-		],
+		models: [ModelName.Claude_3_5_Sonnet_20241022, ModelName.Claude_3_7_Sonnet_20250219, ModelName.Claude_3_7_Sonnet_20250219_Thinking],
 	},
 	[ModelProvider.OpenAI]: {
 		default: ModelName.GPT_o1_Preview,
-		models: [
-			ModelName.GPT_4o,
-			ModelName.GPT_o1,
-			ModelName.GPT_o1_Preview,
-			ModelName.GPT_o3_Mini
-		],
+		models: [ModelName.GPT_4o, ModelName.GPT_o1, ModelName.GPT_o1_Preview, ModelName.GPT_o3_Mini],
 	},
 	[ModelProvider.Unknown]: {},
 };
