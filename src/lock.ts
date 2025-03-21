@@ -1,7 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 
 export class Lock extends DurableObject {
-	private running: boolean = false;
+	private running = false;
 
 	constructor(
 		private state: DurableObjectState,
@@ -11,19 +11,18 @@ export class Lock extends DurableObject {
 
 		this.state.blockConcurrencyWhile(async () => {
 			const stored = await this.state.storage.get<boolean>('running');
-			if (stored) this.running = stored;
+			this.running = stored === true;
 		});
 	}
 
 	async fetch(request: Request): Promise<Response> {
 		const url = new URL(request.url);
-		const method = request.method.toUpperCase();
-		if (method !== 'POST') {
+		if (request.method.toUpperCase() !== 'POST') {
 			return new Response('Method not allowed', { status: 405 });
 		}
 
 		switch (url.pathname) {
-			case '/start':
+			case '/start': {
 				if (this.running) {
 					return new Response('Already running', { status: 409 });
 				}
@@ -31,11 +30,13 @@ export class Lock extends DurableObject {
 				this.running = true;
 				await this.state.storage.put('running', true);
 				return new Response('OK', { status: 200 });
+			}
 
-			case '/finish':
+			case '/finish': {
 				this.running = false;
 				await this.state.storage.put('running', false);
 				return new Response('OK', { status: 200 });
+			}
 
 			default:
 				return new Response('Not found', { status: 404 });
@@ -50,10 +51,10 @@ async function manageLock(env: Env, lockId: string, action: 'start' | 'finish') 
 	return response.ok;
 }
 
-export async function startLock(env: Env, lockId: string) {
+export function startLock(env: Env, lockId: string) {
 	return manageLock(env, lockId, 'start');
 }
 
-export async function endLock(env: Env, lockId: string) {
+export function endLock(env: Env, lockId: string) {
 	return manageLock(env, lockId, 'finish');
 }
