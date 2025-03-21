@@ -16,6 +16,10 @@ import {
 	isValidProvider,
 } from './providers';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractXMLContent, extractGeneratedCode } from './utils';
+import { startLock, endLock } from './lock';
+
+export { Lock } from './lock';
+
 import * as prettier from 'prettier/standalone';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as parserTypeScript from 'prettier/parser-typescript';
@@ -62,14 +66,14 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 		github,
 		message,
 		context,
-			workingCommentId,
+		workingCommentId,
 		provider,
 		model,
 		fallbackModel,
 		temperature,
 		language = 'ts',
 		prompts,
-		eventId
+		eventId,
 	} = params;
 
 	const formattedCode = await prettier.format(generatedCode, {
@@ -111,9 +115,19 @@ export default {
 			}
 
 			const payload = await request.json<any>();
-			const github = initializeGitHub(env, payload.installation.id);
+
+			const installationId: number = payload.installation.id;
+			const github = initializeGitHub(env, installationId);
 
 			github.setup(async (command, context) => {
+				const isLocked = await startLock(env, context);
+				if (!isLocked) {
+					const body =
+						'A command is already running in this pull request. Please wait for the current command to finish before trying again.';
+					await github.postComment(context, body);
+					return;
+				}
+
 				switch (command.name) {
 					case CommandName.Generate:
 					case CommandName.Improve:
@@ -122,7 +136,7 @@ export default {
 							await env.JOB_QUEUE.send({
 								command,
 								context,
-								installationId: payload.installation.id,
+								installationId: installationId,
 							});
 						}
 						break;
@@ -172,9 +186,7 @@ export default {
 				}
 
 				if (args.model && !isValidModel(args.model)) {
-					const allowedModels = MODEL_PROVIDERS[provider].models!
-						.map((m) => `- \`${m}\``)
-						.join('\n');
+					const allowedModels = MODEL_PROVIDERS[provider].models!.map((m) => `- \`${m}\``).join('\n');
 					const body = `The model '${args.model}' is not valid. Please use one of the following options:\n\n${allowedModels}`;
 					await github.postComment(context, body);
 					return;
@@ -195,18 +207,18 @@ export default {
 						{
 							// Get the spec file from the repository
 							const changedFiles = await github.listPullRequestFiles(context);
-							
+
 							// Look for both TS and JS spec files
 							const tsSpecFilePath = ensurePath(basePath, 'test/index.spec.ts');
 							const jsSpecFilePath = ensurePath(basePath, 'test/index.spec.js');
-							
+
 							const tsSpecFile = changedFiles.find((file) => file.filename === tsSpecFilePath);
 							const jsSpecFile = changedFiles.find((file) => file.filename === jsSpecFilePath);
-							
+
 							// Determine language and file based on what was found
 							let specFile;
 							let language: 'js' | 'ts';
-							
+
 							if (tsSpecFile && jsSpecFile) {
 								const body = `Found both TypeScript and JavaScript spec files. Please include only one spec file type in your pull request.`;
 								await github.postComment(context, body, workingCommentId);
@@ -300,7 +312,7 @@ export default {
 									prompts: {
 										generateWorker: generateWorkerPrompts.system,
 									},
-									eventId
+									eventId,
 								});
 							});
 						}
@@ -310,18 +322,18 @@ export default {
 						{
 							// Retrieve the list of files changed in the pull request
 							const pullRequestFiles = await github.listPullRequestFiles(context);
-							
+
 							// Look for both TS and JS spec files
 							const tsSpecFilePath = ensurePath(basePath, 'test/index.spec.ts');
 							const jsSpecFilePath = ensurePath(basePath, 'test/index.spec.js');
-							
+
 							const tsSpecFile = pullRequestFiles.find((file) => file.filename === tsSpecFilePath);
 							const jsSpecFile = pullRequestFiles.find((file) => file.filename === jsSpecFilePath);
-							
+
 							// Determine language and file based on what was found
 							let specFile;
 							let language: 'js' | 'ts';
-							
+
 							if (tsSpecFile && jsSpecFile) {
 								const body = `Found both TypeScript and JavaScript spec files. Please include only one spec file type in your pull request.`;
 								await github.postComment(context, body, workingCommentId);
@@ -341,11 +353,11 @@ export default {
 							// Look for both TS and JS index files
 							const tsIndexFilePath = ensurePath(basePath, 'src/index.ts');
 							const jsIndexFilePath = ensurePath(basePath, 'src/index.js');
-							
+
 							// First try to find the index file matching the language of the spec file
 							const preferredIndexFilePath = language === 'js' ? jsIndexFilePath : tsIndexFilePath;
 							let indexFile = pullRequestFiles.find((file) => file.filename === preferredIndexFilePath);
-							
+
 							// If not found, try the other language as fallback
 							if (!indexFile) {
 								const fallbackIndexFilePath = language === 'js' ? tsIndexFilePath : jsIndexFilePath;
@@ -356,13 +368,13 @@ export default {
 								// Try to get the index file from the main branch, prioritizing the language of the spec file
 								const preferredFilePath = language === 'js' ? jsIndexFilePath : tsIndexFilePath;
 								let existingIndexFile = await github.getMainBranchFile(context, preferredFilePath);
-								
+
 								// If not found, try the other language as fallback
 								if (!existingIndexFile) {
 									const fallbackFilePath = language === 'js' ? tsIndexFilePath : jsIndexFilePath;
 									existingIndexFile = await github.getMainBranchFile(context, fallbackFilePath);
 								}
-								
+
 								if (!existingIndexFile) {
 									const message = `No index file was found in the repository. Please create either a JavaScript (${jsIndexFilePath}) or TypeScript (${tsIndexFilePath}) index file and try again.`;
 									await github.postComment(context, message, workingCommentId);
@@ -373,7 +385,7 @@ export default {
 									...existingIndexFile,
 									filename: existingIndexFile.name,
 								};
-								
+
 								// Determine language based on the file extension if we found a file
 								if (indexFile.filename.endsWith('.js')) {
 									language = 'js';
@@ -394,11 +406,7 @@ export default {
 							}
 
 							// Use the provided feedback, index file, and spec file to generate improved code
-							const improvementPrompts = buildPromptForWorkerImprovement(
-								indexFileContent,
-								specFileContent,
-								reviewerFeedback,
-							);
+							const improvementPrompts = buildPromptForWorkerImprovement(indexFileContent, specFileContent, reviewerFeedback);
 							await sendPrompt(
 								env,
 								{
@@ -439,7 +447,7 @@ export default {
 									prompts: {
 										generateWorker: improvementPrompts.system,
 									},
-									eventId
+									eventId,
 								});
 							});
 						}
@@ -471,6 +479,7 @@ export default {
 				await github.postComment(context, comment, workingCommentId);
 			} finally {
 				message.ack();
+				await endLock(env, context);
 			}
 		}
 	},

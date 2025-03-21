@@ -43,10 +43,25 @@
 		],
 		"consumers": [
 			{
-				"queue": "job-queue"
+				"queue": "job-queue",
+				"max_retries": 0
 			}
 		]
 	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "INVOCATION_LOCK",
+				"class_name": "Lock"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_classes": ["Lock"]
+		}
+	],
 	"observability": {
 		"enabled": true
 	}

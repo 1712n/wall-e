@@ -1,433 +1,433 @@
 [
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "```typescript\n<"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 4,
-      "totalTokenCount": 2635
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "generated_code>\ninterface Trade {\n  symbol: string;\n  "
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 18,
-      "totalTokenCount": 2649
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "exchange: string;\n  price: number;\n  amount: number;"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 34,
-      "totalTokenCount": 2665
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "\n  side: number;\n  timestamp: number;\n}\n\ninterface RequestBody {\n  exchange: string;\n  from: Date;\n  symbols"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 66,
-      "totalTokenCount": 2697
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": ": string[];\n  binningMethod: string;\n}\n\nasync function fetchTrades(\n  db: D1Database,\n  exchange: string,\n"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 99,
-      "totalTokenCount": 2730
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "  from: number,\n  to: number,\n  symbols: string\n): Promise<Trade[]> {\n  const query = `\n    SELECT symbol, exchange, price, amount, side, timestamp\n    FROM trades\n    WHERE exchange"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 149,
-      "totalTokenCount": 2780
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": " = ?1\n    AND timestamp >= ?2\n    AND timestamp < ?3\n    AND symbol IN (${symbols.split(',').map((_, i) => `?${i + 4}`).join(',')})\n  `;\n\n"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 197,
-      "totalTokenCount": 2828
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "  const params = [exchange, from, to, ...symbols.split(',')];\n  const { results } = await db.prepare(query).bind(...params).run();\n  return results as Trade[];\n}\n\nfunction calculatePercentiles(sortedData: number[], percentiles: number[]): number[] {"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 262,
-      "totalTokenCount": 2893
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "\n  return percentiles.map(p => {\n    const index = Math.floor((sortedData.length - 1) * (p / 100));\n    return sortedData[index];\n  });\n}\n\nfunction createDynamicPercentileBins(trades: Trade[], percentiles: number[]"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 327,
-      "totalTokenCount": 2958
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "): Record<string, number> {\n    const amounts = trades.map(trade => trade.amount).sort((a, b) => a - b);\n    const percentileValues = calculatePercentiles(amounts, percentiles);\n    const bins: Record<string, number> = {};\n\n    percent"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 392,
-      "totalTokenCount": 3023
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "ileValues.forEach((value, index) => {\n      const binLabel = index === 0 ? `<${value.toFixed(2)}` : `${percentileValues[index - 1].toFixed(2)}-${value.toFixed(2)}`;\n        bins[binLabel] = 0;\n    "
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 456,
-      "totalTokenCount": 3087
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "});\n    bins[`>${percentileValues[percentileValues.length - 1].toFixed(2)}`] = 0\n\n    trades.forEach(trade => {\n        let assigned = false;\n        for (let i = 0; i < percentileValues.length; i++) {\n"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 519,
-      "totalTokenCount": 3150
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "            if (trade.amount <= percentileValues[i]) {\n                const binLabel = i === 0 ? `<${percentileValues[i].toFixed(2)}` : `${percentileValues[i - 1].toFixed(2)}-${percentileValues[i].toFixed(2)}`;\n                bins"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 584,
-      "totalTokenCount": 3215
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "[binLabel]++;\n                assigned = true;\n                break;\n            }\n        }\n        if (!assigned) {\n          bins[`>${percentileValues[percentileValues.length - 1].toFixed(2)}`]++;\n        }\n    });\n\n    return bins;\n}\n\nexport"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 650,
-      "totalTokenCount": 3281
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": " default {\n  async fetch(request: Request, env: { DATABASE: D1Database }): Promise<Response> {\n    if (request.method !== 'POST') {\n      return new Response('Method Not Allowed', { status: 405 });\n    }\n\n    try {\n      const"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 716,
-      "totalTokenCount": 3347
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": " body = await request.json() as RequestBody;\n      const { exchange, from, symbols, binningMethod } = body;\n\n      if (!exchange || !from || !symbols || !binningMethod) {\n        return new Response('Bad Request', { status: 400 });\n      "
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 779,
-      "totalTokenCount": 3410
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "}\n\n      const fromTime = new Date(from).getTime();\n      const toTime = fromTime + 3_600_000;\n\n      const trades = await fetchTrades(env.DATABASE, exchange, fromTime, toTime, symbols.join(','));\n\n      let bins:"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 844,
-      "totalTokenCount": 3475
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": " Record<string, number> = {};\n      const percentileThresholds = [5, 10, 25, 50, 75, 90, 95];\n\n      if (binningMethod === 'dynamic-percentile-based') {\n          bins = createDynamicPercent"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 910,
-      "totalTokenCount": 3541
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": "ileBins(trades, percentileThresholds);\n      }\n\n      return new Response(JSON.stringify({ bins }), {\n        status: 200,\n        headers: { 'Content-Type': 'application/json' },\n      });\n    } catch (error) {\n      console"
-            }
-          ],
-          "role": "model"
-        },
-        "index": 0
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 974,
-      "totalTokenCount": 3605
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  },
-  {
-    "candidates": [
-      {
-        "content": {
-          "parts": [
-            {
-              "text": ".error(error);\n      return new Response('Internal Server Error', { status: 500 });\n    }\n  },\n};\n</generated_code>\n```"
-            }
-          ],
-          "role": "model"
-        },
-        "finishReason": "STOP",
-        "index": 0,
-        "citationMetadata": {
-          "citationSources": [
-            {
-              "startIndex": 3207,
-              "endIndex": 3399,
-              "uri": "https://github.com/BrianRuizy/b-r.io",
-              "license": ""
-            }
-          ]
-        }
-      }
-    ],
-    "usageMetadata": {
-      "promptTokenCount": 2631,
-      "candidatesTokenCount": 1013,
-      "totalTokenCount": 3644
-    },
-    "modelVersion": "gemini-2.0-pro-exp-02-05"
-  }
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "```typescript\n<"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 4,
+			"totalTokenCount": 2635
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "generated_code>\ninterface Trade {\n  symbol: string;\n  "
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 18,
+			"totalTokenCount": 2649
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "exchange: string;\n  price: number;\n  amount: number;"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 34,
+			"totalTokenCount": 2665
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "\n  side: number;\n  timestamp: number;\n}\n\ninterface RequestBody {\n  exchange: string;\n  from: Date;\n  symbols"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 66,
+			"totalTokenCount": 2697
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": ": string[];\n  binningMethod: string;\n}\n\nasync function fetchTrades(\n  db: D1Database,\n  exchange: string,\n"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 99,
+			"totalTokenCount": 2730
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "  from: number,\n  to: number,\n  symbols: string\n): Promise<Trade[]> {\n  const query = `\n    SELECT symbol, exchange, price, amount, side, timestamp\n    FROM trades\n    WHERE exchange"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 149,
+			"totalTokenCount": 2780
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": " = ?1\n    AND timestamp >= ?2\n    AND timestamp < ?3\n    AND symbol IN (${symbols.split(',').map((_, i) => `?${i + 4}`).join(',')})\n  `;\n\n"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 197,
+			"totalTokenCount": 2828
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "  const params = [exchange, from, to, ...symbols.split(',')];\n  const { results } = await db.prepare(query).bind(...params).run();\n  return results as Trade[];\n}\n\nfunction calculatePercentiles(sortedData: number[], percentiles: number[]): number[] {"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 262,
+			"totalTokenCount": 2893
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "\n  return percentiles.map(p => {\n    const index = Math.floor((sortedData.length - 1) * (p / 100));\n    return sortedData[index];\n  });\n}\n\nfunction createDynamicPercentileBins(trades: Trade[], percentiles: number[]"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 327,
+			"totalTokenCount": 2958
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "): Record<string, number> {\n    const amounts = trades.map(trade => trade.amount).sort((a, b) => a - b);\n    const percentileValues = calculatePercentiles(amounts, percentiles);\n    const bins: Record<string, number> = {};\n\n    percent"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 392,
+			"totalTokenCount": 3023
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "ileValues.forEach((value, index) => {\n      const binLabel = index === 0 ? `<${value.toFixed(2)}` : `${percentileValues[index - 1].toFixed(2)}-${value.toFixed(2)}`;\n        bins[binLabel] = 0;\n    "
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 456,
+			"totalTokenCount": 3087
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "});\n    bins[`>${percentileValues[percentileValues.length - 1].toFixed(2)}`] = 0\n\n    trades.forEach(trade => {\n        let assigned = false;\n        for (let i = 0; i < percentileValues.length; i++) {\n"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 519,
+			"totalTokenCount": 3150
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "            if (trade.amount <= percentileValues[i]) {\n                const binLabel = i === 0 ? `<${percentileValues[i].toFixed(2)}` : `${percentileValues[i - 1].toFixed(2)}-${percentileValues[i].toFixed(2)}`;\n                bins"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 584,
+			"totalTokenCount": 3215
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "[binLabel]++;\n                assigned = true;\n                break;\n            }\n        }\n        if (!assigned) {\n          bins[`>${percentileValues[percentileValues.length - 1].toFixed(2)}`]++;\n        }\n    });\n\n    return bins;\n}\n\nexport"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 650,
+			"totalTokenCount": 3281
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": " default {\n  async fetch(request: Request, env: { DATABASE: D1Database }): Promise<Response> {\n    if (request.method !== 'POST') {\n      return new Response('Method Not Allowed', { status: 405 });\n    }\n\n    try {\n      const"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 716,
+			"totalTokenCount": 3347
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": " body = await request.json() as RequestBody;\n      const { exchange, from, symbols, binningMethod } = body;\n\n      if (!exchange || !from || !symbols || !binningMethod) {\n        return new Response('Bad Request', { status: 400 });\n      "
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 779,
+			"totalTokenCount": 3410
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "}\n\n      const fromTime = new Date(from).getTime();\n      const toTime = fromTime + 3_600_000;\n\n      const trades = await fetchTrades(env.DATABASE, exchange, fromTime, toTime, symbols.join(','));\n\n      let bins:"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 844,
+			"totalTokenCount": 3475
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": " Record<string, number> = {};\n      const percentileThresholds = [5, 10, 25, 50, 75, 90, 95];\n\n      if (binningMethod === 'dynamic-percentile-based') {\n          bins = createDynamicPercent"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 910,
+			"totalTokenCount": 3541
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": "ileBins(trades, percentileThresholds);\n      }\n\n      return new Response(JSON.stringify({ bins }), {\n        status: 200,\n        headers: { 'Content-Type': 'application/json' },\n      });\n    } catch (error) {\n      console"
+						}
+					],
+					"role": "model"
+				},
+				"index": 0
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 974,
+			"totalTokenCount": 3605
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	},
+	{
+		"candidates": [
+			{
+				"content": {
+					"parts": [
+						{
+							"text": ".error(error);\n      return new Response('Internal Server Error', { status: 500 });\n    }\n  },\n};\n</generated_code>\n```"
+						}
+					],
+					"role": "model"
+				},
+				"finishReason": "STOP",
+				"index": 0,
+				"citationMetadata": {
+					"citationSources": [
+						{
+							"startIndex": 3207,
+							"endIndex": 3399,
+							"uri": "https://github.com/BrianRuizy/b-r.io",
+							"license": ""
+						}
+					]
+				}
+			}
+		],
+		"usageMetadata": {
+			"promptTokenCount": 2631,
+			"candidatesTokenCount": 1013,
+			"totalTokenCount": 3644
+		},
+		"modelVersion": "gemini-2.0-pro-exp-02-05"
+	}
 ]

@@ -45,8 +45,8 @@ export function openAiRequest({ model, apiKey, prompts, temperature, stream }: P
 		 * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
 		 * https://platform.openai.com/docs/api-reference/chat/create#chat-create-temperature
 		 */
-		temperature: (temperature * 2),
-		seed: 0
+		temperature: temperature * 2,
+		seed: 0,
 	};
 
 	switch (model) {
