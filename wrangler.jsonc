@@ -47,6 +47,14 @@
 			}
 		]
 	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "INVOCATION_LOCK",
+				"class_name": "Lock"
+			}
+		]
+	},
 	"observability": {
 		"enabled": true
 	}

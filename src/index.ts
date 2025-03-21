@@ -16,6 +16,8 @@ import {
 	isValidProvider,
 } from './providers';
 import { formatDebugInfo, getElapsedSeconds, ensurePath, parseCommandArgs, extractXMLContent, extractGeneratedCode } from './utils';
+import { startLock, endLock } from './lock';
+
 import * as prettier from 'prettier/standalone';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as parserTypeScript from 'prettier/parser-typescript';
@@ -24,6 +26,7 @@ export type GitHubJob = {
 	command: UserCommand;
 	context: CommandContext;
 	installationId: number;
+	lockId: string;
 };
 
 function initializeGitHub(env: Env, installationId: number) {
@@ -111,9 +114,19 @@ export default {
 			}
 
 			const payload = await request.json<any>();
-			const github = initializeGitHub(env, payload.installation.id);
+
+			const installationId: number = payload.installation.id;
+			const github = initializeGitHub(env, installationId);
 
 			github.setup(async (command, context) => {
+				const lockId = `${context.owner}/${context.repo}/${context.issueNumber}`;
+				const isLocked = await startLock(env, lockId);
+				if (!isLocked) {
+					const body = 'A command is already running. Please wait for the current command to finish before trying again.';
+					await github.postComment(context, body);
+					return;
+				}
+
 				switch (command.name) {
 					case CommandName.Generate:
 					case CommandName.Improve:
@@ -122,7 +135,8 @@ export default {
 							await env.JOB_QUEUE.send({
 								command,
 								context,
-								installationId: payload.installation.id,
+								installationId: installationId,
+								lockId: lockId,
 							});
 						}
 						break;
@@ -154,7 +168,7 @@ export default {
 	},
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
-			const { command, context, installationId } = message.body;
+			const { command, context, installationId, lockId } = message.body;
 			const { basePath, provider, temperature, fallback, ...args } = parseCommandArgs(command.args || []);
 			const github = initializeGitHub(env, installationId);
 
@@ -465,6 +479,7 @@ export default {
 				await github.postComment(context, comment, workingCommentId);
 			} finally {
 				message.ack();
+				await endLock(env, lockId);
 			}
 		}
 	},
