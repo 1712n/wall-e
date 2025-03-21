@@ -43,7 +43,8 @@
 		],
 		"consumers": [
 			{
-				"queue": "job-queue"
+				"queue": "job-queue",
+				"max_retries": 0
 			}
 		]
 	},
