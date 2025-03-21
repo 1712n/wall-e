@@ -28,7 +28,6 @@ export type GitHubJob = {
 	command: UserCommand;
 	context: CommandContext;
 	installationId: number;
-	lockId: string;
 };
 
 function initializeGitHub(env: Env, installationId: number) {
@@ -121,8 +120,7 @@ export default {
 			const github = initializeGitHub(env, installationId);
 
 			github.setup(async (command, context) => {
-				const lockId = `${context.owner}/${context.repo}/${context.issueNumber}`;
-				const isLocked = await startLock(env, lockId);
+				const isLocked = await startLock(env, context);
 				if (!isLocked) {
 					const body =
 						'A command is already running in this pull request. Please wait for the current command to finish before trying again.';
@@ -139,7 +137,6 @@ export default {
 								command,
 								context,
 								installationId: installationId,
-								lockId: lockId,
 							});
 						}
 						break;
@@ -171,7 +168,7 @@ export default {
 	},
 	async queue(batch: MessageBatch<GitHubJob>, env: Env) {
 		for (const message of batch.messages) {
-			const { command, context, installationId, lockId } = message.body;
+			const { command, context, installationId } = message.body;
 			const { basePath, provider, temperature, fallback, ...args } = parseCommandArgs(command.args || []);
 			const github = initializeGitHub(env, installationId);
 
@@ -482,7 +479,7 @@ export default {
 				await github.postComment(context, comment, workingCommentId);
 			} finally {
 				message.ack();
-				await endLock(env, lockId);
+				await endLock(env, context);
 			}
 		}
 	},

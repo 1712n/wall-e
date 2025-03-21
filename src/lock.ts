@@ -1,4 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
+import { CommandContext } from './github';
 
 export class Lock extends DurableObject {
 	private running = false;
@@ -44,17 +45,18 @@ export class Lock extends DurableObject {
 	}
 }
 
-async function manageLock(env: Env, lockId: string, action: 'start' | 'finish') {
+async function manageLock(env: Env, context: CommandContext, action: 'start' | 'finish') {
+	const lockId = `${context.owner}/${context.repo}/${context.issueNumber}`;
 	const objId = env.INVOCATION_LOCK.idFromName(lockId);
 	const stub = env.INVOCATION_LOCK.get(objId);
 	const response = await stub.fetch(`http://invocation-lock/${action}`, { method: 'POST' });
 	return response.ok;
 }
 
-export function startLock(env: Env, lockId: string) {
-	return manageLock(env, lockId, 'start');
+export function startLock(env: Env, context: CommandContext) {
+	return manageLock(env, context, 'start');
 }
 
-export function endLock(env: Env, lockId: string) {
-	return manageLock(env, lockId, 'finish');
+export function endLock(env: Env, context: CommandContext) {
+	return manageLock(env, context, 'finish');
 }
