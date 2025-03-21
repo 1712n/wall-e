@@ -3,18 +3,19 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
+		"cf-types": "wrangler types",
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
-		"start": "wrangler dev",
-		"test": "vitest",
 		"format:check": "prettier --check src/ test/",
-		"format:write": "prettier --write src/ test/"
+		"format:write": "prettier --write src/ test/",
+		"start": "wrangler dev",
+		"test": "vitest"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.6.4",
-		"@cloudflare/workers-types": "^4.20250214.0",
 		"@octokit/app": "^15.1.5",
 		"@octokit/webhooks": "^13.2.7",
+		"@types/node": "^22.13.10",
 		"prettier": "^3.3.2",
 		"typescript": "^5.5.2",
 		"vitest": "~2.1.9",

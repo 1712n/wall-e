@@ -126,13 +126,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workers-types@npm:^4.20250214.0":
-  version: 4.20250224.0
-  resolution: "@cloudflare/workers-types@npm:4.20250224.0"
-  checksum: 10c0/7227e0c6ca1e2d2eb1b32816a6bf7eef6ddd42ce65b7b95cdd98b0cdb82f7705250657a26d99c97da8be86939411d6526baec1b12acb1de0ae05de4861946a12
-  languageName: node
-  linkType: hard
-
 "@cspotcode/source-map-support@npm:0.8.1":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -1319,6 +1312,15 @@ __metadata:
   version: 1.0.5
   resolution: "@types/estree@npm:1.0.5"
   checksum: 10c0/b3b0e334288ddb407c7b3357ca67dbee75ee22db242ca7c56fe27db4e1a31989cb8af48a84dd401deb787fe10cc6b2ab1ee82dc4783be87ededbe3d53c79c70d
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.13.10":
+  version: 22.13.10
+  resolution: "@types/node@npm:22.13.10"
+  dependencies:
+    undici-types: "npm:~6.20.0"
+  checksum: 10c0/a3865f9503d6f718002374f7b87efaadfae62faa499c1a33b12c527cfb9fd86f733e1a1b026b80c5a0e4a965701174bc3305595a7d36078aa1abcf09daa5dee9
   languageName: node
   linkType: hard
 
@@ -3198,6 +3200,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"undici-types@npm:~6.20.0":
+  version: 6.20.0
+  resolution: "undici-types@npm:6.20.0"
+  checksum: 10c0/68e659a98898d6a836a9a59e6adf14a5d799707f5ea629433e025ac90d239f75e408e2e5ff086afc3cace26f8b26ee52155293564593fbb4a2f666af57fc59bf
+  languageName: node
+  linkType: hard
+
 "undici@npm:^5.28.4, undici@npm:^5.28.5":
   version: 5.28.5
   resolution: "undici@npm:5.28.5"
@@ -3378,9 +3387,9 @@ __metadata:
   resolution: "wall-e@workspace:."
   dependencies:
     "@cloudflare/vitest-pool-workers": "npm:^0.6.4"
-    "@cloudflare/workers-types": "npm:^4.20250214.0"
     "@octokit/app": "npm:^15.1.5"
     "@octokit/webhooks": "npm:^13.2.7"
+    "@types/node": "npm:^22.13.10"
     prettier: "npm:^3.3.2"
     typescript: "npm:^5.5.2"
     vitest: "npm:~2.1.9"
