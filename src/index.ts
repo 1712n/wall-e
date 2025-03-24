@@ -21,6 +21,7 @@ import { startLock, endLock } from './lock';
 export { Lock } from './lock';
 
 import * as prettier from 'prettier/standalone';
+import * as parserBabel from 'prettier/plugins/babel';
 import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as parserTypeScript from 'prettier/parser-typescript';
 
@@ -78,7 +79,7 @@ async function commitGeneratedCode(params: CommitGeneratedCodeParams) {
 
 	const formattedCode = await prettier.format(generatedCode, {
 		parser: language === 'js' ? 'babel' : 'typescript',
-		plugins: [prettierPluginEstree, parserTypeScript],
+		plugins: [prettierPluginEstree, parserTypeScript, parserBabel],
 	});
 	const extension = language === 'js' ? 'js' : 'ts';
 	const srcFilePath = ensurePath(basePath, `src/index.${extension}`);
