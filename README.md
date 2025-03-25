@@ -86,6 +86,7 @@ For more control, use optional parameters:
 #### Available Models
 
 - `gemini-2.0-pro-exp-02-05` (default, medium-size, search grounding disabled)
+- `gemini-2.5-pro-exp-03-25`
 - `gemini-2.0-flash` (small size, search grounding enabled)
 - `gemini-2.0-flash-thinking-exp-01-21` (small size, thinking, search grounding disabled)
 - `claude-3-5-sonnet-20241022`
