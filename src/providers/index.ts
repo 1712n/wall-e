@@ -22,6 +22,7 @@ export enum ModelName {
 	Gemini_Exp_Pro = 'gemini-2.0-pro-exp-02-05',
 	Gemini_Exp_Flash_Thinking = 'gemini-2.0-flash-thinking-exp-01-21',
 	Gemini_Flash = 'gemini-2.0-flash',
+	Gemini_2_5_Pro_Exp = 'gemini-2.5-pro-exp-03-25',
 }
 
 type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: ModelName[] }>;
@@ -29,7 +30,7 @@ type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: Mo
 export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.GoogleAi]: {
 		default: ModelName.Gemini_Exp_Pro,
-		models: [ModelName.Gemini_Flash, ModelName.Gemini_Exp_Pro, ModelName.Gemini_Exp_Flash_Thinking],
+		models: [ModelName.Gemini_Flash, ModelName.Gemini_Exp_Pro, ModelName.Gemini_Exp_Flash_Thinking, ModelName.Gemini_2_5_Pro_Exp],
 	},
 	[ModelProvider.Anthropic]: {
 		default: ModelName.Claude_3_7_Sonnet_20250219,
