@@ -38,7 +38,7 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 	},
 	[ModelProvider.OpenAI]: {
 		default: ModelName.GPT_o4_Mini,
-		models: [ModelName.GPT_4o, ModelName.GPT_o3, ModelName.GPT_o3_Mini],
+		models: [ModelName.GPT_4_1, ModelName.GPT_o3, ModelName.GPT_o3_Mini],
 	},
 	[ModelProvider.Unknown]: {},
 };
