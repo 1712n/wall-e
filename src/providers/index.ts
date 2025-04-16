@@ -15,7 +15,7 @@ export enum ModelName {
 	Claude_3_5_Sonnet_20241022 = 'claude-3-5-sonnet-20241022',
 	Claude_3_7_Sonnet_20250219 = 'claude-3-7-sonnet-20250219',
 	Claude_3_7_Sonnet_20250219_Thinking = 'claude-3-7-sonnet-20250219-thinking',
-	GPT_4o = 'gpt-4o-2024-11-20',
+	GPT_4_1 = 'gpt-4.1',
 	GPT_o4_Mini = "o4-mini-2025-04-16",
 	GPT_o3 = "o3-2025-04-16",
 	GPT_o3_Mini = 'o3-mini-2025-01-31',
