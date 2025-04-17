@@ -1,23 +1,32 @@
 import { ModelName, ProviderRequestParams, Role } from '.';
 
-interface OpenAIQuery {
+interface OpenAIMessagesQuery {
 	model: string;
 	stream: boolean;
-	messages?: {
-		role: Role;
-		content: string;
-	}[];
-	input?: {
+	messages: {
 		role: Role;
 		content: string;
 	}[];
 	max_completion_tokens?: number;
 	temperature?: number;
 	seed?: number;
+}
+
+interface OpenAIResponsesQuery {
+	model: string;
+	stream: boolean;
+	input: {
+		role: Role;
+		content: string;
+	}[];
+	instructions?: string;
+	temperature?: number;
 	reasoning?: {
 		effort: string;
 	};
 }
+
+type OpenAIQuery = OpenAIMessagesQuery | OpenAIResponsesQuery;
 
 interface OpenAIHeaders {
 	Authorization: string;
@@ -32,52 +41,76 @@ export interface OpenAIRequest {
 }
 
 export function openAiRequest({ model, apiKey, prompts, temperature, stream }: ProviderRequestParams): OpenAIRequest {
-	const { user } = prompts;
-
-	const query: OpenAIQuery = {
-		model,
-		stream,
-		/**
-		 * What sampling temperature to use, between 0 and 2.
-		 * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
-		 * https://platform.openai.com/docs/api-reference/chat/create#chat-create-temperature
-		 */
-		temperature: temperature * 2,
-		seed: 0,
-	};
+	const { user, system } = prompts;
 
 	if ([ModelName.GPT_o4_Mini, ModelName.GPT_o3].includes(model)) {
-		query.reasoning = {
-			effort: "high"
-		};
-		query.input = [
-			{
-				role: 'user',
-				content: user
+		// Use the responses API format
+		const query: OpenAIResponsesQuery = {
+			model,
+			stream,
+			/**
+			 * What sampling temperature to use, between 0 and 2.
+			 * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+			 */
+			temperature: temperature * 2,
+			input: [
+				{
+					role: 'user',
+					content: user
+				}
+			],
+			reasoning: {
+				effort: "high"
 			}
-		];
-	} else {
-		query.messages = [
-			{
-				role: 'system',
-				content: prompts.system,
-			},
-			{
-				role: 'user',
-				content: user,
-			},
-		];
-	}
+		};
 
-	return {
-		provider: 'openai',
-		endpoint: [ModelName.GPT_o4_Mini, ModelName.GPT_o3].includes(model) ? 'responses' : 'chat/completions',
-		headers: {
-			Authorization: `Bearer ${apiKey}`,
-			'Content-Type': 'application/json',
-		},
-		query,
-	};
+		// Add instructions (equivalent to system message)
+		if (system) {
+			query.instructions = system;
+		}
+
+		return {
+			provider: 'openai',
+			endpoint: 'responses',
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				'Content-Type': 'application/json',
+			},
+			query,
+		};
+	} else {
+		// Use the chat completions API format
+		const query: OpenAIMessagesQuery = {
+			model,
+			stream,
+			messages: [
+				{
+					role: 'system',
+					content: system,
+				},
+				{
+					role: 'user',
+					content: user,
+				},
+			],
+			/**
+			 * What sampling temperature to use, between 0 and 2.
+			 * Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+			 */
+			temperature: temperature * 2,
+			seed: 0,
+		};
+
+		return {
+			provider: 'openai',
+			endpoint: 'chat/completions',
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				'Content-Type': 'application/json',
+			},
+			query,
+		};
+	}
 }
 
 type OpenAISSE = {
