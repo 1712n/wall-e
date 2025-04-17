@@ -32,7 +32,7 @@ export interface OpenAIRequest {
 }
 
 export function openAiRequest({ model, apiKey, prompts, temperature, stream }: ProviderRequestParams): OpenAIRequest {
-	const { user, system } = prompts;
+	const { user } = prompts;
 
 	const query: OpenAIQuery = {
 		model,
@@ -41,30 +41,27 @@ export function openAiRequest({ model, apiKey, prompts, temperature, stream }: P
 		seed: 0,
 	};
 
-	switch (model) {
-		case ModelName.GPT_o4_Mini:
-		case ModelName.GPT_o3:
-			query.reasoning = {
-				effort: "high"
-			};
-			query.input = [
-				{
-					role: 'user',
-					content: user
-				}
-			];
-			break;
-		default:
-			query.messages = [
-				{
-					role: 'system',
-					content: system,
-				},
-				{
-					role: 'user',
-					content: user,
-				},
-			];
+	if ([ModelName.GPT_o4_Mini, ModelName.GPT_o3].includes(model)) {
+		query.reasoning = {
+			effort: "high"
+		};
+		query.input = [
+			{
+				role: 'user',
+				content: user
+			}
+		];
+	} else {
+		query.messages = [
+			{
+				role: 'system',
+				content: prompts.system,
+			},
+			{
+				role: 'user',
+				content: user,
+			},
+		];
 	}
 
 	return {
