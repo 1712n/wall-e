@@ -18,7 +18,6 @@ export enum ModelName {
 	GPT_4_1 = 'gpt-4.1',
 	GPT_o4_Mini = 'o4-mini-2025-04-16',
 	GPT_o3 = 'o3-2025-04-16',
-	GPT_o3_Mini = 'o3-mini-2025-01-31',
 	Gemini_Exp_Pro = 'gemini-2.0-pro-exp-02-05',
 	Gemini_Exp_Flash_Thinking = 'gemini-2.0-flash-thinking-exp-01-21',
 	Gemini_Flash = 'gemini-2.0-flash',
