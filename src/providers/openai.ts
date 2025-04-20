@@ -53,7 +53,7 @@ export function openAiRequest({ model, apiKey, prompts, temperature, stream }: P
 	switch (model) {
 		case ModelName.GPT_o4_Mini:
 		case ModelName.GPT_o3:
-			query.reasoning_effort = 'medium';
+			query.reasoning_effort = 'high';
 			break;
 	}
 
