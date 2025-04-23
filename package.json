@@ -9,7 +9,8 @@
 		"format:check": "prettier --check src/ test/",
 		"format:write": "prettier --write src/ test/",
 		"start": "wrangler dev",
-		"test": "vitest"
+		"test": "vitest",
+		"update:readme": "node scripts/update-readme.mjs"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.6.4",
