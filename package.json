@@ -9,7 +9,8 @@
 		"format:check": "prettier --check src/ test/",
 		"format:write": "prettier --write src/ test/",
 		"start": "wrangler dev",
-		"test": "vitest"
+		"test": "vitest",
+		"update:readme": "node scripts/update-readme.mjs"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.6.4",
@@ -17,6 +18,7 @@
 		"@octokit/webhooks": "^13.2.7",
 		"@types/node": "^22.13.10",
 		"prettier": "^3.3.2",
+		"ts-morph": "^25.0.1",
 		"typescript": "^5.5.2",
 		"vitest": "~2.1.9",
 		"wrangler": "^4.0.0"
