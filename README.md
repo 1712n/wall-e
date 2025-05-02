@@ -40,10 +40,11 @@ Install the bot by visiting the [GitHub App installation page](https://github.co
 
 1. On the app page, click "Install" in the top-right corner
 2. Select your organization or personal account where you'd like to install the app.
-3. Choose "All repositories" or select specific ones  where the bot should be active. 
+3. Choose "All repositories" or select specific ones where the bot should be active. 
 4. After selecting repositories, click "Install" again to finish.
 
 Once installed, the bot will automatically start working based on your repository configuration.
+
 ### Prerequisites
 
 #### 1. Set up your project
