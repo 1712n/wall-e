@@ -11,6 +11,7 @@
 - [Table of Contents](#table-of-contents)
 - [What's WALL-E?](#whats-wall-e)
 - [Usage](#usage)
+  - [Installing](#installing)
   - [Prerequisites](#prerequisites)
     - [1. Set up your project](#1-set-up-your-project)
     - [2. Create or update a Pull Request](#2-create-or-update-a-pull-request)
@@ -32,6 +33,28 @@
 WALL-E is a GitHub bot that supercharges spec-driven development through automated generation of Cloudflare Workers. Based on worker functional requirements and integration tests (Spec File), WALL-E creates corresponding worker code, streamlining the development process.
 
 ## Usage
+
+### Installing
+
+You can install the bot by visiting the [GitHub App installation page](https://github.com/apps/wall-e-dni). Here's how to do it:
+
+1. **Go to the GitHub App page**  
+   Open [https://github.com/apps/wall-e-dni](https://github.com/apps/wall-e-dni) in your browser.
+
+2. **Click "Install"**  
+   On the app page, click the **"Install"** button in the top-right corner.
+
+3. **Choose where to install**  
+   Select the organization or personal account where you'd like to install the app.
+
+4. **Select repositories**  
+   Choose **"All repositories"** or select specific ones where the bot should be active.
+
+5. **Complete the installation**  
+   After selecting repositories, click **"Install"** again to finish.
+
+Once installed, the bot will automatically start working based on your repository configuration.
+
 ### Prerequisites
 
 #### 1. Set up your project
