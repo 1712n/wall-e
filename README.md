@@ -36,25 +36,14 @@ WALL-E is a GitHub bot that supercharges spec-driven development through automat
 
 ### Installing
 
-You can install the bot by visiting the [GitHub App installation page](https://github.com/apps/wall-e-dni). Here's how to do it:
+Install the bot by visiting the [GitHub App installation page](https://github.com/apps/wall-e-dni) and follow these steps:
 
-1. **Go to the GitHub App page**  
-   Open [https://github.com/apps/wall-e-dni](https://github.com/apps/wall-e-dni) in your browser.
-
-2. **Click "Install"**  
-   On the app page, click the **"Install"** button in the top-right corner.
-
-3. **Choose where to install**  
-   Select the organization or personal account where you'd like to install the app.
-
-4. **Select repositories**  
-   Choose **"All repositories"** or select specific ones where the bot should be active.
-
-5. **Complete the installation**  
-   After selecting repositories, click **"Install"** again to finish.
+1. On the app page, click "Install" in the top-right corner
+2. Select your organization or personal account where you'd like to install the app.
+3. Choose "All repositories" or select specific ones  where the bot should be active. 
+4. After selecting repositories, click "Install" again to finish.
 
 Once installed, the bot will automatically start working based on your repository configuration.
-
 ### Prerequisites
 
 #### 1. Set up your project
