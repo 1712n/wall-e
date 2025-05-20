@@ -30,7 +30,7 @@ export enum ModelName {
 	 * Small size, search grounding enabled
 	 */
 	Gemini_Flash = 'gemini-2.0-flash',
-	Gemini_2_5_Pro_Exp = 'gemini-2.5-pro-exp-03-25',
+	Gemini_2_5_Pro_Exp = 'gemini-2.5-pro-preview-05-06',
 }
 
 type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: ModelName[] }>;
