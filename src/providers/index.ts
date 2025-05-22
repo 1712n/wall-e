@@ -12,9 +12,6 @@ export enum ModelProvider {
 }
 
 export enum ModelName {
-	Claude_3_5_Sonnet_20241022 = 'claude-3-5-sonnet-20241022',
-	Claude_3_7_Sonnet_20250219 = 'claude-3-7-sonnet-20250219',
-	Claude_3_7_Sonnet_20250219_Thinking = 'claude-3-7-sonnet-20250219-thinking',
 	Claude_4_Sonnet = 'claude-sonnet-4-20250514',
 	Claude_4_Opus = 'claude-opus-4-20250514',
 	GPT_4_1 = 'gpt-4.1',
@@ -43,8 +40,8 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 		models: [ModelName.Gemini_Flash, ModelName.Gemini_Exp_Pro, ModelName.Gemini_Exp_Flash_Thinking, ModelName.Gemini_2_5_Pro_Exp],
 	},
 	[ModelProvider.Anthropic]: {
-		default: ModelName.Claude_4_Sonnet,
-		models: [ModelName.Claude_4_Opus, ModelName.Claude_3_7_Sonnet_20250219, ModelName.Claude_3_5_Sonnet_20241022, ModelName.Claude_3_7_Sonnet_20250219, ModelName.Claude_3_7_Sonnet_20250219_Thinking],
+		default: ModelName.Claude_4_Opus,
+		models: [ModelName.Claude_4_Opus, ModelName.Claude_4_Sonnet],
 	},
 	[ModelProvider.OpenAI]: {
 		default: ModelName.GPT_o4_Mini,
