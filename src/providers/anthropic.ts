@@ -52,14 +52,12 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 		temperature,
 	};
 
-	if (model === ModelName.Claude_3_7_Sonnet_20250219_Thinking) {
-		headers['anthropic-beta'] = 'output-128k-2025-02-19';
+	if (model === ModelName.Claude_4_Sonnet || model === ModelName.Claude_4_Opus) {
 		query.max_tokens = 128_000;
 		query.thinking = {
 			type: 'enabled',
 			budget_tokens: 32_000,
 		};
-		query.model = ModelName.Claude_3_7_Sonnet_20250219;
 		query.temperature = 1; // Temperature may only be set to 1 when thinking is enabled
 	}
 
