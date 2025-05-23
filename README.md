@@ -103,7 +103,9 @@ For more control, use optional parameters:
 - `gemini-2.0-flash` (small size, search grounding enabled)
 - `gemini-2.0-flash-thinking-exp-01-21` (small size, thinking, search grounding disabled)
 - `claude-opus-4-20250514`
+- `claude-opus-4-20250514-thinking` (with thinking mode enabled)
 - `claude-sonnet-4-20250514`
+- `claude-sonnet-4-20250514-thinking` (with thinking mode enabled)
 - `gpt-4.1`
 - `o4-mini-2025-04-16`
 - `o3-2025-04-16`
