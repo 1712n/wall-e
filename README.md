@@ -105,6 +105,7 @@ For more control, use optional parameters:
 - `claude-opus-4-20250514`
 - `claude-opus-4-20250514-thinking` (with thinking mode enabled)
 - `claude-sonnet-4-20250514`
+- `claude-sonnet-4-20250514-thinking` (with thinking mode enabled)
 - `gpt-4.1`
 - `o4-mini-2025-04-16`
 - `o3-2025-04-16`

@@ -40,9 +40,11 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 
 	let actualModel = model;
 	
-	// Map thinking variant to base model
+	// Map thinking variants to base models
 	if (model === ModelName.Claude_4_Opus_thinking) {
 		actualModel = ModelName.Claude_4_Opus;
+	} else if (model === ModelName.Claude_4_Sonnet_thinking) {
+		actualModel = ModelName.Claude_4_Sonnet;
 	}
 
 	const query: AnthropicQuery = {
@@ -59,14 +61,14 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 		temperature,
 	};
 
-	if (model === ModelName.Claude_4_Sonnet || model === ModelName.Claude_4_Opus_thinking) {
+	if (model === ModelName.Claude_4_Sonnet_thinking || model === ModelName.Claude_4_Opus_thinking) {
 		query.max_tokens = 128_000;
 		query.thinking = {
 			type: 'enabled',
 			budget_tokens: 32_000,
 		};
 		query.temperature = 1; // Temperature may only be set to 1 when thinking is enabled
-	} else if (model === ModelName.Claude_4_Opus) {
+	} else if (model === ModelName.Claude_4_Opus || model === ModelName.Claude_4_Sonnet) {
 		query.max_tokens = 128_000;
 	}
 
