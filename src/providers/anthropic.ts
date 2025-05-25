@@ -47,9 +47,24 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 		actualModel = ModelName.Claude_4_Sonnet;
 	}
 
+	let max_tokens: number;
+	
+	// Explicitly configure max_tokens for each Claude 4 model
+	if (model === ModelName.Claude_4_Opus_thinking) {
+		max_tokens = 32_000;
+	} else if (model === ModelName.Claude_4_Sonnet_thinking) {
+		max_tokens = 64_000;
+	} else if (model === ModelName.Claude_4_Opus) {
+		max_tokens = 32_000;
+	} else if (model === ModelName.Claude_4_Sonnet) {
+		max_tokens = 64_000;
+	} else {
+		throw new Error(`Unsupported model: ${model}`);
+	}
+
 	const query: AnthropicQuery = {
 		model: actualModel,
-		max_tokens: 8_192,
+		max_tokens,
 		stream,
 		system,
 		messages: [
@@ -61,15 +76,20 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 		temperature,
 	};
 
+	// Configure thinking mode for thinking models
 	if (model === ModelName.Claude_4_Sonnet_thinking || model === ModelName.Claude_4_Opus_thinking) {
-		query.max_tokens = 128_000;
-		query.thinking = {
-			type: 'enabled',
-			budget_tokens: 32_000,
-		};
-		query.temperature = 1; // Temperature may only be set to 1 when thinking is enabled
-	} else if (model === ModelName.Claude_4_Opus || model === ModelName.Claude_4_Sonnet) {
-		query.max_tokens = 128_000;
+		if (model === ModelName.Claude_4_Opus_thinking) {
+			query.thinking = {
+				type: 'enabled',
+				budget_tokens: 20_000,  
+			};
+		} else {
+			query.thinking = {
+				type: 'enabled',
+				budget_tokens: 32_000, 
+			};
+		}
+		query.temperature = 1;
 	}
 
 	return {
