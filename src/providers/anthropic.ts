@@ -62,15 +62,25 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 	};
 
 	if (model === ModelName.Claude_4_Sonnet_thinking || model === ModelName.Claude_4_Opus_thinking) {
-		query.max_tokens = 128_000;
-		query.thinking = {
-			type: 'enabled',
-			budget_tokens: 32_000,
-		};
-		query.temperature = 1; // Temperature may only be set to 1 when thinking is enabled
-	} else if (model === ModelName.Claude_4_Opus || model === ModelName.Claude_4_Sonnet) {
-		query.max_tokens = 128_000;
-	}
+    if (model === ModelName.Claude_4_Opus_thinking) {
+        query.max_tokens = 32_000; 
+        query.thinking = {
+            type: 'enabled',
+            budget_tokens: 20_000,  
+        };
+    } else {
+        query.max_tokens = 64_000;
+        query.thinking = {
+            type: 'enabled',
+            budget_tokens: 32_000, 
+        };
+    }
+    query.temperature = 1;
+} else if (model === ModelName.Claude_4_Opus) {
+    query.max_tokens = 32_000;
+} else if (model === ModelName.Claude_4_Sonnet) {
+    query.max_tokens = 64_000;
+}
 
 	return {
 		provider: 'anthropic',
