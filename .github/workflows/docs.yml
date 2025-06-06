@@ -2,7 +2,7 @@ name: Update README
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened, reopened, synchronize]
     branches:
       - main
     paths:
@@ -11,15 +11,17 @@ on:
 
 jobs:
   update-readme:
-    if: github.event.pull_request.merged == true
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: main
+          # Check out the PR’s HEAD (not the merge commit)
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -33,7 +35,7 @@ jobs:
       - name: Update README
         run: npm run update:readme
 
-      - name: Push changes (if any)
+      - name: Commit & push README changes (if any)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -42,7 +44,7 @@ jobs:
           if [ -n "$(git status --porcelain README.md)" ]; then
             git add README.md
             git commit -m "chore: update README"
-            git push origin main
+            git push origin HEAD
           else
             echo "No changes to README.md. Skipping commit."
           fi
