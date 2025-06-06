@@ -22,8 +22,8 @@ const providedEnv = {
 			fetch: vi.fn((url: string, init: RequestInit) => ({
 				ok: true,
 			})),
-		}))
-	}
+		})),
+	},
 };
 
 describe('Unit tests for prompt functions', () => {

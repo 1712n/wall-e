@@ -48,9 +48,9 @@ describe('Anthropic provider', () => {
 		expect(request.query.model).toBe(ModelName.Claude_4_Opus); // Should map to base model
 		expect(request.query.thinking).toBeDefined();
 		expect(request.query.thinking?.type).toBe('enabled');
-		expect(request.query.thinking?.budget_tokens).toBe(32_000);
+		expect(request.query.thinking?.budget_tokens).toBe(20_000);
 		expect(request.query.temperature).toBe(1); // Should be forced to 1 for thinking
-		expect(request.query.max_tokens).toBe(128_000);
+		expect(request.query.max_tokens).toBe(32_000);
 	});
 
 	it('should build a valid request for Claude 4 Sonnet model without thinking', () => {
@@ -73,7 +73,7 @@ describe('Anthropic provider', () => {
 		expect(request.query.model).toBe(ModelName.Claude_4_Sonnet);
 		expect(request.query.thinking).toBeUndefined(); // Should not have thinking enabled
 		expect(request.query.temperature).toBe(0.5); // Should preserve user temperature
-		expect(request.query.max_tokens).toBe(128_000);
+		expect(request.query.max_tokens).toBe(64_000);
 	});
 
 	it('should build a valid request for Claude 4 Sonnet thinking model', () => {
@@ -98,7 +98,7 @@ describe('Anthropic provider', () => {
 		expect(request.query.thinking?.type).toBe('enabled');
 		expect(request.query.thinking?.budget_tokens).toBe(32_000);
 		expect(request.query.temperature).toBe(1); // Should be forced to 1 for thinking
-		expect(request.query.max_tokens).toBe(128_000);
+		expect(request.query.max_tokens).toBe(64_000);
 	});
 });
 
