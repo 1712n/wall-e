@@ -92,23 +92,23 @@ For more control, use optional parameters:
 
 #### Available Providers
 
-- `googleai` (default)
 - `anthropic`
 - `openai`
+- `googleai`
 
 #### Available Models
 
-- `gemini-2.0-pro-exp-02-05` (medium-size, search grounding disabled)
-- `gemini-2.5-pro-preview-06-05` (default)
-- `gemini-2.0-flash` (small size, search grounding enabled)
-- `gemini-2.0-flash-thinking-exp-01-21` (small size, thinking, search grounding disabled)
-- `claude-opus-4-20250514`
-- `claude-opus-4-20250514-thinking` (with thinking mode enabled)
 - `claude-sonnet-4-20250514`
-- `claude-sonnet-4-20250514-thinking` (with thinking mode enabled)
+- `claude-sonnet-4-20250514-thinking`
+- `claude-opus-4-20250514`
+- `claude-opus-4-20250514-thinking`
 - `gpt-4.1`
 - `o4-mini-2025-04-16`
-- `o3-2025-04-16`
+- `o3-pro-2025-06-10`
+- `gemini-2.0-pro-exp-02-05` (Medium-size, search grounding disabled)
+- `gemini-2.0-flash-thinking-exp-01-21` (Small size, thinking, search grounding disabled)
+- `gemini-2.0-flash` (Small size, search grounding enabled)
+- `gemini-2.5-pro-preview-06-05`
 
 #### Improve Feature
 
