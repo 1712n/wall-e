@@ -18,7 +18,7 @@ export enum ModelName {
 	Claude_4_Opus_thinking = 'claude-opus-4-20250514-thinking',
 	GPT_4_1 = 'gpt-4.1',
 	GPT_o4_Mini = 'o4-mini-2025-04-16',
-	GPT_o3 = 'o3-2025-04-16',
+	GPT_o3_Pro = 'o3-pro-2025-06-10',
 	/**
 	 * Medium-size, search grounding disabled
 	 */
@@ -47,7 +47,7 @@ export const MODEL_PROVIDERS: ModelProviderMap = {
 	},
 	[ModelProvider.OpenAI]: {
 		default: ModelName.GPT_o4_Mini,
-		models: [ModelName.GPT_4_1, ModelName.GPT_o3, ModelName.GPT_o4_Mini],
+		models: [ModelName.GPT_4_1, ModelName.GPT_o3_Pro , ModelName.GPT_o4_Mini],
 	},
 	[ModelProvider.Unknown]: {},
 };
