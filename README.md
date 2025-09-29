@@ -85,8 +85,8 @@ For more control, use optional parameters:
 | Parameter     | Aliases | Description                                    | Default                  |
 | ------------- | ------- | ---------------------------------------------- | ------------------------ |
 | `path`        |         | custom path to a worker dir                    | repository root          |
-| `provider`    |         | provider for code generation                   | googleai                 |
-| `model`       |         | model name from the provider                   | gemini-2.5-pro-preview-06-05 |
+| `provider`    |         | provider for code generation                   | anthropic                |
+| `model`       |         | model name from the provider                   | claude-sonnet-4-5-20250929 |
 | `temperature` | `temp`  | model temperature setting (0-1)                | 0.5                      |
 | `fallback`    |         | whether or not you want to use fallback models | true                     |
 
