@@ -19,35 +19,26 @@ export enum ModelName {
 	GPT_4_1 = 'gpt-4.1',
 	GPT_o4_Mini = 'o4-mini-2025-04-16',
 	GPT_o3_Pro = 'o3-pro-2025-06-10',
-	/**
-	 * Medium-size, search grounding disabled
-	 */
-	Gemini_Exp_Pro = 'gemini-2.0-pro-exp-02-05',
-	/**
-	 * Small size, thinking, search grounding disabled
-	 */
-	Gemini_Exp_Flash_Thinking = 'gemini-2.0-flash-thinking-exp-01-21',
-	/**
-	 * Small size, search grounding enabled
-	 */
-	Gemini_Flash = 'gemini-2.0-flash',
-	Gemini_2_5_Pro_Exp = 'gemini-2.5-pro-preview-06-05',
+	Gemini_2_5_Pro = 'gemini-2.5-pro',
+	Gemini_2_5_Flash = 'gemini-2.5-flash',
 }
 
 type ModelProviderMap = Record<ModelProvider, { default?: ModelName; models?: ModelName[] }>;
 
 export const MODEL_PROVIDERS: ModelProviderMap = {
 	[ModelProvider.GoogleAi]: {
-		default: ModelName.Gemini_2_5_Pro_Exp,
-		models: [ModelName.Gemini_Flash, ModelName.Gemini_Exp_Pro, ModelName.Gemini_Exp_Flash_Thinking, ModelName.Gemini_2_5_Pro_Exp],
+		default: ModelName.Gemini_2_5_Pro,
+		models: [ModelName.Gemini_2_5_Pro, ModelName.Gemini_2_5_Flash],
 	},
 	[ModelProvider.Anthropic]: {
-		default: ModelName.Claude_4_Opus,
-		models: [ModelName.Claude_4_Opus, ModelName.Claude_4_Opus_thinking, ModelName.Claude_4_Sonnet, ModelName.Claude_4_Sonnet_thinking],
+		default: ModelName.Claude_4_5_Sonnet,
+		models: [
+			ModelName.Claude_4_Opus, ModelName.Claude_4_Opus_thinking, ModelName.Claude_4_5_Sonnet, ModelName.Claude_4_5_Sonnet_thinking
+		],
 	},
 	[ModelProvider.OpenAI]: {
 		default: ModelName.GPT_o4_Mini,
-		models: [ModelName.GPT_4_1, ModelName.GPT_o3_Pro , ModelName.GPT_o4_Mini],
+		models: [ModelName.GPT_4_1, ModelName.GPT_o3_Pro, ModelName.GPT_o4_Mini],
 	},
 	[ModelProvider.Unknown]: {},
 };
