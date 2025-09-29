@@ -12,8 +12,8 @@ export enum ModelProvider {
 }
 
 export enum ModelName {
-	Claude_4_Sonnet = 'claude-sonnet-4-5-20250929',
-	Claude_4_Sonnet_thinking = 'claude-sonnet-4-5-20250929-thinking',
+	Claude_4_5_Sonnet = 'claude-sonnet-4-5-20250929',
+	Claude_4_5_Sonnet_thinking = 'claude-sonnet-4-5-20250929-thinking',
 	Claude_4_Opus = 'claude-opus-4-1-20250805',
 	Claude_4_Opus_thinking = 'claude-opus-4-1-20250805-thinking',
 	GPT_4_1 = 'gpt-4.1',
