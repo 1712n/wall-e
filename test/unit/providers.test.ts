@@ -105,7 +105,7 @@ describe('Anthropic provider', () => {
 describe('Google AI provider', () => {
 	it('should build a valid request for Google AI Studio provider', () => {
 		const params: ProviderRequestParams = {
-			model: ModelName.Gemini_Exp_Pro,
+			model: ModelName.Gemini_2_5_Pro,
 			apiKey: 'test-api-key',
 			prompts: {
 				user: 'Test user prompt',
@@ -118,7 +118,7 @@ describe('Google AI provider', () => {
 		const request = googleAIStudioRequest(params);
 
 		expect(request.provider).toBe('google-ai-studio');
-		expect(request.endpoint).toBe(`v1beta/models/${ModelName.Gemini_Exp_Pro}:streamGenerateContent`);
+		expect(request.endpoint).toBe(`v1beta/models/${ModelName.Gemini_2_5_Pro}:streamGenerateContent`);
 		expect(request.headers['x-goog-api-key']).toBe('test-api-key');
 		expect(request.query.contents[0].parts[0].text).toBe('Test user prompt');
 		expect(request.query.systemInstruction.parts[0].text).toBe('Test system prompt');
