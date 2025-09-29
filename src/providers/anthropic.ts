@@ -43,8 +43,8 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 	// Map thinking variants to base models
 	if (model === ModelName.Claude_4_Opus_thinking) {
 		actualModel = ModelName.Claude_4_Opus;
-	} else if (model === ModelName.Claude_4_Sonnet_thinking) {
-		actualModel = ModelName.Claude_4_Sonnet;
+	} else if (model === ModelName.Claude_4_5_Sonnet_thinking) {
+		actualModel = ModelName.Claude_4_5_Sonnet;
 	}
 
 	let max_tokens: number;
@@ -52,11 +52,11 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 	// Explicitly configure max_tokens for each Claude 4 model
 	if (model === ModelName.Claude_4_Opus_thinking) {
 		max_tokens = 32_000;
-	} else if (model === ModelName.Claude_4_Sonnet_thinking) {
+	} else if (model === ModelName.Claude_4_5_Sonnet_thinking) {
 		max_tokens = 64_000;
 	} else if (model === ModelName.Claude_4_Opus) {
 		max_tokens = 32_000;
-	} else if (model === ModelName.Claude_4_Sonnet) {
+	} else if (model === ModelName.Claude_4_5_Sonnet) {
 		max_tokens = 64_000;
 	} else {
 		throw new Error(`Unsupported model: ${model}`);
@@ -77,7 +77,7 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 	};
 
 	// Configure thinking mode for thinking models
-	if (model === ModelName.Claude_4_Sonnet_thinking || model === ModelName.Claude_4_Opus_thinking) {
+	if (model === ModelName.Claude_4_5_Sonnet_thinking || model === ModelName.Claude_4_Opus_thinking) {
 		if (model === ModelName.Claude_4_Opus_thinking) {
 			query.thinking = {
 				type: 'enabled',

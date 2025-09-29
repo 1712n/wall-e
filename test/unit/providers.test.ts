@@ -55,7 +55,7 @@ describe('Anthropic provider', () => {
 
 	it('should build a valid request for Claude 4 Sonnet model without thinking', () => {
 		const params: ProviderRequestParams = {
-			model: ModelName.Claude_4_Sonnet,
+			model: ModelName.Claude_4_5_Sonnet,
 			apiKey: 'test-api-key',
 			prompts: {
 				user: 'Test user prompt',
@@ -70,7 +70,7 @@ describe('Anthropic provider', () => {
 		expect(request.provider).toBe('anthropic');
 		expect(request.endpoint).toBe('v1/messages');
 		expect(request.headers['x-api-key']).toBe('test-api-key');
-		expect(request.query.model).toBe(ModelName.Claude_4_Sonnet);
+		expect(request.query.model).toBe(ModelName.Claude_4_5_Sonnet);
 		expect(request.query.thinking).toBeUndefined(); // Should not have thinking enabled
 		expect(request.query.temperature).toBe(0.5); // Should preserve user temperature
 		expect(request.query.max_tokens).toBe(64_000);
@@ -78,7 +78,7 @@ describe('Anthropic provider', () => {
 
 	it('should build a valid request for Claude 4 Sonnet thinking model', () => {
 		const params: ProviderRequestParams = {
-			model: ModelName.Claude_4_Sonnet_thinking,
+			model: ModelName.Claude_4_5_Sonnet_thinking,
 			apiKey: 'test-api-key',
 			prompts: {
 				user: 'Test user prompt',
@@ -93,7 +93,7 @@ describe('Anthropic provider', () => {
 		expect(request.provider).toBe('anthropic');
 		expect(request.endpoint).toBe('v1/messages');
 		expect(request.headers['x-api-key']).toBe('test-api-key');
-		expect(request.query.model).toBe(ModelName.Claude_4_Sonnet); // Should map to base model
+		expect(request.query.model).toBe(ModelName.Claude_4_5_Sonnet); // Should map to base model
 		expect(request.query.thinking).toBeDefined();
 		expect(request.query.thinking?.type).toBe('enabled');
 		expect(request.query.thinking?.budget_tokens).toBe(32_000);
