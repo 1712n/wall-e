@@ -130,7 +130,7 @@ describe('Google AI provider', () => {
 
 		const parsedResponse = googleGeminiParsedResponse(response);
 		expect(parsedResponse).toBeDefined();
-		expect(parsedResponse.model).toBe('gemini-2.0-pro-exp-02-05');
+		expect(parsedResponse.model).toBe('gemini-2.5-pro');
 		expect(parsedResponse.metaData).toMatchObject([]);
 	});
 });
