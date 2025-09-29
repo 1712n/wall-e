@@ -98,8 +98,8 @@ For more control, use optional parameters:
 
 #### Available Models
 
-- `claude-sonnet-4-20250514`
-- `claude-sonnet-4-20250514-thinking`
+- `claude-sonnet-4-5-20250929`
+- `claude-sonnet-4-5-20250929-thinking`
 - `claude-opus-4-1-20250805`
 - `claude-opus-4-1-20250805-thinking`
 - `gpt-4.1`
