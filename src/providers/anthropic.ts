@@ -45,16 +45,7 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 		actualModel = ModelName.Claude_4_5_Sonnet;
 	}
 
-	let max_tokens: number;
-	
-	// Explicitly configure max_tokens for each Claude 4 model
-	if (model === ModelName.Claude_4_5_Sonnet_thinking) {
-		max_tokens = 32_000;
-	} else if (model === ModelName.Claude_4_5_Sonnet) {
-		max_tokens = 64_000;
-	} else {
-		throw new Error(`Unsupported model: ${model}`);
-	}
+	const max_tokens = 64_000;
 
 	const query: AnthropicQuery = {
 		model: actualModel,
