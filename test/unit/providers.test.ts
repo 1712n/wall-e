@@ -7,7 +7,7 @@ import { ModelName, ProviderRequestParams } from '../../src/providers';
 describe('Anthropic provider', () => {
 	it('should build a valid request for Anthropic provider', () => {
 		const params: ProviderRequestParams = {
-			model: ModelName.Claude_4_Opus,
+			model: ModelName.Claude_4_5_Sonnet,
 			apiKey: 'test-api-key',
 			prompts: {
 				user: 'Test user prompt',
@@ -22,38 +22,13 @@ describe('Anthropic provider', () => {
 		expect(request.provider).toBe('anthropic');
 		expect(request.endpoint).toBe('v1/messages');
 		expect(request.headers['x-api-key']).toBe('test-api-key');
-		expect(request.query.model).toBe(ModelName.Claude_4_Opus);
+		expect(request.query.model).toBe(ModelName.Claude_4_5_Sonnet);
 		expect(request.query.messages[0].content).toBe('Test user prompt');
 		expect(request.query.system).toBe('Test system prompt');
 		expect(request.query.temperature).toBe(0.5);
 	});
 
-	it('should build a valid request for Claude 4 Opus thinking model', () => {
-		const params: ProviderRequestParams = {
-			model: ModelName.Claude_4_Opus_thinking,
-			apiKey: 'test-api-key',
-			prompts: {
-				user: 'Test user prompt',
-				system: 'Test system prompt',
-			},
-			temperature: 0.5,
-			stream: true,
-		};
-
-		const request = anthropicRequest(params);
-
-		expect(request.provider).toBe('anthropic');
-		expect(request.endpoint).toBe('v1/messages');
-		expect(request.headers['x-api-key']).toBe('test-api-key');
-		expect(request.query.model).toBe(ModelName.Claude_4_Opus); // Should map to base model
-		expect(request.query.thinking).toBeDefined();
-		expect(request.query.thinking?.type).toBe('enabled');
-		expect(request.query.thinking?.budget_tokens).toBe(20_000);
-		expect(request.query.temperature).toBe(1); // Should be forced to 1 for thinking
-		expect(request.query.max_tokens).toBe(32_000);
-	});
-
-	it('should build a valid request for Claude 4 Sonnet model without thinking', () => {
+	it('should build a valid request for Claude 4.5 Sonnet model without thinking', () => {
 		const params: ProviderRequestParams = {
 			model: ModelName.Claude_4_5_Sonnet,
 			apiKey: 'test-api-key',
@@ -76,7 +51,7 @@ describe('Anthropic provider', () => {
 		expect(request.query.max_tokens).toBe(64_000);
 	});
 
-	it('should build a valid request for Claude 4 Sonnet thinking model', () => {
+	it('should build a valid request for Claude 4.5 Sonnet thinking model', () => {
 		const params: ProviderRequestParams = {
 			model: ModelName.Claude_4_5_Sonnet_thinking,
 			apiKey: 'test-api-key',
