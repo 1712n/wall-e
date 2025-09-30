@@ -85,8 +85,8 @@ For more control, use optional parameters:
 | Parameter     | Aliases | Description                                    | Default                  |
 | ------------- | ------- | ---------------------------------------------- | ------------------------ |
 | `path`        |         | custom path to a worker dir                    | repository root          |
-| `provider`    |         | provider for code generation                   | googleai                 |
-| `model`       |         | model name from the provider                   | gemini-2.5-pro-preview-06-05 |
+| `provider`    |         | provider for code generation                   | anthropic                |
+| `model`       |         | model name from the provider                   | claude-sonnet-4-5-20250929 |
 | `temperature` | `temp`  | model temperature setting (0-1)                | 0.5                      |
 | `fallback`    |         | whether or not you want to use fallback models | true                     |
 
@@ -98,17 +98,13 @@ For more control, use optional parameters:
 
 #### Available Models
 
-- `claude-sonnet-4-20250514`
-- `claude-sonnet-4-20250514-thinking`
-- `claude-opus-4-1-20250805`
-- `claude-opus-4-1-20250805-thinking`
+- `claude-sonnet-4-5-20250929`
+- `claude-sonnet-4-5-20250929-thinking`
 - `gpt-4.1`
 - `o4-mini-2025-04-16`
 - `o3-pro-2025-06-10`
-- `gemini-2.0-pro-exp-02-05` (Medium-size, search grounding disabled)
-- `gemini-2.0-flash-thinking-exp-01-21` (Small size, thinking, search grounding disabled)
-- `gemini-2.0-flash` (Small size, search grounding enabled)
-- `gemini-2.5-pro-preview-06-05`
+- `gemini-2.5-pro`
+- `gemini-2.5-flash`
 
 #### Improve Feature
 

@@ -18,7 +18,7 @@
 			"candidatesTokenCount": 4,
 			"totalTokenCount": 2635
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -39,7 +39,7 @@
 			"candidatesTokenCount": 18,
 			"totalTokenCount": 2649
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -60,7 +60,7 @@
 			"candidatesTokenCount": 34,
 			"totalTokenCount": 2665
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -81,7 +81,7 @@
 			"candidatesTokenCount": 66,
 			"totalTokenCount": 2697
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -102,7 +102,7 @@
 			"candidatesTokenCount": 99,
 			"totalTokenCount": 2730
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -123,7 +123,7 @@
 			"candidatesTokenCount": 149,
 			"totalTokenCount": 2780
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -144,7 +144,7 @@
 			"candidatesTokenCount": 197,
 			"totalTokenCount": 2828
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -165,7 +165,7 @@
 			"candidatesTokenCount": 262,
 			"totalTokenCount": 2893
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -186,7 +186,7 @@
 			"candidatesTokenCount": 327,
 			"totalTokenCount": 2958
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -207,7 +207,7 @@
 			"candidatesTokenCount": 392,
 			"totalTokenCount": 3023
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -228,7 +228,7 @@
 			"candidatesTokenCount": 456,
 			"totalTokenCount": 3087
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -249,7 +249,7 @@
 			"candidatesTokenCount": 519,
 			"totalTokenCount": 3150
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -270,7 +270,7 @@
 			"candidatesTokenCount": 584,
 			"totalTokenCount": 3215
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -291,7 +291,7 @@
 			"candidatesTokenCount": 650,
 			"totalTokenCount": 3281
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -312,7 +312,7 @@
 			"candidatesTokenCount": 716,
 			"totalTokenCount": 3347
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -333,7 +333,7 @@
 			"candidatesTokenCount": 779,
 			"totalTokenCount": 3410
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -354,7 +354,7 @@
 			"candidatesTokenCount": 844,
 			"totalTokenCount": 3475
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -375,7 +375,7 @@
 			"candidatesTokenCount": 910,
 			"totalTokenCount": 3541
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -396,7 +396,7 @@
 			"candidatesTokenCount": 974,
 			"totalTokenCount": 3605
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	},
 	{
 		"candidates": [
@@ -428,6 +428,6 @@
 			"candidatesTokenCount": 1013,
 			"totalTokenCount": 3644
 		},
-		"modelVersion": "gemini-2.0-pro-exp-02-05"
+		"modelVersion": "gemini-2.5-pro"
 	}
 ]

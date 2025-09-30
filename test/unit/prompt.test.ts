@@ -65,7 +65,7 @@ describe('Unit tests for prompt functions', () => {
 	describe('sendPrompt', () => {
 		it('should throw SendPromptError on request failure', async () => {
 			const params = {
-				model: ModelName.Gemini_Exp_Pro,
+				model: ModelName.Gemini_2_5_Pro,
 				prompts: {
 					system: 'system message',
 					user: 'user message',
