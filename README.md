@@ -25,6 +25,7 @@
   - [Prompt](#prompt)
     - [Instructions](#instructions)
     - [`test/index.spec.ts`](#testindexspects)
+- [Showcase](#showcase)
 - [Code quality](#code-quality)
   - [Human vs machine](#human-vs-machine)
 
