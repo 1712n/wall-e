@@ -101,6 +101,8 @@ For more control, use optional parameters:
 
 - `claude-sonnet-4-5-20250929`
 - `claude-sonnet-4-5-20250929-thinking`
+- `claude-opus-4-5-20251101`
+- `claude-opus-4-5-20251101-thinking`
 - `gpt-4.1`
 - `o4-mini-2025-04-16`
 - `o3-pro-2025-06-10`
