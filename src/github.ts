@@ -205,10 +205,18 @@ export class GitHub {
 
 		if (result.status !== 200) {
 			this.app.log.error('Failed to get main branch files', result);
-			return undefined;
+			return;
 		}
 
-		return result.data as { sha: string; name: string; path: string };
+		if (Array.isArray(result.data)) {
+			return;
+		}
+
+		if (result.data.type !== 'file') {
+			return;
+		}
+
+		return result.data;
 	}
 
 	public async listPullRequestFiles({ owner, repo, issueNumber }: CommandContext) {
@@ -224,7 +232,7 @@ export class GitHub {
 			return [];
 		}
 
-		return result.data as { filename: string; sha: string }[];
+		return result.data.map((file) => ({ filename: file.filename, sha: file.sha, status: file.status }));
 	}
 
 	public async fetchFileContents({ owner, repo }: CommandContext, sha: string) {
@@ -237,7 +245,7 @@ export class GitHub {
 
 		if (result.status !== 200) {
 			this.app.log.error('Failed to get file contents', result);
-			return '';
+			return;
 		}
 
 		return Buffer.from(result.data.content, 'base64').toString('utf8');

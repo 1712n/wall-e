@@ -44,6 +44,9 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 	if (model === ModelName.Claude_4_5_Sonnet_thinking) {
 		actualModel = ModelName.Claude_4_5_Sonnet;
 	}
+	if (model === ModelName.Claude_Opus_4_5_thinking) {
+		actualModel = ModelName.Claude_Opus_4_5;
+	}
 
 	const max_tokens = 64_000;
 
@@ -61,8 +64,8 @@ export function anthropicRequest({ model, prompts, apiKey, stream, temperature }
 		temperature,
 	};
 
-	// Configure thinking mode for Claude 4.5 Sonnet thinking model
-	if (model === ModelName.Claude_4_5_Sonnet_thinking) {
+	// Configure thinking mode for thinking models
+	if (model === ModelName.Claude_4_5_Sonnet_thinking || model === ModelName.Claude_Opus_4_5_thinking) {
 		query.thinking = {
 			type: 'enabled',
 			budget_tokens: 32_000,

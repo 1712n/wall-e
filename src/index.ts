@@ -218,8 +218,15 @@ export default {
 							const tsSpecFilePath = ensurePath(basePath, 'test/index.spec.ts');
 							const jsSpecFilePath = ensurePath(basePath, 'test/index.spec.js');
 
-							const tsSpecFile = changedFiles.find((file) => file.filename === tsSpecFilePath);
-							const jsSpecFile = changedFiles.find((file) => file.filename === jsSpecFilePath);
+							const isValidSpecFile = (file: (typeof changedFiles)[number]) =>
+								file.status !== 'removed' && file.status !== 'renamed';
+
+							const tsSpecFile = changedFiles.find(
+								(file) => file.filename === tsSpecFilePath && isValidSpecFile(file),
+							);
+							const jsSpecFile = changedFiles.find(
+								(file) => file.filename === jsSpecFilePath && isValidSpecFile(file),
+							);
 
 							// Determine language and file based on what was found
 							let specFile;
@@ -242,6 +249,11 @@ export default {
 							}
 
 							const specFileContent = await github.fetchFileContents(context, specFile.sha);
+							if (!specFileContent) {
+								const body = `Unable to fetch the contents of the spec file. Please try again.`;
+								await github.postComment(context, body, workingCommentId);
+								return;
+							}
 
 							// Analyze the spec file to check for conflicts with Best Practices
 							const analyzeSpecFilePrompts = buildPromptForAnalyzeSpecFile(specFileContent);
@@ -331,11 +343,19 @@ export default {
 							const pullRequestFiles = await github.listPullRequestFiles(context);
 
 							// Look for both TS and JS spec files
+							// Filter out deleted/renamed files to handle partial renames between TS and JS
 							const tsSpecFilePath = ensurePath(basePath, 'test/index.spec.ts');
 							const jsSpecFilePath = ensurePath(basePath, 'test/index.spec.js');
 
-							const tsSpecFile = pullRequestFiles.find((file) => file.filename === tsSpecFilePath);
-							const jsSpecFile = pullRequestFiles.find((file) => file.filename === jsSpecFilePath);
+							const isValidSpecFile = (file: (typeof pullRequestFiles)[number]) =>
+								file.status !== 'removed' && file.status !== 'renamed';
+
+							const tsSpecFile = pullRequestFiles.find(
+								(file) => file.filename === tsSpecFilePath && isValidSpecFile(file),
+							);
+							const jsSpecFile = pullRequestFiles.find(
+								(file) => file.filename === jsSpecFilePath && isValidSpecFile(file),
+							);
 
 							// Determine language and file based on what was found
 							let specFile;
@@ -391,6 +411,7 @@ export default {
 								indexFile = {
 									...existingIndexFile,
 									filename: existingIndexFile.name,
+									status: 'unchanged'
 								};
 
 								// Determine language based on the file extension if we found a file
@@ -402,8 +423,13 @@ export default {
 							}
 
 							// Fetch the contents of the spec file and index file
-							const specFileContent = await github.fetchFileContents(context, specFile.sha);
-							const indexFileContent = await github.fetchFileContents(context, indexFile!.sha);
+							const specFileContent = await github.fetchFileContents(context, specFile.sha) ?? '';
+							const indexFileContent = await github.fetchFileContents(context, indexFile.sha);
+							if (!indexFileContent) {
+								const body = `Unable to fetch the contents of the index file. Please try again.`;
+								await github.postComment(context, body, workingCommentId);
+								return;
+							}
 
 							const reviewerFeedback = command.extra;
 							if (!reviewerFeedback) {
