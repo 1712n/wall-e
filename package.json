@@ -21,7 +21,7 @@
 		"ts-morph": "^25.0.1",
 		"typescript": "^5.5.2",
 		"vitest": "~2.1.9",
-		"wrangler": "^4.0.0"
+		"wrangler": "^4.59.1"
 	},
 	"packageManager": "yarn@4.2.2"
 }
