@@ -1,0 +1,35 @@
+# Experiment Log Caller workflow - Maintains a human-readable scientific experiment log (`experiment-log.md`) by daily synthesising repository activity into attribution-rich prose entries via Gemini, committed to a dedicated branch and surfaced through a pull request. Place this file in each target repository at .github/workflows/experiment-log.yml
+
+name: Experiment Log Generator
+
+on:
+  schedule:
+    - cron: '12 4 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: experiment-log
+  cancel-in-progress: false
+
+jobs:
+  generate-log:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      issues: read
+      pull-requests: write
+      discussions: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Run Experiment Log Action
+        uses: 1712n/experiment-log-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          experiment_log_token: ${{ secrets.EXPERIMENT_LOG_TOKEN }}
